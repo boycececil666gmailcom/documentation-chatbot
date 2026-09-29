@@ -17,9 +17,9 @@ resource "kubernetes_ingress_v1" "rag_ingress" {
 
           backend {
             service {
-              name = kubernetes_service.gateway_service.metadata[0].name
+              name = kubernetes_service.backend_service.metadata[0].name
               port {
-                number = 8080
+                number = 80
               }
             }
           }

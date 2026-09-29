@@ -1,13 +1,28 @@
 # region App Setup
 import uvicorn
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 
 from . import vector_db
 from .agent_flow import agent_graph
-from .config import BACKEND_HOST, BACKEND_PORT, OPENROUTER_MODEL
+from .config import (
+    ALLOW_CREDENTIALS,
+    ALLOWED_ORIGINS,
+    BACKEND_HOST,
+    BACKEND_PORT,
+    OPENROUTER_MODEL,
+)
 from .models import QueryRequest, QueryResponse
 
 app = FastAPI(title="Theme-Based RAG Backend")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=ALLOW_CREDENTIALS,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 # endregion
 
 
@@ -60,7 +75,7 @@ async def health_check():
 # region Server Runner
 if __name__ == "__main__":
     uvicorn.run(
-        "src.theme_based_rag_backend.main:app",
+        "src.main:app",
         host=BACKEND_HOST,
         port=BACKEND_PORT,
         reload=True,

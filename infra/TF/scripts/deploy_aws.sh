@@ -40,10 +40,8 @@ aws ecr get-login-password --region "${AWS_REGION}" | docker login --username AW
 
 # Tag images using existing single repository with service prefix tags
 docker tag "theme-based-rag-backend:${IMAGE_TAG}" "${ECR_REGISTRY}/${ECR_REPOSITORY}:backend-${IMAGE_TAG}"
-docker tag "theme-based-rag-gateway:${IMAGE_TAG}" "${ECR_REGISTRY}/${ECR_REPOSITORY}:gateway-${IMAGE_TAG}"
 
 docker push "${ECR_REGISTRY}/${ECR_REPOSITORY}:backend-${IMAGE_TAG}"
-docker push "${ECR_REGISTRY}/${ECR_REPOSITORY}:gateway-${IMAGE_TAG}"
 
 # -------------------------------------------------------------------
 # [3/3] STEP 3: Apply Terraform Deployment to Managed AWS EKS
@@ -61,7 +59,6 @@ terraform apply \
   -var="aws_region=${AWS_REGION}" \
   -var="eks_cluster_name=${EKS_CLUSTER_NAME}" \
   -var="backend_image=${ECR_REGISTRY}/${ECR_REPOSITORY}:backend-${IMAGE_TAG}" \
-  -var="gateway_image=${ECR_REGISTRY}/${ECR_REPOSITORY}:gateway-${IMAGE_TAG}" \
   -auto-approve
 
 echo -e "\n\033[1;92m>>> [$(basename "$0")] AWS CI/CD Pipeline Completed Successfully!\033[0m\n"

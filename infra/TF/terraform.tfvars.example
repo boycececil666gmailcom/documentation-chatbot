@@ -24,12 +24,10 @@ langsmith_project  = "pr-virtual-cork-53"
 
 #region Deployment Scaling
 backend_replicas   = 2
-gateway_replicas   = 2
 #endregion
 
 #region Container Images
 backend_image      = "theme-based-rag-backend:latest"
-gateway_image      = "theme-based-rag-gateway:latest"
 qdrant_image       = "qdrant/qdrant:v1.11.0"
 neo4j_image        = "neo4j:5.20.0"
 #endregion
@@ -43,6 +41,4 @@ neo4j_password     = "YOUR_NEO4J_PASSWORD_HERE"
 # Note: In Kubernetes deployment, these URLs are constructed automatically via Service DNS
 qdrant_url         = "http://localhost:6333"
 neo4j_uri          = "bolt://localhost:7687"
-rag_backend_url    = "http://localhost:8000"
 #endregion
-

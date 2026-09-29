@@ -44,14 +44,14 @@ The **Enterprise-RAG-Engine** eliminates the guesswork from AI-powered customer 
 - **Comprehensive Knowledge Coverage**: Combines traditional document search with intelligent entity-relationship mapping, surfacing connections between products, pricing tiers, and organizational hierarchies that simple search cannot find.
 - **Self-Correcting Quality Assurance**: An automated review loop verifies every draft answer against source material before delivery, catching errors before customers ever see them.
 - **Prompt Token & Latency Optimization**: Integrates LLMLingua-2 context compression to compact retrieved passages, reducing LLM token consumption and latency while preserving vital semantic facts.
-- **Plug-and-Play Backend Template**: The decoupled microservices architecture means this engine can be connected to any customer portal, mobile app, or internal tool with minimal integration effort.
+- **Plug-and-Play Backend Template**: The streamlined architecture means this engine can be connected to any customer portal, mobile app, or internal tool with minimal integration effort.
 - **Intelligent Query Enhancement**: Automatically improves vague or abstract questions via hypothetical document expansion, maximizing the chance of surfacing the most relevant knowledge for complex queries.
 
 ---
 
 ## 2. System Architecture & Technical Execution
 
-The platform separates an API Gateway proxy (`theme_based_rag_gateway`) from the core RAG engine (`theme_based_rag_backend`). The backend runs a stateful multi-node LangGraph agent that performs domain classification, optional HyDE query expansion, hybrid vector + graph retrieval, neural reranking (FlashRank), context compression (LLMLingua-2), and a self-critique quality loop before returning a response.
+The core RAG engine (`src/`) exposes a unified FastAPI API interface directly to clients. The backend runs a stateful multi-node LangGraph agent that performs domain classification, optional HyDE query expansion, hybrid vector + graph retrieval, neural reranking (FlashRank), context compression (LLMLingua-2), and a self-critique quality loop before returning a response.
 
 ### Core Concept & Phased Execution Sequence
 
@@ -63,15 +63,13 @@ config:
 sequenceDiagram
     autonumber
     actor Client as Client App / End User
-    participant GW as API Gateway (port 8080)
     participant BE as RAG Backend (port 8000)
     participant AG as LangGraph Agent
     participant VDB as Qdrant Vector DB (port 6333)
     participant GDB as Neo4j Graph DB (port 7687)
 
-    Note over Client, GW: Phase 1: Query Submission
-    Client->>GW: POST /query (message, history)
-    GW->>BE: Proxy POST /query via httpx (internal network)
+    Note over Client, BE: Phase 1: Query Submission
+    Client->>BE: POST /query (message, history)
 
     Note over BE, AG: Phase 2: Agent Execution Loop
     BE->>AG: Invoke StateGraph (AgentState)
@@ -96,8 +94,7 @@ sequenceDiagram
 
     Note over AG, BE: Phase 3: Response Delivery
     AG-->>BE: Return final AgentState (agent_response)
-    BE-->>GW: QueryResponse (response, retrieved_documents, hyde metadata)
-    GW-->>Client: Final verified answer
+    BE-->>Client: QueryResponse (response, citations, tool_calls_executed, retrieved_documents)
 ```
 
 ---
@@ -120,13 +117,6 @@ flowchart TB
         CDN["CDN (Cloudflare / AWS CloudFront)"]
         LB["Load Balancer (Nginx / HAProxy)"]
         Ingress["Kubernetes Nginx Ingress Controller"]
-    end
-
-    subgraph GatewaySvc["API Gateway Service (theme-based-rag-gateway)"]
-        GW["Gateway Handler (FastAPI + Uvicorn, port 8080)"]
-        GWQuery["POST /query"]
-        GWIngest["POST /ingest"]
-        GWHealth["GET /health"]
     end
 
     subgraph BackendSvc["RAG Backend Service (theme-based-rag-backend)"]
@@ -167,9 +157,8 @@ flowchart TB
     User --> CDN
     CDN --> LB
     LB --> Ingress
-    Ingress --> GW
+    Ingress --> BE
 
-    GW --> BE
     BE --> AgentGraph
     AgentGraph --> QdrantAPI
     AgentGraph --> Neo4jBolt
@@ -199,16 +188,11 @@ flowchart TB
         ExternalClient["curl / Browser / Frontend App / pytest"]
     end
 
-    subgraph Exposed["Exposed to Host via Nginx Ingress"]
-        GW["theme-based-rag-gateway (FastAPI + Uvicorn)<br/>NodePort: 30080 / Service: port 8080<br/>Routes: POST /query, POST /ingest/vector, POST /ingest/graph, GET /health"]
-    end
-
     subgraph Internal["Kubernetes Internal Network (rag-engine namespace) - not reachable from outside"]
 
         subgraph BackendCtr["theme-based-rag-backend (FastAPI + Uvicorn, ClusterIP port 80 -> 8000)"]
             direction TB
             BEQueryH["POST /query - invoke LangGraph StateGraph"]
-            BEIngestH["POST /ingest/vector & /ingest/graph - store embeddings & knowledge graph"]
             BEHealthH["GET /health - ping vector store"]
         end
 
@@ -235,12 +219,9 @@ flowchart TB
 
     end
 
-    ExternalClient -->|"NodePort 30080 / Nginx Ingress - only exposed entry point"| GW
-    GW -->|"httpx POST /query or /ingest (ClusterIP internal)"| BackendCtr
+    ExternalClient -->|"NodePort / Nginx Ingress - exposed entry point"| BackendCtr
     BEQueryH -->|"hybrid search: dense + BM25 sparse"| QdrantREST
-    BEIngestH -->|"upsert embedding vectors"| QdrantREST
     BEQueryH -->|"Cypher MATCH query via Bolt"| Neo4jBoltPort
-    BEIngestH -->|"CREATE Entity + RELATED_TO relationships"| Neo4jBoltPort
     BackendCtr -->|"env injection from secrets"| SecretsCtr
 ```
 
@@ -250,49 +231,30 @@ flowchart TB
 
 ```text
 Enterprise-RAG-Engine/
+├── Dockerfile                         # Multi-stage production container image
 ├── infra/
-│   └── terraform/
-│       ├── backend.tf                 # Backend Deployment + ClusterIP Service
-│       ├── gateway.tf                 # Gateway Deployment + NodePort Service
-│       ├── ingress.tf                 # Nginx Ingress routing rule
-│       ├── neo4j.tf                   # Neo4j StatefulSet + Headless Service + PVC
-│       ├── qdrant.tf                  # Qdrant StatefulSet + Headless Service + PVC
-│       ├── secrets.tf                 # Kubernetes Opaque Secrets
-│       ├── namespace.tf               # Kubernetes namespace definition
-│       ├── providers.tf               # Terraform provider configuration
-│       ├── variables.tf               # Input variable declarations
-│       ├── outputs.tf                 # Terraform output definitions
-│       └── terraform.tfvars.example   # Example variable values (safe to commit)
-├── scripts/
-│   ├── build-image.sh                 # Docker image build and push
-│   ├── deploy_aws.sh                  # AWS EKS deployment helper
-│   ├── deploy_terraform.sh            # Terraform init + apply automation
-│   ├── setup_env.sh                   # Local .env setup helper
-│   └── test_k8s_ingress.sh            # Smoke test against K8s ingress endpoint
+│   ├── TF/
+│   │   ├── backend.tf                 # Backend Deployment + ClusterIP Service
+│   │   ├── ingress.tf                 # Nginx Ingress routing rule
+│   │   ├── neo4j.tf                   # Neo4j StatefulSet + Headless Service + PVC
+│   │   ├── qdrant.tf                  # Qdrant StatefulSet + Headless Service + PVC
+│   │   ├── secrets.tf                 # Kubernetes Opaque Secrets
+│   │   ├── namespace.tf               # Kubernetes namespace definition
+│   │   ├── providers.tf               # Terraform provider configuration
+│   │   ├── variables.tf               # Input variable declarations
+│   │   ├── outputs.tf                 # Terraform output definitions
+│   │   └── terraform.tfvars.example   # Example variable values (safe to commit)
+│   ├── build-image.sh                 # Docker image build script
+│   └── docker-compose.yml             # Local multi-container Docker Compose stack
 ├── src/
-│   ├── theme_based_rag_backend/
-│   │   ├── agent_flow/                # LangGraph StateGraph nodes and edges
-│   │   ├── Dockerfile                 # Multi-stage production container image
-│   │   ├── config.py                  # Environment variable configuration
-│   │   ├── graph_db.py                # Neo4j driver, entity extraction, Cypher queries
-│   │   ├── vector_db.py               # Qdrant hybrid search, embedding pipeline
-│   │   ├── tools.py                   # LangGraph tool: retrieve_VDB
-│   │   ├── models.py                  # Pydantic request/response schemas
-│   │   └── main.py                    # FastAPI app: /query, /ingest, /health
-│   └── theme_based_rag_gateway/
-│       ├── Dockerfile                 # Gateway container image
-│       ├── main.py                    # FastAPI app: proxy routing via httpx
-│       └── models.py                  # Pydantic request/response schemas
-├── tests/
-│   ├── conftest.py                    # Pytest fixtures and shared setup
-│   ├── test_unit_gateway.py           # Unit tests: gateway proxy routing
-│   ├── test_unit_hyde.py              # Unit tests: HyDE generation node
-│   ├── test_unit_hyde_decision.py     # Unit tests: HyDE decision node
-│   ├── test_integration_agent_flow.py # Integration: full agent graph run
-│   ├── test_integration_graph_db.py   # Integration: Neo4j entity operations
-│   ├── test_e2e_api.py                # E2E: full query against running services
-│   ├── test_e2e_k8s.py                # E2E: smoke tests against K8s ingress
-│   └── e2e_aws.py                     # E2E: AWS EKS deployment validation
+│   ├── agent_flow/                    # LangGraph StateGraph nodes and edges
+│   ├── script/                        # Vector DB batch ingestion scripts
+│   ├── config.py                      # Environment variable configuration
+│   ├── graph_db.py                    # Neo4j driver, entity extraction, Cypher queries
+│   ├── vector_db.py                   # Qdrant hybrid search, embedding pipeline
+│   ├── tools.py                       # LangGraph tool: retrieve_VDB
+│   ├── models.py                      # Pydantic request/response schemas
+│   └── main.py                        # FastAPI app: /query, /health
 ├── pyproject.toml                     # Project metadata, dependencies, ruff + pytest config
 ├── langgraph.json                     # LangGraph API server configuration
 └── README.md

@@ -28,7 +28,7 @@ services:
   langgraph-studio:
     build:
       context: ..
-      dockerfile: src/theme_based_rag_backend/Dockerfile
+      dockerfile: Dockerfile
     image: enterprise-rag-langgraph-studio:latest
     container_name: enterprise-rag-langgraph-studio
     command: langgraph dev --host 0.0.0.0 --port 2024
@@ -49,7 +49,7 @@ services:
   backend:
     build:
       context: ..
-      dockerfile: src/theme_based_rag_backend/Dockerfile
+      dockerfile: Dockerfile
     image: enterprise-rag-backend:latest
     container_name: enterprise-rag-backend
     ports:
@@ -59,20 +59,6 @@ services:
     depends_on:
       - qdrant
       - neo4j
-
-  # API Gateway Service
-  gateway:
-    build:
-      context: ..
-      dockerfile: src/theme_based_rag_gateway/Dockerfile
-    image: enterprise-rag-gateway:latest
-    container_name: enterprise-rag-gateway
-    ports:
-      - "8080:8080"
-    env_file:
-      - ../.env
-    depends_on:
-      - backend
 
 volumes:
   qdrant_data:

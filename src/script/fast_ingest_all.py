@@ -7,11 +7,11 @@ from pathlib import Path
 from langchain_core.documents import Document
 
 # Bootstrap project root
-project_root = Path(__file__).resolve().parents[3]
+project_root = Path(__file__).resolve().parents[2]
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
-from src.theme_based_rag_backend.vector_db import get_layer_store
+from src.vector_db import get_vector_store
 
 # endregion
 
@@ -24,7 +24,7 @@ def run_full_ingestion(batch_size: int = 100):
     )
     print("\033[1;96m========================================================\033[0m\n")
 
-    store = get_layer_store(2)
+    store = get_vector_store("raptor_chunks")
 
     # 1. Load rag_chunks.json
     chunks_path = project_root / "preprocessing-pipeline" / "rag_chunks.json"

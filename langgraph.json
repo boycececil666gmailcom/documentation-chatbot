@@ -3,7 +3,7 @@
     "."
   ],
   "graphs": {
-    "agent": "theme_based_rag_backend.agent_flow.graph:agent_graph"
+    "agent": "src.agent_flow.graph:agent_graph"
   },
   "env": ".env"
 }

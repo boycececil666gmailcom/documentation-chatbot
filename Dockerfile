@@ -14,14 +14,14 @@ RUN groupadd -g 10001 appgroup && \
     useradd -u 10001 -g appgroup -m -s /bin/bash appuser
 #endregion
 
-#region Install Backend Dependencies
+#region Install Dependencies
 ENV UV_PROJECT_ENVIRONMENT=/usr/local
-COPY --chown=appuser:appgroup src/theme_based_rag_backend/pyproject.toml src/theme_based_rag_backend/uv.lock /app/src/theme_based_rag_backend/
-RUN cd /app/src/theme_based_rag_backend && uv sync --frozen --no-install-project
+COPY --chown=appuser:appgroup pyproject.toml uv.lock /app/
+RUN uv sync --frozen --no-install-project
 #endregion
 
 #region Application Setup
-COPY --chown=appuser:appgroup src/theme_based_rag_backend/ /app/src/theme_based_rag_backend/
+COPY --chown=appuser:appgroup src/ /app/src/
 COPY --chown=appuser:appgroup langgraph.json /app/
 ENV PYTHONUNBUFFERED=1
 EXPOSE 8000 2024
@@ -29,4 +29,4 @@ EXPOSE 8000 2024
 
 USER appuser
 
-CMD ["python", "-m", "src.theme_based_rag_backend.main"]
+CMD ["python", "-m", "src.main"]

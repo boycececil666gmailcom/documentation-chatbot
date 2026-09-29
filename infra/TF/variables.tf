@@ -48,7 +48,6 @@ variable "langsmith_api_key" {
   default     = ""
 }
 
-
 variable "langsmith_tracing" {
   type        = string
   description = "Enable LangSmith tracing"
@@ -60,7 +59,6 @@ variable "langsmith_project" {
   description = "LangSmith project name"
   default     = "pr-virtual-cork-53"
 }
-
 
 variable "gemini_model" {
   type        = string
@@ -86,22 +84,10 @@ variable "backend_replicas" {
   default     = 2
 }
 
-variable "gateway_replicas" {
-  type        = number
-  description = "Number of gateway deployment replicas"
-  default     = 2
-}
-
 variable "backend_image" {
   type        = string
   description = "Docker image for theme-based RAG backend"
   default     = "theme-based-rag-backend:latest"
-}
-
-variable "gateway_image" {
-  type        = string
-  description = "Docker image for theme-based RAG gateway"
-  default     = "theme-based-rag-gateway:latest"
 }
 
 variable "qdrant_image" {
@@ -140,10 +126,3 @@ variable "neo4j_uri" {
   description = "Neo4j Graph DB Service URI or external endpoint (leave empty for internal K8s service)"
   default     = ""
 }
-
-variable "rag_backend_url" {
-  type        = string
-  description = "Backend Service Endpoint URL for Gateway (leave empty for internal K8s service)"
-  default     = ""
-}
-
