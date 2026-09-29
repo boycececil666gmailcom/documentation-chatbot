@@ -30,8 +30,8 @@ variable "use_aws_eks" {
 
 variable "namespace" {
   type        = string
-  description = "Kubernetes namespace for Enterprise RAG Engine"
-  default     = "enterprise-rag-engine"
+  description = "Kubernetes namespace for Documentation Chatbot"
+  default     = "documentation-chatbot"
 }
 
 variable "gemini_api_key" {

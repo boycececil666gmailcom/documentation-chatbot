@@ -14,7 +14,7 @@ from .nodes import (
 from .state import AgentState, InputState
 
 # Initialize Workflow Graph
-workflow = StateGraph(AgentState, input_schema=InputState)
+workflow = StateGraph(AgentState, input=InputState)
 
 # Add Nodes
 workflow.add_node("classifier", classifier_node)

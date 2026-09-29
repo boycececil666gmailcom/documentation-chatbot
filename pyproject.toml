@@ -6,9 +6,9 @@ build-backend = "hatchling.build"
 
 #region Project Metadata & Runtime Dependencies
 [project]
-name = "enterprise-rag-engine"
+name = "documentation-chatbot"
 version = "0.1.0"
-description = "Modular, enterprise-grade Retrieval-Augmented Generation (RAG) backend engine"
+description = "Modular, production-grade documentation chatbot and RAG backend engine"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
@@ -19,7 +19,7 @@ dependencies = [
     "langchain-community>=0.3.0",
     "langchain-qdrant>=0.2.0",
     "langchain-google-genai>=2.0.0",
-    "langgraph>=0.2.0",
+    "langgraph>=0.2.50,<0.3.0",
     "fastembed>=0.2.0,<0.4.0",
     "flashrank>=0.2.0,<0.3.0",
     "neo4j>=5.18.0,<6.0.0",
@@ -28,6 +28,8 @@ dependencies = [
     "requests>=2.34.2",
     "langchain-openai>=0.2.0",
     "crawl4ai>=0.9.2",
+    "python-dotenv>=1.0.0",
+    "langgraph-cli[inmem]>=0.1.55",
 ]
 #endregion
 

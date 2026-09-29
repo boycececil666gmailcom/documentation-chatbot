@@ -6,7 +6,7 @@ use_aws_eks        = false
 aws_region         = "us-east-1"
 eks_cluster_name   = "theme-based-rag-eks"
 kubeconfig_path    = "~/.kube/config"
-namespace          = "enterprise-rag-engine"
+namespace          = "documentation-chatbot"
 #endregion
 
 #region LLM Configuration

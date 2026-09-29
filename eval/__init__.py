@@ -1,6 +1,6 @@
 # region Module Exports
 """
-RAGAS Evaluation Utilities for Enterprise RAG Engine.
+RAGAS Evaluation Utilities for Documentation Chatbot.
 Direct CLI tools for dataset synthesis and dynamic pipeline evaluation.
 """
 

@@ -1,11 +1,11 @@
-#region Docker Compose Local RAG Engine Stack
-name: enterprise-rag-engine
+#region Docker Compose Local Documentation Chatbot Stack
+name: documentation-chatbot
 
 services:
   # Qdrant Vector Database
   qdrant:
     image: qdrant/qdrant:v1.11.0
-    container_name: enterprise-rag-qdrant
+    container_name: documentation-chatbot-qdrant
     ports:
       - "6333:6333"
       - "6334:6334"
@@ -15,7 +15,7 @@ services:
   # Neo4j Graph Database
   neo4j:
     image: neo4j:5.20.0
-    container_name: enterprise-rag-neo4j
+    container_name: documentation-chatbot-neo4j
     ports:
       - "7474:7474"
       - "7687:7687"
@@ -29,11 +29,11 @@ services:
     build:
       context: ..
       dockerfile: Dockerfile
-    image: enterprise-rag-langgraph-studio:latest
-    container_name: enterprise-rag-langgraph-studio
+    image: documentation-chatbot-langgraph-studio:latest
+    container_name: documentation-chatbot-langgraph-studio
     command: langgraph dev --host 0.0.0.0 --port 2024
     environment:
-      - PYTHONPATH=/app/src
+      - PYTHONPATH=/app
     ports:
       - "2024:2024"
     #endregion
@@ -50,8 +50,8 @@ services:
     build:
       context: ..
       dockerfile: Dockerfile
-    image: enterprise-rag-backend:latest
-    container_name: enterprise-rag-backend
+    image: documentation-chatbot-backend:latest
+    container_name: documentation-chatbot-backend
     ports:
       - "8000:8000"
     env_file:

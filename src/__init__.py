@@ -1,1 +1,1 @@
-# Package initialization for Enterprise RAG Engine backend src
+# Package initialization for Documentation Chatbot backend src

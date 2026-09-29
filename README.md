@@ -1,6 +1,6 @@
-# Enterprise-RAG-Engine
+# documentation-chatbot
 
-> Modular, enterprise-grade Retrieval-Augmented Generation (RAG) backend engine template with multi-agent orchestration, hybrid vector search, and GraphRAG entity-relationship reasoning.
+> Modular, enterprise-grade Documentation Chatbot and Retrieval-Augmented Generation (RAG) backend engine template with multi-agent orchestration, hybrid vector search, and GraphRAG entity-relationship reasoning.
 
 ![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=flat&logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?style=flat&logo=fastapi&logoColor=white)
@@ -37,7 +37,7 @@ flowchart LR
 
 ## 1. Core Purpose & Business Value
 
-The **Enterprise-RAG-Engine** eliminates the guesswork from AI-powered customer support by restricting every generated answer to verified, company-owned knowledge — making hallucination structurally impossible.
+The **documentation-chatbot** eliminates the guesswork from AI-powered documentation assistance and customer support by restricting every generated answer to verified, company-owned knowledge — making hallucination structurally impossible.
 
 - **Zero Hallucination, 100% Accuracy**: Every customer response is grounded in the company's own documentation and knowledge base, guaranteeing factual accuracy with no invented information.
 - **Domain Boundary Enforcement**: The engine automatically rejects off-topic inquiries, keeping support conversations strictly within defined business domains (e.g., Fintech SaaS product documentation).
@@ -230,7 +230,7 @@ flowchart TB
 ## 3. Repository Structure
 
 ```text
-Enterprise-RAG-Engine/
+documentation-chatbot/
 ├── Dockerfile                         # Multi-stage production container image
 ├── infra/
 │   ├── TF/

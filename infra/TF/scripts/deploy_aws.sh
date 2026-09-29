@@ -23,7 +23,7 @@ fi
 # Derive ECR Registry endpoint URL from AWS account ID and region
 AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID:-$(aws sts get-caller-identity --query Account --output text 2>/dev/null)}"
 ECR_REGISTRY="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-ECR_REPOSITORY="${ECR_REPOSITORY:-enterprise_rag_engine}"
+ECR_REPOSITORY="${ECR_REPOSITORY:-documentation_chatbot}"
 IMAGE_TAG="${IMAGE_TAG:-latest}"
 
 # -------------------------------------------------------------------
