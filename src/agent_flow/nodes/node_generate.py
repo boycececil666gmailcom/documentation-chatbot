@@ -52,10 +52,18 @@ def generate_node(state: AgentState) -> dict:
     structured_llm = llm.with_structured_output(RAGResponseSchema)
     response = cast(RAGResponseSchema, structured_llm.invoke(messages))
     final_text = (
-        response.answer.strip() if response and response.answer else "Information not available in documentation."
+        response.answer.strip()
+        if response and response.answer
+        else "Information not available in documentation."
     )
-    raw_citations = [c.strip(" []") for c in (response.citations if response else []) if c.strip()]
-    unique_citations = list(dict.fromkeys(raw_citations)) if final_text != "Information not available in documentation." else []
+    raw_citations = [
+        c.strip(" []") for c in (response.citations if response else []) if c.strip()
+    ]
+    unique_citations = (
+        list(dict.fromkeys(raw_citations))
+        if final_text != "Information not available in documentation."
+        else []
+    )
 
     updated_history = list(history) + [
         {"role": "user", "content": query},

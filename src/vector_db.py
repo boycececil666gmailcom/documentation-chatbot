@@ -2,30 +2,19 @@
 from functools import lru_cache
 
 from langchain_core.documents import Document
-from langchain_qdrant import FastEmbedSparse, QdrantVectorStore, RetrievalMode
+from langchain_postgres.vectorstores import PGVector
 
-from .config import QDRANT_API_KEY, QDRANT_URL
+from .config import PGVECTOR_URL
 from .llm_client import embeddings
 
 
 @lru_cache(maxsize=1)
-def get_sparse_embeddings() -> FastEmbedSparse | None:
-    try:
-        return FastEmbedSparse(model_name="Qdrant/bm25")
-    except Exception:
-        return None
-
-
-@lru_cache(maxsize=1)
-def get_vector_store(collection_name: str = "raptor_chunks") -> QdrantVectorStore:
-    return QdrantVectorStore.from_existing_collection(
-        url=QDRANT_URL,
-        api_key=QDRANT_API_KEY,
+def get_vector_store(collection_name: str = "raptor_chunks") -> PGVector:
+    return PGVector(
+        embeddings=embeddings,
         collection_name=collection_name,
-        content_payload_key="small",
-        embedding=embeddings,
-        sparse_embedding=get_sparse_embeddings(),
-        retrieval_mode=RetrievalMode.HYBRID,
+        connection=PGVECTOR_URL,
+        use_jsonb=True,
     )
 
 

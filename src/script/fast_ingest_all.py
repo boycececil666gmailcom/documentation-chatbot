@@ -20,7 +20,7 @@ from src.vector_db import get_vector_store
 def run_full_ingestion(batch_size: int = 100):
     print("\n\033[1;96m========================================================\033[0m")
     print(
-        "\033[1;92m>>> Starting Full Reset & Re-Ingestion of All Chunks into Qdrant\033[0m"
+        "\033[1;92m>>> Starting Full Reset & Re-Ingestion of All Chunks into PGVector\033[0m"
     )
     print("\033[1;96m========================================================\033[0m\n")
 
@@ -103,7 +103,7 @@ def run_full_ingestion(batch_size: int = 100):
 
     print("\n\033[1;96m========================================================\033[0m")
     print(
-        f"\033[1;92m>>> Full Re-Ingestion Complete: {success_count:,}/{total_chunks:,} Chunks Successfully Stored in Qdrant!\033[0m"
+        f"\033[1;92m>>> Full Re-Ingestion Complete: {success_count:,}/{total_chunks:,} Chunks Successfully Stored in PGVector!\033[0m"
     )
     print("\033[1;96m========================================================\033[0m\n")
 

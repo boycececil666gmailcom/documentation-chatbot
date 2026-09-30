@@ -97,7 +97,7 @@ def ingest_chunks(chunks: list[dict], endpoint_url: str, batch_size: int = 50):
 def main():
     try:
         parser = argparse.ArgumentParser(
-            description="Ingest JSON chunks into Qdrant Vector DB."
+            description="Ingest JSON chunks into PGVector DB."
         )
         parser.add_argument(
             "--input",

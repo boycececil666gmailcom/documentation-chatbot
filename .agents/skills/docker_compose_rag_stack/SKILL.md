@@ -1,6 +1,6 @@
 ---
 name: docker_compose_rag_stack
-description: Manage, build, and orchestrate the Enterprise RAG Engine multi-container stack (Qdrant, Neo4j, LangGraph Studio, Backend) using Docker Compose with infra/docker-compose.yml.
+description: Manage, build, and orchestrate the Enterprise RAG Engine multi-container stack (PGVector, Neo4j, LangGraph Studio, Backend) using Docker Compose with infra/docker-compose.yml.
 ---
 
 # Enterprise RAG Engine Docker Compose Workflow
@@ -9,10 +9,11 @@ This skill provides standard operating procedures for managing the multi-contain
 
 ## Services Overview
 
-- **`qdrant`** (Port `6333`, `6334`): Vector database with BM25 sparse and dense embedding storage.
+- **`pgvector`** (Port `5432`): PostgreSQL vector database with pgvector extension for dense embedding storage.
 - **`neo4j`** (Port `7474`, `7687`): Graph database for GraphRAG entity relationships.
 - **`langgraph-studio`** (Port `2024`): Interactive developer UI for LangGraph agent workflows.
 - **`backend`** (Port `8000`): Stateful LangGraph FastAPI backend engine (`/query`, `/health`).
+
 
 ## Standard Operating Procedures
 

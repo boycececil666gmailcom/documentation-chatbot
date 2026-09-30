@@ -90,10 +90,10 @@ variable "backend_image" {
   default     = "theme-based-rag-backend:latest"
 }
 
-variable "qdrant_image" {
+variable "pgvector_image" {
   type        = string
-  description = "Docker image for Qdrant Vector DB"
-  default     = "qdrant/qdrant:v1.11.0"
+  description = "Docker image for PGVector DB"
+  default     = "pgvector/pgvector:pg16"
 }
 
 variable "neo4j_image" {
@@ -115,10 +115,35 @@ variable "neo4j_password" {
   default     = "neo4jpassword123"
 }
 
-variable "qdrant_url" {
+variable "postgres_db" {
   type        = string
-  description = "Qdrant Vector DB Service URL or external endpoint (leave empty for internal K8s service)"
+  description = "PostgreSQL database name"
+  default     = "documentation_chatbot"
+}
+
+variable "postgres_user" {
+  type        = string
+  description = "PostgreSQL username"
+  default     = "postgres"
+}
+
+variable "postgres_password" {
+  type        = string
+  description = "PostgreSQL password"
+  sensitive   = true
+  default     = "postgrespassword123"
+}
+
+variable "postgres_host" {
+  type        = string
+  description = "PostgreSQL host endpoint (leave empty for internal K8s service)"
   default     = ""
+}
+
+variable "postgres_port" {
+  type        = number
+  description = "PostgreSQL port"
+  default     = 5432
 }
 
 variable "neo4j_uri" {
@@ -126,3 +151,4 @@ variable "neo4j_uri" {
   description = "Neo4j Graph DB Service URI or external endpoint (leave empty for internal K8s service)"
   default     = ""
 }
+

@@ -39,3 +39,21 @@ resource "kubernetes_secret" "neo4j_secrets" {
     "neo4j-auth"     = "${var.neo4j_username}/${var.neo4j_password}"
   }
 }
+
+#region Postgres Secrets
+resource "kubernetes_secret" "postgres_secrets" {
+  metadata {
+    name      = "postgres-secrets"
+    namespace = kubernetes_namespace.rag_namespace.metadata[0].name
+  }
+
+  type = "Opaque"
+
+  data = {
+    "postgres-db"       = var.postgres_db
+    "postgres-user"     = var.postgres_user
+    "postgres-password" = var.postgres_password
+  }
+}
+#endregion
+

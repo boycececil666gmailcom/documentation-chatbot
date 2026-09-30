@@ -36,9 +36,16 @@ _origins = os.getenv("ALLOWED_ORIGINS", "*")
 ALLOWED_ORIGINS = [origin.strip() for origin in _origins.split(",") if origin.strip()]
 ALLOW_CREDENTIALS = "*" not in ALLOWED_ORIGINS
 
-# Qdrant Database Settings
-QDRANT_URL = require_env("QDRANT_URL")
-QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
+# PGVector Database Settings
+POSTGRES_HOST = os.getenv("POSTGRES_HOST", "localhost")
+POSTGRES_PORT = int(os.getenv("POSTGRES_PORT", "5432"))
+POSTGRES_DB = os.getenv("POSTGRES_DB", "documentation_chatbot")
+POSTGRES_USER = os.getenv("POSTGRES_USER", "postgres")
+POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "postgrespassword123")
+
+_default_pg_url = f"postgresql+psycopg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
+PGVECTOR_URL = os.getenv("PGVECTOR_URL", _default_pg_url)
+
 
 # Neo4j Database Settings
 NEO4J_URI = require_env("NEO4J_URI")

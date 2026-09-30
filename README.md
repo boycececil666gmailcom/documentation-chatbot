@@ -8,7 +8,7 @@
 ![LangChain](https://img.shields.io/badge/LangChain-0.3+-1C3C3C?style=flat&logo=langchain&logoColor=white)
 ![OpenRouter](https://img.shields.io/badge/OpenRouter-DeepSeek_V4_Flash-6366F1?style=flat)
 ![LLMLingua-2](https://img.shields.io/badge/LLMLingua--2-Prompt_Compression-8A2BE2?style=flat)
-![Qdrant](https://img.shields.io/badge/Qdrant-Vector_DB-DC2626?style=flat&logo=qdrant&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-PGVector-336791?style=flat&logo=postgresql&logoColor=white)
 ![Neo4j](https://img.shields.io/badge/Neo4j-Graph_DB-008CC1?style=flat&logo=neo4j&logoColor=white)
 ![Terraform](https://img.shields.io/badge/Terraform-IaC-7B42BC?style=flat&logo=terraform&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?style=flat&logo=docker&logoColor=white)
@@ -25,7 +25,7 @@ config:
   theme: neutral
 ---
 flowchart LR
-    A["1. Data Ingestion<br/>(Crawl4AI & RAPTOR)"] --> B[("2. Hybrid Knowledge Store<br/>(Qdrant & Neo4j)")]
+    A["1. Data Ingestion<br/>(Crawl4AI & RAPTOR)"] --> B[("2. Hybrid Knowledge Store<br/>(PGVector & Neo4j)")]
     B --> C["3. Multi-Agent Retrieval<br/>(HyDE + Dense + BM25)"]
     C --> D["4. Neural Rerank<br/>(FlashRank Cross-Encoder)"]
     D --> E["5. Context Compression<br/>(LLMLingua-2 Compactor)"]
@@ -65,7 +65,7 @@ sequenceDiagram
     actor Client as Client App / End User
     participant BE as RAG Backend (port 8000)
     participant AG as LangGraph Agent
-    participant VDB as Qdrant Vector DB (port 6333)
+    participant VDB as PGVector DB (port 5432)
     participant GDB as Neo4j Graph DB (port 7687)
 
     Note over Client, BE: Phase 1: Query Submission
@@ -79,9 +79,9 @@ sequenceDiagram
         rect rgb(240, 243, 246)
             AG->>AG: node_hyde_decision - Evaluate HyDE necessity
             AG->>AG: node_hyde_generator - Generate hypothetical document (if enabled)
-            AG->>VDB: Hybrid dense+sparse vector search (Qdrant BM25 + Gemini embeddings)
+            AG->>VDB: Dense vector similarity search (PGVector + Gemini embeddings)
             AG->>GDB: Cypher graph query - extract entity relationships (Neo4j Bolt)
-            AG->>AG: node_retrieve - Retrieve context & rerank (Qdrant + FlashRank)
+            AG->>AG: node_retrieve - Retrieve context & rerank (PGVector + FlashRank)
             AG->>AG: node_retrieve - LLMLingua-2 context compression
             AG->>AG: node_generate - Synthesize grounded answer from context
             AG->>AG: node_critique - Self-critique quality check
@@ -132,10 +132,9 @@ flowchart TB
         end
     end
 
-    subgraph VectorStore["Qdrant Vector DB (StatefulSet)"]
-        QdrantAPI["REST API (port 6333)"]
-        QdrantGRPC["gRPC (port 6334)"]
-        QdrantPVC[("PVC: qdrant-storage 5Gi")]
+    subgraph VectorStore["PGVector DB (StatefulSet)"]
+        PGVectorPort["PostgreSQL (port 5432)"]
+        PGVectorPVC[("PVC: pgvector-data 5Gi")]
     end
 
     subgraph GraphStore["Neo4j Graph DB (StatefulSet)"]
@@ -149,6 +148,7 @@ flowchart TB
     end
 
     subgraph SecretsLayer["Kubernetes Secrets"]
+        PostgresSec["postgres-secrets (POSTGRES_DB / USER / PASSWORD)"]
         GeminiSec["gemini-secrets (GEMINI_API_KEY)"]
         LangchainSec["langchain-secrets (LANGSMITH_API_KEY)"]
         Neo4jSec["neo4j-secrets (NEO4J_USERNAME / PASSWORD)"]
@@ -160,13 +160,14 @@ flowchart TB
     Ingress --> BE
 
     BE --> AgentGraph
-    AgentGraph --> QdrantAPI
+    AgentGraph --> PGVectorPort
     AgentGraph --> Neo4jBolt
     AgentGraph --> LangSmith
 
-    QdrantAPI --> QdrantPVC
+    PGVectorPort --> PGVectorPVC
     Neo4jBolt --> Neo4jPVC
 
+    BE --> PostgresSec
     BE --> GeminiSec
     BE --> LangchainSec
     BE --> Neo4jSec
@@ -196,11 +197,10 @@ flowchart TB
             BEHealthH["GET /health - ping vector store"]
         end
 
-        subgraph QdrantCtr["qdrant (StatefulSet, Headless Service port 6333/6334)"]
+        subgraph PGVectorCtr["pgvector (StatefulSet, Headless Service port 5432)"]
             direction TB
-            QdrantREST["REST: port 6333"]
-            QdrantGRPC["gRPC: port 6334"]
-            QdrantData[("collection: local_rag_documents<br/>dense: gemini-embedding-001<br/>sparse: Qdrant/bm25<br/>PVC: qdrant-storage 5Gi")]
+            PGVectorPort["PostgreSQL: port 5432"]
+            PGVectorData[("collection: raptor_chunks<br/>dense: gemini-embedding-001<br/>PVC: pgvector-data 5Gi")]
         end
 
         subgraph Neo4jCtr["neo4j (StatefulSet, Headless Service port 7474/7687)"]
@@ -212,6 +212,7 @@ flowchart TB
 
         subgraph SecretsCtr["Kubernetes Opaque Secrets"]
             direction TB
+            S0["postgres-secrets: POSTGRES_DB / USER / PASSWORD"]
             S1["gemini-secrets: GEMINI_API_KEY"]
             S2["neo4j-secrets: NEO4J_USERNAME / NEO4J_PASSWORD / NEO4J_AUTH"]
             S3["langchain-secrets: LANGSMITH_API_KEY"]
@@ -220,7 +221,7 @@ flowchart TB
     end
 
     ExternalClient -->|"NodePort / Nginx Ingress - exposed entry point"| BackendCtr
-    BEQueryH -->|"hybrid search: dense + BM25 sparse"| QdrantREST
+    BEQueryH -->|"vector similarity search"| PGVectorPort
     BEQueryH -->|"Cypher MATCH query via Bolt"| Neo4jBoltPort
     BackendCtr -->|"env injection from secrets"| SecretsCtr
 ```
@@ -230,14 +231,14 @@ flowchart TB
 ## 3. Repository Structure
 
 ```text
-documentation-chatbot/
+Enterprise-RAG-Engine/
 ├── Dockerfile                         # Multi-stage production container image
 ├── infra/
 │   ├── TF/
 │   │   ├── backend.tf                 # Backend Deployment + ClusterIP Service
 │   │   ├── ingress.tf                 # Nginx Ingress routing rule
 │   │   ├── neo4j.tf                   # Neo4j StatefulSet + Headless Service + PVC
-│   │   ├── qdrant.tf                  # Qdrant StatefulSet + Headless Service + PVC
+│   │   ├── pgvector.tf                # PGVector StatefulSet + Headless Service + PVC
 │   │   ├── secrets.tf                 # Kubernetes Opaque Secrets
 │   │   ├── namespace.tf               # Kubernetes namespace definition
 │   │   ├── providers.tf               # Terraform provider configuration
@@ -251,7 +252,7 @@ documentation-chatbot/
 │   ├── script/                        # Vector DB batch ingestion scripts
 │   ├── config.py                      # Environment variable configuration
 │   ├── graph_db.py                    # Neo4j driver, entity extraction, Cypher queries
-│   ├── vector_db.py                   # Qdrant hybrid search, embedding pipeline
+│   ├── vector_db.py                   # PGVector search, embedding pipeline
 │   ├── tools.py                       # LangGraph tool: retrieve_VDB
 │   ├── models.py                      # Pydantic request/response schemas
 │   └── main.py                        # FastAPI app: /query, /health

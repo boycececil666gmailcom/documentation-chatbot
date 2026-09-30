@@ -63,8 +63,12 @@ resource "kubernetes_deployment" "backend" {
 
           #region General Environment Configuration
           env {
-            name  = "QDRANT_URL"
-            value = var.qdrant_url
+            name  = "POSTGRES_HOST"
+            value = var.postgres_host != "" ? var.postgres_host : kubernetes_service.pgvector_service.metadata[0].name
+          }
+          env {
+            name  = "POSTGRES_PORT"
+            value = tostring(var.postgres_port)
           }
           env {
             name  = "NEO4J_URI"
@@ -97,6 +101,33 @@ resource "kubernetes_deployment" "backend" {
           #endregion
 
           #region Secret Credentials
+          env {
+            name = "POSTGRES_DB"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.postgres_secrets.metadata[0].name
+                key  = "postgres-db"
+              }
+            }
+          }
+          env {
+            name = "POSTGRES_USER"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.postgres_secrets.metadata[0].name
+                key  = "postgres-user"
+              }
+            }
+          }
+          env {
+            name = "POSTGRES_PASSWORD"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.postgres_secrets.metadata[0].name
+                key  = "postgres-password"
+              }
+            }
+          }
           env {
             name = "GEMINI_API_KEY"
             value_from {
