@@ -29,21 +29,16 @@ backend_replicas   = 2
 #region Container Images
 backend_image      = "theme-based-rag-backend:latest"
 pgvector_image     = "pgvector/pgvector:pg16"
-neo4j_image        = "neo4j:5.20.0"
 #endregion
 
 #region Database Credentials
 postgres_db        = "documentation_chatbot"
 postgres_user      = "postgres"
 postgres_password  = "YOUR_POSTGRES_PASSWORD_HERE"
-neo4j_username     = "neo4j"
-neo4j_password     = "YOUR_NEO4J_PASSWORD_HERE"
 #endregion
 
 #region Service Endpoints
 # Note: In Kubernetes deployment, these are constructed automatically via Service DNS if empty
 postgres_host      = ""
 postgres_port      = 5432
-neo4j_uri          = "bolt://localhost:7687"
 #endregion
-

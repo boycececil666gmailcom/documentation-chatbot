@@ -25,20 +25,6 @@ resource "kubernetes_secret" "langchain_secrets" {
 
 }
 
-resource "kubernetes_secret" "neo4j_secrets" {
-  metadata {
-    name      = "neo4j-secrets"
-    namespace = kubernetes_namespace.rag_namespace.metadata[0].name
-  }
-
-  type = "Opaque"
-
-  data = {
-    "neo4j-username" = var.neo4j_username
-    "neo4j-password" = var.neo4j_password
-    "neo4j-auth"     = "${var.neo4j_username}/${var.neo4j_password}"
-  }
-}
 
 #region Postgres Secrets
 resource "kubernetes_secret" "postgres_secrets" {

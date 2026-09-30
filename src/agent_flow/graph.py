@@ -1,4 +1,4 @@
-# region Graph Definition
+# region Imports
 from langgraph.graph import END, StateGraph
 
 from .edges import route_after_critique, route_by_category, route_by_hyde_decision
@@ -13,7 +13,10 @@ from .nodes import (
 )
 from .state import AgentState, InputState
 
-# Initialize Workflow Graph
+# endregion
+
+
+# region Graph Definition
 workflow = StateGraph(AgentState, input=InputState)
 
 # Add Nodes

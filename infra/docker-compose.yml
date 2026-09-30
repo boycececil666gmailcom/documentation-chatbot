@@ -1,4 +1,4 @@
-#region Docker Compose Local Documentation Chatbot Stack
+# region Docker Compose Local Documentation Chatbot Stack
 name: documentation-chatbot
 
 services:
@@ -16,19 +16,7 @@ services:
     volumes:
       - pgvector_data:/var/lib/postgresql/data
 
-  # Neo4j Graph Database
-  neo4j:
-    image: neo4j:5.20.0
-    container_name: documentation-chatbot-neo4j
-    ports:
-      - "7474:7474"
-      - "7687:7687"
-    environment:
-      - NEO4J_AUTH=neo4j/neo4jpassword123
-    volumes:
-      - neo4j_data:/data
-
-  #region LangGraph Studio Dev Server Service
+  # LangGraph Studio Dev Server Service
   langgraph-studio:
     build:
       context: ..
@@ -42,14 +30,12 @@ services:
       - PGVECTOR_URL=postgresql+psycopg://postgres:postgrespassword123@pgvector:5432/documentation_chatbot
     ports:
       - "2024:2024"
-    #endregion
     env_file:
       - ../.env
     volumes:
       - ..:/app
     depends_on:
       - pgvector
-      - neo4j
 
   # Core RAG Backend Service
   backend:
@@ -67,9 +53,7 @@ services:
       - ../.env
     depends_on:
       - pgvector
-      - neo4j
 
 volumes:
   pgvector_data:
-  neo4j_data:
-#endregion
+# endregion

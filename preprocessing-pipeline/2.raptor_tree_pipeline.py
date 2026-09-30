@@ -8,8 +8,9 @@ from typing import Any
 
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_text_splitters import MarkdownHeaderTextSplitter
-from llm_client import llm
 from pydantic import BaseModel, Field
+
+from llm_client import llm
 
 # endregion
 

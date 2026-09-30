@@ -71,10 +71,6 @@ resource "kubernetes_deployment" "backend" {
             value = tostring(var.postgres_port)
           }
           env {
-            name  = "NEO4J_URI"
-            value = var.neo4j_uri
-          }
-          env {
             name  = "GEMINI_MODEL"
             value = var.gemini_model
           }
@@ -134,24 +130,6 @@ resource "kubernetes_deployment" "backend" {
               secret_key_ref {
                 name = kubernetes_secret.gemini_secrets.metadata[0].name
                 key  = "gemini-api-key"
-              }
-            }
-          }
-          env {
-            name = "NEO4J_USERNAME"
-            value_from {
-              secret_key_ref {
-                name = kubernetes_secret.neo4j_secrets.metadata[0].name
-                key  = "neo4j-username"
-              }
-            }
-          }
-          env {
-            name = "NEO4J_PASSWORD"
-            value_from {
-              secret_key_ref {
-                name = kubernetes_secret.neo4j_secrets.metadata[0].name
-                key  = "neo4j-password"
               }
             }
           }

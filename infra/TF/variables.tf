@@ -96,24 +96,6 @@ variable "pgvector_image" {
   default     = "pgvector/pgvector:pg16"
 }
 
-variable "neo4j_image" {
-  type        = string
-  description = "Docker image for Neo4j Graph DB"
-  default     = "neo4j:5.20.0"
-}
-
-variable "neo4j_username" {
-  type        = string
-  description = "Neo4j database username"
-  default     = "neo4j"
-}
-
-variable "neo4j_password" {
-  type        = string
-  description = "Neo4j database password"
-  sensitive   = true
-  default     = "neo4jpassword123"
-}
 
 variable "postgres_db" {
   type        = string
@@ -146,9 +128,4 @@ variable "postgres_port" {
   default     = 5432
 }
 
-variable "neo4j_uri" {
-  type        = string
-  description = "Neo4j Graph DB Service URI or external endpoint (leave empty for internal K8s service)"
-  default     = ""
-}
 

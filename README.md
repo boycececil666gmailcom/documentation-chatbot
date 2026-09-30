@@ -9,7 +9,6 @@
 ![OpenRouter](https://img.shields.io/badge/OpenRouter-DeepSeek_V4_Flash-6366F1?style=flat)
 ![LLMLingua-2](https://img.shields.io/badge/LLMLingua--2-Prompt_Compression-8A2BE2?style=flat)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-PGVector-336791?style=flat&logo=postgresql&logoColor=white)
-![Neo4j](https://img.shields.io/badge/Neo4j-Graph_DB-008CC1?style=flat&logo=neo4j&logoColor=white)
 ![Terraform](https://img.shields.io/badge/Terraform-IaC-7B42BC?style=flat&logo=terraform&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?style=flat&logo=docker&logoColor=white)
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-Orchestration-326CE5?style=flat&logo=kubernetes&logoColor=white)
@@ -25,8 +24,8 @@ config:
   theme: neutral
 ---
 flowchart LR
-    A["1. Data Ingestion<br/>(Crawl4AI & RAPTOR)"] --> B[("2. Hybrid Knowledge Store<br/>(PGVector & Neo4j)")]
-    B --> C["3. Multi-Agent Retrieval<br/>(HyDE + Dense + BM25)"]
+    A["1. Data Ingestion<br/>(Crawl4AI & RAPTOR)"] --> B[("2. Knowledge Store<br/>(PGVector)")]
+    B --> C["3. Retrieval<br/>(HyDE + Dense Vector)"]
     C --> D["4. Neural Rerank<br/>(FlashRank Cross-Encoder)"]
     D --> E["5. Context Compression<br/>(LLMLingua-2 Compactor)"]
     E --> F["6. Self-Critique Loop<br/>& Answer Generation"]
@@ -66,7 +65,6 @@ sequenceDiagram
     participant BE as RAG Backend (port 8000)
     participant AG as LangGraph Agent
     participant VDB as PGVector DB (port 5432)
-    participant GDB as Neo4j Graph DB (port 7687)
 
     Note over Client, BE: Phase 1: Query Submission
     Client->>BE: POST /query (message, history)
@@ -79,8 +77,7 @@ sequenceDiagram
         rect rgb(240, 243, 246)
             AG->>AG: node_hyde_decision - Evaluate HyDE necessity
             AG->>AG: node_hyde_generator - Generate hypothetical document (if enabled)
-            AG->>VDB: Dense vector similarity search (PGVector + Gemini embeddings)
-            AG->>GDB: Cypher graph query - extract entity relationships (Neo4j Bolt)
+            AG->>VDB: Dense vector similarity search (PGVector + Nemotron embeddings)
             AG->>AG: node_retrieve - Retrieve context & rerank (PGVector + FlashRank)
             AG->>AG: node_retrieve - LLMLingua-2 context compression
             AG->>AG: node_generate - Synthesize grounded answer from context
@@ -237,7 +234,6 @@ Enterprise-RAG-Engine/
 │   ├── TF/
 │   │   ├── backend.tf                 # Backend Deployment + ClusterIP Service
 │   │   ├── ingress.tf                 # Nginx Ingress routing rule
-│   │   ├── neo4j.tf                   # Neo4j StatefulSet + Headless Service + PVC
 │   │   ├── pgvector.tf                # PGVector StatefulSet + Headless Service + PVC
 │   │   ├── secrets.tf                 # Kubernetes Opaque Secrets
 │   │   ├── namespace.tf               # Kubernetes namespace definition
@@ -248,14 +244,14 @@ Enterprise-RAG-Engine/
 │   ├── build-image.sh                 # Docker image build script
 │   └── docker-compose.yml             # Local multi-container Docker Compose stack
 ├── src/
-│   ├── agent_flow/                    # LangGraph StateGraph nodes and edges
-│   ├── script/                        # Vector DB batch ingestion scripts
+│   ├── agent_flow/                    # Streamlined LangGraph StateGraph (graph, nodes, edges, state)
 │   ├── config.py                      # Environment variable configuration
-│   ├── graph_db.py                    # Neo4j driver, entity extraction, Cypher queries
 │   ├── vector_db.py                   # PGVector search, embedding pipeline
 │   ├── tools.py                       # LangGraph tool: retrieve_VDB
 │   ├── models.py                      # Pydantic request/response schemas
 │   └── main.py                        # FastAPI app: /query, /health
+├── preprocessing-pipeline/            # Scraper & RAPTOR chunking ingestion pipeline
+├── eval/                              # Evaluation dataset generator & benchmark runner
 ├── pyproject.toml                     # Project metadata, dependencies, ruff + pytest config
 ├── langgraph.json                     # LangGraph API server configuration
 └── README.md

@@ -47,11 +47,6 @@ _default_pg_url = f"postgresql+psycopg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{PO
 PGVECTOR_URL = os.getenv("PGVECTOR_URL", _default_pg_url)
 
 
-# Neo4j Database Settings
-NEO4J_URI = require_env("NEO4J_URI")
-NEO4J_USERNAME = require_env("NEO4J_USERNAME")
-NEO4J_PASSWORD = require_env("NEO4J_PASSWORD")
-
 # Chatbot Theme Settings
 CHATBOT_THEME = require_env("CHATBOT_THEME")
 
