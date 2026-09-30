@@ -12,7 +12,7 @@ from ..models import (
     HyDESchema,
     RAGResponseSchema,
 )
-from ..state import AgentState
+from .state import AgentState
 from ..tools import retrieve_VDB
 
 # endregion

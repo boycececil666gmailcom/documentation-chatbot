@@ -23,10 +23,12 @@ RUN uv sync --frozen --no-install-project
 #region Application Setup
 COPY --chown=appuser:appgroup src/ /app/src/
 COPY --chown=appuser:appgroup langgraph.json /app/
+COPY --chown=appuser:appgroup infra/entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 ENV PYTHONUNBUFFERED=1
 EXPOSE 8000 2024
 #endregion
 
-USER appuser
+USER root
 
-CMD ["python", "-m", "src.main"]
+CMD ["/app/entrypoint.sh"]

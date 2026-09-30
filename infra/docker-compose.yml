@@ -16,41 +16,27 @@ services:
     volumes:
       - pgvector_data:/var/lib/postgresql/data
 
-  # LangGraph Studio Dev Server Service
-  langgraph-studio:
-    build:
-      context: ..
-      dockerfile: Dockerfile
-    image: documentation-chatbot-langgraph-studio:latest
-    container_name: documentation-chatbot-langgraph-studio
-    command: langgraph dev --host 0.0.0.0 --port 2024
-    environment:
-      - PYTHONPATH=/app
-      - POSTGRES_HOST=pgvector
-      - PGVECTOR_URL=postgresql+psycopg://postgres:postgrespassword123@pgvector:5432/documentation_chatbot
-    ports:
-      - "2024:2024"
-    env_file:
-      - ../.env
-    volumes:
-      - ..:/app
-    depends_on:
-      - pgvector
-
-  # Core RAG Backend Service
+  # Unified Core RAG Backend & LangGraph Studio Dev Service
   backend:
     build:
       context: ..
       dockerfile: Dockerfile
     image: documentation-chatbot-backend:latest
     container_name: documentation-chatbot-backend
+    user: "0:0"
+    command: /app/entrypoint.sh
     ports:
       - "8000:8000"
+      - "2024:2024"
     environment:
+      - PYTHONPATH=/app
       - POSTGRES_HOST=pgvector
       - PGVECTOR_URL=postgresql+psycopg://postgres:postgrespassword123@pgvector:5432/documentation_chatbot
     env_file:
       - ../.env
+    volumes:
+      - ../src:/app/src
+      - ../langgraph.json:/app/langgraph.json
     depends_on:
       - pgvector
 
