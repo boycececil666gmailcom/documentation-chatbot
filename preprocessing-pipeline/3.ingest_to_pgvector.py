@@ -16,14 +16,10 @@ _CURRENT_DIR = Path(__file__).resolve().parent
 _ROOT_DIR = _CURRENT_DIR.parent
 load_dotenv(dotenv_path=_ROOT_DIR / ".env")
 
-_user = os.getenv("POSTGRES_USER", "postgres")
-_pass = os.getenv("POSTGRES_PASSWORD", "postgrespassword123")
-_host = os.getenv("POSTGRES_HOST", "localhost")
-_port = os.getenv("POSTGRES_PORT", "5432")
-_db = os.getenv("POSTGRES_DB", "documentation_chatbot")
-
-_default_url = f"postgresql+psycopg://{_user}:{_pass}@{_host}:{_port}/{_db}"
-PGVECTOR_URL = os.getenv("PGVECTOR_URL", _default_url)
+PGVECTOR_URL = os.getenv(
+    "PGVECTOR_URL",
+    "postgresql+psycopg://postgres:postgrespassword123@localhost:5432/documentation_chatbot",
+)
 
 BATCH_SIZE = 64
 INPUT_JSON_PATH = _CURRENT_DIR / "2.raptor_chunks.json"

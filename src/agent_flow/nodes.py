@@ -2,9 +2,15 @@
 import re
 from typing import cast
 
+import httpx
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
-from ..config import CHATBOT_THEME
+from ..config import (
+    CHATBOT_THEME,
+    OPENROUTER_API_KEY,
+    OPENROUTER_DECISIONS_URL,
+    OPENROUTER_JEV_MODEL,
+)
 from ..llm_client import hyde_llm, llm
 from ..models import (
     ClassifierSchema,
@@ -12,15 +18,56 @@ from ..models import (
     HyDESchema,
     RAGResponseSchema,
 )
-from .state import AgentState
 from ..tools import retrieve_VDB
+from .state import AgentState
 
 # endregion
 
 
 # region Classifier Node
 def classifier_node(state: AgentState) -> dict:
-    """Classifies if query aligns with configured chatbot theme using structured output."""
+    """Classifies if query aligns with configured chatbot theme using TypeSafe Jev via OpenRouter Decisions API."""
+    query = state["query"]
+
+    # Attempt fast System One decision using TypeSafe Jev on OpenRouter
+    try:
+        payload = {
+            "model": OPENROUTER_JEV_MODEL,
+            "state": f"User Query: {query}",
+            "questions": {
+                "domain_scope": {
+                    "type": "choice",
+                    "instructions": (
+                        f"Allowed Domain/Theme: '{CHATBOT_THEME}'. "
+                        "Determine if the user query is relevant to this domain or general technical questions/greetings related to it. "
+                        "Assume the user is already working within this domain unless completely unrelated (cooking, sports, medicine, etc.)."
+                    ),
+                    "criteria": {
+                        "pass": "Relevant technical question or greeting within domain",
+                        "refuse": "Completely unrelated off-topic query",
+                    },
+                }
+            },
+        }
+        headers = {
+            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+            "Content-Type": "application/json",
+        }
+        with httpx.Client(timeout=10.0) as client:
+            response = client.post(
+                OPENROUTER_DECISIONS_URL, json=payload, headers=headers
+            )
+            if response.status_code == 200:
+                data = response.json()
+                choice = (
+                    data.get("answers", {}).get("domain_scope", {}).get("choice")
+                )
+                if choice in ("pass", "refuse"):
+                    return {"should_answer": choice}
+    except Exception:
+        pass
+
+    # Fallback to structured LLM if Decisions API call fails or encounters an issue
     system_prompt = (
         f"You are a domain intent classifier for a technical support assistant.\n"
         f"Allowed Domain/Theme: '{CHATBOT_THEME}'.\n\n"
@@ -38,7 +85,7 @@ def classifier_node(state: AgentState) -> dict:
         structured_llm.invoke(
             [
                 SystemMessage(content=system_prompt),
-                HumanMessage(content=state["query"]),
+                HumanMessage(content=query),
             ]
         ),
     )

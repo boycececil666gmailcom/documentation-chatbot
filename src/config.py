@@ -18,7 +18,11 @@ def require_env(key: str) -> str:
 # OpenRouter Settings
 OPENROUTER_API_KEY = require_env("OPENROUTER_API_KEY")
 OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
+OPENROUTER_DECISIONS_URL = os.getenv(
+    "OPENROUTER_DECISIONS_URL", "https://openrouter.ai/api/alpha/decisions"
+)
 OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "deepseek/deepseek-v4-flash-0731")
+OPENROUTER_JEV_MODEL = os.getenv("OPENROUTER_JEV_MODEL", "typesafe/jev-latest")
 OPENROUTER_EMBED_MODEL = os.getenv(
     "OPENROUTER_EMBED_MODEL", "nvidia/nemotron-3-embed-1b:free"
 )
@@ -37,14 +41,10 @@ ALLOWED_ORIGINS = [origin.strip() for origin in _origins.split(",") if origin.st
 ALLOW_CREDENTIALS = "*" not in ALLOWED_ORIGINS
 
 # PGVector Database Settings
-POSTGRES_HOST = os.getenv("POSTGRES_HOST", "localhost")
-POSTGRES_PORT = int(os.getenv("POSTGRES_PORT", "5432"))
-POSTGRES_DB = os.getenv("POSTGRES_DB", "documentation_chatbot")
-POSTGRES_USER = os.getenv("POSTGRES_USER", "postgres")
-POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "postgrespassword123")
-
-_default_pg_url = f"postgresql+psycopg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
-PGVECTOR_URL = os.getenv("PGVECTOR_URL", _default_pg_url)
+PGVECTOR_URL = os.getenv(
+    "PGVECTOR_URL",
+    "postgresql+psycopg://postgres:postgrespassword123@localhost:5432/documentation_chatbot",
+)
 
 
 # Chatbot Theme Settings

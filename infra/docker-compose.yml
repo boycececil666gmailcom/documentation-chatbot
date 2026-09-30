@@ -30,7 +30,6 @@ services:
       - "2024:2024"
     environment:
       - PYTHONPATH=/app
-      - POSTGRES_HOST=pgvector
       - PGVECTOR_URL=postgresql+psycopg://postgres:postgrespassword123@pgvector:5432/documentation_chatbot
     env_file:
       - ../.env
