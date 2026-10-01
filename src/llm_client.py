@@ -48,21 +48,6 @@ embeddings = OpenAIEmbeddings(
     model_kwargs={"encoding_format": "float"},
 )
 
-# Shared Cross-Encoder reranker instance (lazily initialized to prevent import race conditions)
-_reranker_instance = None
-
-
-def get_reranker() -> FlashrankRerank:
-    global _reranker_instance
-    if _reranker_instance is None:
-        _reranker_instance = FlashrankRerank(client=Ranker(), top_n=5)
-    return _reranker_instance
-
-
-class _LazyReranker:
-    def compress_documents(self, documents, query):
-        return get_reranker().compress_documents(documents, query)
-
-
-reranker = _LazyReranker()
+# Shared Cross-Encoder reranker instance
+reranker = FlashrankRerank(client=Ranker(), top_n=5)
 # endregion
