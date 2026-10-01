@@ -36,6 +36,7 @@ PGVECTOR_URL = os.getenv(
     "PGVECTOR_URL",
     "postgresql+psycopg://postgres:postgrespassword123@localhost:5432/documentation_chatbot",
 )
+PGVECTOR_COLLECTION_NAME = os.getenv("PGVECTOR_COLLECTION_NAME", "raptor_chunks")
 
 
 # Chatbot Theme Settings

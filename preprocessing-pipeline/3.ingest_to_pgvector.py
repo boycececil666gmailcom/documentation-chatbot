@@ -20,6 +20,7 @@ PGVECTOR_URL = os.getenv(
     "PGVECTOR_URL",
     "postgresql+psycopg://postgres:postgrespassword123@localhost:5432/documentation_chatbot",
 )
+PGVECTOR_COLLECTION_NAME = os.getenv("PGVECTOR_COLLECTION_NAME", "raptor_chunks")
 
 BATCH_SIZE = 64
 INPUT_JSON_PATH = _CURRENT_DIR / "2.raptor_chunks.json"
@@ -29,7 +30,7 @@ INPUT_JSON_PATH = _CURRENT_DIR / "2.raptor_chunks.json"
 # region Ingestion Logic
 def ingest_collapsed_tree(
     chunks: list[dict],
-    collection_name: str = "raptor_chunks",
+    collection_name: str = PGVECTOR_COLLECTION_NAME,
 ) -> None:
     """Wipes and batch-ingests all chunks flatly into a single unified PGVector collection ('raptor_chunks') for Collapsed Tree retrieval."""
     total = len(chunks)
