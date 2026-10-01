@@ -31,15 +31,6 @@ OPENROUTER_PROVIDER_SORT = os.getenv("OPENROUTER_PROVIDER_SORT", "throughput")
 _ignore_env = os.getenv("OPENROUTER_PROVIDER_IGNORE", "wafer")
 OPENROUTER_PROVIDER_IGNORE = [p.strip() for p in _ignore_env.split(",") if p.strip()]
 
-# Server Settings
-BACKEND_HOST = require_env("BACKEND_HOST")
-BACKEND_PORT = int(require_env("BACKEND_PORT"))
-
-# CORS Security Settings
-_origins = os.getenv("ALLOWED_ORIGINS", "*")
-ALLOWED_ORIGINS = [origin.strip() for origin in _origins.split(",") if origin.strip()]
-ALLOW_CREDENTIALS = "*" not in ALLOWED_ORIGINS
-
 # PGVector Database Settings
 PGVECTOR_URL = os.getenv(
     "PGVECTOR_URL",

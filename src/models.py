@@ -1,7 +1,7 @@
 # region Agent Schemas
-from typing import Any, Literal
+from typing import Literal
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field
 
 
 class RAGResponseSchema(BaseModel):
@@ -46,60 +46,5 @@ class ClassifierSchema(BaseModel):
     )
 
 
-class HyDEDecisionSchema(BaseModel):
-    """Deterministic output schema for HyDE decision."""
-
-    should_hyde: bool = Field(
-        description="True if query is abstract/non-technical and benefits from HyDE"
-    )
-    reason: str = Field(description="Reason for HyDE decision")
-
-
 # endregion
 
-
-# region API Schemas
-class MessageSchema(BaseModel):
-    role: Literal["user", "assistant", "system"]
-    content: str = Field(min_length=1, description="Message content cannot be empty")
-
-
-class QueryRequest(BaseModel):
-    query: str = Field(min_length=1, description="Query string cannot be empty")
-    history: list[MessageSchema] = Field(
-        default_factory=list, description="Chat history messages"
-    )
-
-
-class QueryResponse(BaseModel):
-    response: str
-    citations: list[str] = Field(default_factory=list)
-    tool_calls_executed: list[str] = Field(default_factory=list)
-    should_hyde: bool | None = None
-    hyde_reason: str | None = None
-    hyde_content: str | None = None
-    retrieved_documents: str | None = None
-    history: list[MessageSchema] | None = None
-
-
-# endregion
-
-
-# region Tool Schemas
-class ToolQueryArgs(BaseModel):
-    query: str
-
-    @model_validator(mode="before")
-    @classmethod
-    def parse_args(cls, data: Any) -> dict[str, str]:
-        if isinstance(data, dict):
-            q_val = (
-                data.get("query")
-                or data.get("input")
-                or (next(iter(data.values())) if data else "")
-            )
-            return {"query": str(q_val)}
-        return {"query": str(data)}
-
-
-# endregion

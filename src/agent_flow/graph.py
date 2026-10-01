@@ -56,3 +56,21 @@ workflow.add_conditional_edges(
 
 agent_graph = workflow.compile()
 # endregion
+
+
+# region Direct Runner
+if __name__ == "__main__":
+    import asyncio
+
+    test_input = {
+        "query": "What is Kanzi fundamentals?",
+        "history": [],
+        "attempt_count": 0,
+    }
+    print("[Agent-Graph] Executing workflow directly...")
+    result = asyncio.run(agent_graph.ainvoke(test_input))
+    print("\n[Agent-Graph] === RESULT ===")
+    print(f"Response:\n{result.get('final_response', '')}")
+    print(f"Citations: {result.get('citations', [])}")
+# endregion
+
