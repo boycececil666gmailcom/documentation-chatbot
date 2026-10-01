@@ -88,7 +88,6 @@ class RaptorNode:
     def to_dict(self) -> dict[str, Any]:
         return {
             "id": self.node_id,
-            "small": "",
             "metadata": {
                 "parent_id": self.parent_id,
                 "title": self.title,

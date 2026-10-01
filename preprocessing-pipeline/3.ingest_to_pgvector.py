@@ -51,8 +51,7 @@ def ingest_collapsed_tree(
         batch = chunks[start : start + BATCH_SIZE]
         batch_docs = [
             Document(
-                page_content=d.get("small")
-                or d.get("metadata", {}).get("summary")
+                page_content=d.get("metadata", {}).get("summary")
                 or d.get("metadata", {}).get("title")
                 or d.get("metadata", {}).get("big", "document"),
                 metadata=d.get("metadata", {}),
