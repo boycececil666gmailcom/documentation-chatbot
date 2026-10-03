@@ -1,12 +1,13 @@
 # region Imports
 from typing import cast
 
+from langchain_core.documents import Document
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
+from .. import vector_db as db
 from ..config import CHATBOT_THEME
-from ..llm_client import call_jev_decisions, hyde_llm, llm
+from ..llm_client import call_jev_decisions, hyde_llm, llm, reranker
 from ..models import CritiqueResultSchema, HyDESchema, RAGResponseSchema
-from ..tools import retrieve_VDB
 from .state import AgentState
 
 # endregion
@@ -104,17 +105,51 @@ def hyde_node(state: AgentState) -> dict:
 
 
 # region Retrieval Node
+def fetch_ranked_documents(query: str) -> list[Document]:
+    """Retrieve and rerank document chunks for a query."""
+    docs = db.retrieve_collapsed_tree(query=query, top_k=10, max_tokens=4000)
+    return reranker.compress_documents(docs, query)
+
+
+def get_chunk_key(doc: Document) -> str:
+    """Extract unique topic identifier from document metadata."""
+    return str(doc.metadata.get("breadcrumb") or doc.metadata.get("title") or "Unknown Topic")
+
+
 def retrieve_node(state: AgentState) -> dict:
-    """Retrieves document context from vector database using HyDE passage or user query."""
+    """Retrieves document context from vector database, deduplicating against already loaded chunks."""
     query = state["query"]
     hypo_doc = state.get("hyde_content")
+    search_target = hypo_doc if hypo_doc else query
 
     retrieved_documents = state.get("retrieved_documents")
-    if not retrieved_documents:
-        search_target = hypo_doc if hypo_doc else query
-        retrieved_documents = retrieve_VDB.invoke(search_target)
+    loaded_keys = list(state.get("loaded_doc_keys", []))
 
-    return {"retrieved_documents": retrieved_documents}
+    if not retrieved_documents:
+        ranked_docs = fetch_ranked_documents(search_target)
+        new_chunks: list[str] = []
+        new_keys: list[str] = []
+
+        for doc in ranked_docs:
+            key = get_chunk_key(doc)
+            if key not in loaded_keys:
+                new_keys.append(key)
+                content = doc.metadata.get("big") or doc.page_content
+                score = doc.metadata.get("relevance_score", 0.0)
+                new_chunks.append(f"[{key}] (Score: {score:.3f})\n{content}")
+
+        if new_chunks:
+            retrieved_documents = "=== NEW VECTOR CONTEXT ===\n" + "\n\n".join(new_chunks)
+            loaded_keys.extend(new_keys)
+        elif loaded_keys:
+            retrieved_documents = "All relevant document context is already loaded in previous conversation turns."
+        else:
+            retrieved_documents = "No matching vector documents found."
+
+    return {
+        "retrieved_documents": retrieved_documents,
+        "loaded_doc_keys": loaded_keys,
+    }
 
 
 # endregion
@@ -138,7 +173,7 @@ def generate_node(state: AgentState) -> dict:
 
     messages = [SystemMessage(content=system_prompt)]
 
-    # Append conversational history
+    # 1. Replay established conversational history
     for msg in history:
         role, content = msg.get("role"), msg.get("content", "")
         if role == "user":
@@ -146,26 +181,23 @@ def generate_node(state: AgentState) -> dict:
         elif role == "assistant":
             messages.append(AIMessage(content=content))
 
-    messages.append(HumanMessage(content=query))
-
-    # Append retry instruction if previous attempt failed critique
-    prev_draft = state.get("final_response")
+    # 2. Append turn instruction: if fresh turn, append query; if retry, append critique feedback
+    critique_passed = state.get("critique_passed")
     feedback = state.get("critique_feedback")
-    if state.get("critique_passed") is False and prev_draft:
-        messages.append(AIMessage(content=prev_draft))
+    if critique_passed is False:
         critique_msg = (
             f"CRITIQUE FEEDBACK: Previous draft was rejected because: {feedback}\n"
             if feedback
             else "CRITIQUE: Previous draft was rejected due to lack of strict groundedness in retrieved documents.\n"
         )
-        messages.append(
-            HumanMessage(
-                content=(
-                    f"{critique_msg}"
-                    "Revise your answer to strictly ground every claim with precise inline citations [Topic Name] matching the source chunks."
-                )
-            )
+        turn_user_msg = (
+            f"{critique_msg}"
+            "Revise your answer to strictly ground every claim with precise inline citations [Topic Name] matching the source chunks."
         )
+    else:
+        turn_user_msg = query
+
+    messages.append(HumanMessage(content=turn_user_msg))
 
     structured_llm = llm.with_structured_output(RAGResponseSchema)
     response = cast(RAGResponseSchema, structured_llm.invoke(messages))
@@ -183,8 +215,9 @@ def generate_node(state: AgentState) -> dict:
         else []
     )
 
+    # 3. Policy A (KV Cache Priority): Maintain exact token prefix sequence across turns and retries
     updated_history = list(history) + [
-        {"role": "user", "content": query},
+        {"role": "user", "content": turn_user_msg},
         {"role": "assistant", "content": final_text},
     ]
 
@@ -192,6 +225,7 @@ def generate_node(state: AgentState) -> dict:
         "final_response": final_text,
         "citations": unique_citations,
         "history": updated_history,
+        "loaded_doc_keys": state.get("loaded_doc_keys", []),
     }
 
 
@@ -200,7 +234,7 @@ def generate_node(state: AgentState) -> dict:
 
 # region Refusal Node
 def refuse_node(state: AgentState) -> dict:
-    """Generates polite refusal for off-theme queries."""
+    """Generates polite refusal for off-theme queries and preserves conversation history."""
     system_prompt = (
         f"You are a customer service assistant bound to the theme '{CHATBOT_THEME}'.\n"
         f"Politely explain that you can only assist with questions related to '{CHATBOT_THEME}', "
@@ -212,7 +246,24 @@ def refuse_node(state: AgentState) -> dict:
     ]
     structured_llm = llm.with_structured_output(RAGResponseSchema)
     response: RAGResponseSchema = structured_llm.invoke(messages)
-    return {"final_response": response.answer, "citations": []}
+    refusal_text = (
+        response.answer.strip()
+        if response and response.answer
+        else f"I can only assist with questions related to '{CHATBOT_THEME}'."
+    )
+
+    history = state.get("history", [])
+    updated_history = list(history) + [
+        {"role": "user", "content": state["query"]},
+        {"role": "assistant", "content": refusal_text},
+    ]
+
+    return {
+        "final_response": refusal_text,
+        "citations": [],
+        "history": updated_history,
+        "loaded_doc_keys": state.get("loaded_doc_keys", []),
+    }
 
 
 # endregion

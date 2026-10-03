@@ -7,6 +7,7 @@ class InputState(TypedDict):
 
     query: str
     history: NotRequired[list[dict]]
+    loaded_doc_keys: NotRequired[list[str]]
 
 
 class AgentState(TypedDict):
@@ -14,6 +15,7 @@ class AgentState(TypedDict):
 
     query: str
     history: NotRequired[list[dict]]
+    loaded_doc_keys: NotRequired[list[str]]
     should_answer: NotRequired[Literal["pass", "refuse"]]
     should_hyde: NotRequired[bool]
     hyde_content: NotRequired[str | None]

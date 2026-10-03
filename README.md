@@ -247,7 +247,6 @@ Enterprise-RAG-Engine/
 │   ├── agent_flow/                    # Streamlined LangGraph StateGraph (graph, nodes, edges, state)
 │   ├── config.py                      # Environment variable configuration
 │   ├── vector_db.py                   # PGVector search, embedding pipeline
-│   ├── tools.py                       # LangGraph tool: retrieve_VDB
 │   ├── models.py                      # Pydantic request/response schemas
 │   └── main.py                        # FastAPI app: /query, /health
 ├── preprocessing-pipeline/            # Scraper & RAPTOR chunking ingestion pipeline
