@@ -5,7 +5,7 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
 from ..config import CHATBOT_THEME
 from ..llm_client import call_jev_decisions, hyde_llm, llm
-from ..models import HyDESchema, RAGResponseSchema
+from ..models import CritiqueResultSchema, HyDESchema, RAGResponseSchema
 from ..tools import retrieve_VDB
 from .state import AgentState
 
@@ -35,7 +35,6 @@ def classifier_node(state: AgentState) -> dict:
 
     answers = call_jev_decisions(state_payload, questions)
     choice = answers.get("domain_scope", {}).get("choice", "pass")
-    print(f"[Classifier-classifier_node] Jev classification choice: {choice}")
     return {"should_answer": choice}
 
 
@@ -63,21 +62,16 @@ def hyde_decision_node(state: AgentState) -> dict:
         }
     }
 
-    answers = call_jev_decisions(state_payload, questions)
-    choice = answers.get("hyde_necessity", {}).get("choice", "skip")
-    should_hyde = choice == "expand"
-    reason = (
-        "Abstract or short query benefits from hypothetical expansion (Jev Decision)"
-        if should_hyde
-        else "Query contains specific terms or details; skipping HyDE (Jev Decision)"
+    # Centralized low-confidence fallback handling (Policy 2: default to expand on confidence < 0.20)
+    answers = call_jev_decisions(
+        state_payload,
+        questions,
+        min_confidence=0.20,
+        fallback="expand",
     )
-    print(
-        f"[HyDE-hyde_decision_node] Jev decision: should_hyde={should_hyde}, reason={reason}"
-    )
-    return {
-        "should_hyde": should_hyde,
-        "hyde_reason": reason,
-    }
+    decision = answers.get("hyde_necessity", {})
+    should_hyde = decision.get("choice") == "expand"
+    return {"should_hyde": should_hyde}
 
 
 def generate_hypothetical_document(query: str) -> str:
@@ -154,15 +148,20 @@ def generate_node(state: AgentState) -> dict:
 
     messages.append(HumanMessage(content=query))
 
-    # Append critique feedback for retry loops if present
-    feedback = state.get("critique_feedback")
+    # Append retry instruction if previous attempt failed critique
     prev_draft = state.get("final_response")
-    if feedback and prev_draft:
+    feedback = state.get("critique_feedback")
+    if state.get("critique_passed") is False and prev_draft:
         messages.append(AIMessage(content=prev_draft))
+        critique_msg = (
+            f"CRITIQUE FEEDBACK: Previous draft was rejected because: {feedback}\n"
+            if feedback
+            else "CRITIQUE: Previous draft was rejected due to lack of strict groundedness in retrieved documents.\n"
+        )
         messages.append(
             HumanMessage(
                 content=(
-                    f"CRITIQUE FEEDBACK: Previous draft was rejected because: {feedback}\n"
+                    f"{critique_msg}"
                     "Revise your answer to strictly ground every claim with precise inline citations [Topic Name] matching the source chunks."
                 )
             )
@@ -221,69 +220,63 @@ def refuse_node(state: AgentState) -> dict:
 
 # region Critique Node
 def critique_node(state: AgentState) -> dict:
-    """Evaluates draft answer quality and groundedness using TypeSafe Jev."""
+    """Evaluates draft answer quality and groundedness using System 2 LLM (DeepSeek)."""
     should_answer = state.get("should_answer")
     draft = state.get("final_response", "")
-    docs = state.get("retrieved_documents", [])
+    docs = state.get("retrieved_documents", "")
     query = state["query"]
     attempt_count = state.get("attempt_count", 0)
 
     if should_answer == "refuse":
-        state_payload = {
-            "user_query": query,
-            "draft_response": draft,
-            "theme": CHATBOT_THEME,
-        }
-        questions = {
-            "is_polite_refusal": {
-                "type": "choice",
-                "instructions": (
-                    f"Verify if the draft response is a polite and clear refusal to answer a query outside '{CHATBOT_THEME}'."
-                ),
-                "criteria": {
-                    "pass": "The draft politely declines to answer the off-topic query",
-                    "fail": "The draft is impolite or improperly attempts to answer an off-topic query",
-                },
-            }
-        }
-        answers = call_jev_decisions(state_payload, questions)
-        choice = answers.get("is_polite_refusal", {}).get("choice", "pass")
+        prompt = (
+            f"You are a strict quality control evaluator.\n"
+            f"Verify if the draft response is a polite and clear refusal to answer a query outside the theme: '{CHATBOT_THEME}'.\n"
+            f"User Query: {query}\n"
+            f"Draft Response: {draft}\n\n"
+            "Return valid JSON matching CritiqueResultSchema:\n"
+            '- is_passed: true if polite refusal, false otherwise\n'
+            '- feedback: explanation string if false, otherwise null'
+        )
     else:
-        doc_snippets = []
-        if isinstance(docs, list):
-            for d in docs[:5]:
-                content = getattr(d, "page_content", str(d))
-                doc_snippets.append(content[:500])
-        context_str = "\n---\n".join(doc_snippets) if doc_snippets else str(docs)[:2000]
+        prompt = (
+            f"You are a quality control auditor verifying documentation answers.\n"
+            f"User Query: {query}\n\n"
+            f"Retrieved Documentation Context:\n{docs}\n\n"
+            f"Draft Response:\n{draft}\n\n"
+            "Evaluation Rules:\n"
+            "1. Groundedness: Is the answer supported by the retrieved documentation without unverified extrapolation?\n"
+            "2. Inline Citations: Do inline citations accurately reference source topics?\n\n"
+            "Return valid JSON matching CritiqueResultSchema:\n"
+            '- is_passed: true if grounded and accurate, false otherwise\n'
+            '- feedback: concise explanation of what claim or citation failed if false, otherwise null'
+        )
 
-        state_payload = {
-            "user_query": query,
-            "retrieved_context": context_str,
-            "draft_response": draft,
-        }
-        questions = {
-            "groundedness": {
-                "type": "choice",
-                "instructions": (
-                    "Strict quality evaluation: verify if the draft response is fully grounded in the retrieved documentation context. "
-                    "Ensure there are no invented facts or numbers, and that claims align with the provided context."
-                ),
-                "criteria": {
-                    "pass": "Draft is completely grounded in retrieved context with zero hallucination",
-                    "fail": "Draft contains unsupported facts, hallucinations, or contradicts retrieved context",
-                },
-            }
-        }
-        answers = call_jev_decisions(state_payload, questions)
-        choice = answers.get("groundedness", {}).get("choice", "pass")
+    try:
+        structured_llm = llm.with_structured_output(CritiqueResultSchema)
+        eval_result = cast(
+            CritiqueResultSchema,
+            structured_llm.invoke([HumanMessage(content=prompt)]),
+        )
+        is_passed = eval_result.is_passed if eval_result else True
+        feedback = (
+            eval_result.feedback
+            if (eval_result and not is_passed)
+            else ("Failed groundedness validation" if not is_passed else None)
+        )
+    except Exception as exc:
+        print(f"[Critique-critique_node] Warning during critique evaluation: {exc}")
+        is_passed = True
+        feedback = None
 
-    print(f"[Critique-critique_node] Jev critique decision: choice={choice}")
-    if choice == "pass":
-        return {"critique_feedback": "PASS"}
+    print(
+        f"[Critique-critique_node] System 2 critique: is_passed={is_passed}, "
+        f"feedback={feedback}"
+    )
 
     return {
-        "critique_feedback": "Draft response failed groundedness validation (Jev Decision)",
-        "attempt_count": attempt_count + 1,
+        "critique_passed": is_passed,
+        "critique_feedback": feedback,
+        "attempt_count": attempt_count if is_passed else attempt_count + 1,
     }
 
 

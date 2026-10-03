@@ -16,10 +16,10 @@ def route_by_hyde_decision(state: AgentState) -> str:
 
 
 def route_after_critique(state: AgentState) -> str:
-    """Routes to 'approved' (END) or 'rejected' (loop back) based on critique feedback."""
-    feedback = state.get("critique_feedback")
+    """Routes to 'approved' (END) or 'rejected' (loop back) based on critique evaluation."""
+    critique_passed = state.get("critique_passed", True)
     attempt_count = state.get("attempt_count", 0)
-    return "approved" if feedback == "PASS" or attempt_count >= 3 else "rejected"
+    return "approved" if critique_passed or attempt_count >= 3 else "rejected"
 
 
 # endregion

@@ -16,11 +16,11 @@ class AgentState(TypedDict):
     history: NotRequired[list[dict]]
     should_answer: NotRequired[Literal["pass", "refuse"]]
     should_hyde: NotRequired[bool]
-    hyde_reason: NotRequired[str | None]
     hyde_content: NotRequired[str | None]
     retrieved_documents: NotRequired[str | None]
     final_response: NotRequired[str]
     citations: NotRequired[list[str]]
+    critique_passed: NotRequired[bool]
     critique_feedback: NotRequired[str | None]
     attempt_count: NotRequired[int]
 

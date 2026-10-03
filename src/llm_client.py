@@ -1,4 +1,5 @@
 # region Imports
+from collections.abc import Callable
 from typing import Any
 
 import httpx
@@ -68,9 +69,16 @@ reranker = FlashrankRerank(client=Ranker(), top_n=5)
 # region Jev Decisions
 @traceable(run_type="llm", name="typesafe/jev")
 def call_jev_decisions(
-    state_payload: dict[str, Any], questions: dict[str, Any]
+    state_payload: dict[str, Any],
+    questions: dict[str, Any],
+    min_confidence: float = 0.0,
+    fallback: str | Callable[[float, dict[str, float]], str] | None = None,
 ) -> dict[str, Any]:
-    """Invokes OpenRouter Decisions API with TypeSafe Jev model."""
+    """Invokes OpenRouter Decisions API with TypeSafe Jev model.
+
+    If min_confidence > 0 and confidence is below threshold, overrides choice
+    with fallback value or result of fallback callback function.
+    """
     model = (
         "typesafe/jev-1.13"
         if OPENROUTER_JEV_MODEL == "typesafe/jev-latest"
@@ -100,10 +108,30 @@ def call_jev_decisions(
             )
 
         data = response.json()
-        print(
-            f"[Jev-call_jev_decisions] Decisions response received successfully: {list(data.get('answers', {}).keys())}"
-        )
-        return data.get("answers", {})
+        answers: dict[str, Any] = data.get("answers", {})
+
+        for q_key, ans in answers.items():
+            conf = float(ans.get("confidence", 0.0))
+            probs = ans.get("probabilities", {})
+            choice = ans.get("choice")
+            print(
+                f"[Jev-call_jev_decisions] Question '{q_key}': choice='{choice}', "
+                f"confidence={conf:.2f}, probabilities={probs}"
+            )
+
+            # Centralized low-confidence fallback handling
+            if min_confidence > 0 and conf < min_confidence and fallback is not None:
+                resolved_choice = (
+                    fallback(conf, probs) if callable(fallback) else fallback
+                )
+                print(
+                    f"[Jev-call_jev_decisions] Low confidence ({conf:.2f} < {min_confidence:.2f}) on '{q_key}'. "
+                    f"Overriding choice '{choice}' -> '{resolved_choice}' via fallback."
+                )
+                ans["choice"] = resolved_choice
+                ans["fallback_applied"] = True
+
+        return answers
 
 
 # endregion
