@@ -132,6 +132,24 @@ def retrieve_node(state: AgentState) -> dict:
 
         for doc in ranked_docs:
             key = get_chunk_key(doc)
+            new_keys.append(key)
+            content = doc.metadata.get("big") or doc.page_content
+            score = doc.metadata.get("relevance_score", 0.0)
+            new_chunks.append(f"[{key}] (Score: {score:.3f})\n{content}")
+
+        if new_chunks:
+            retrieved_documents = "=== NEW VECTOR CONTEXT ===\n" + "\n\n".join(new_chunks)
+            loaded_keys = new_keys
+        else:
+            retrieved_documents = "No matching vector documents found."
+    else:
+        # Multi-turn branch: filter out already loaded chunks to avoid duplicate context
+        ranked_docs = fetch_ranked_documents(search_target)
+        new_chunks: list[str] = []
+        new_keys: list[str] = []
+
+        for doc in ranked_docs:
+            key = get_chunk_key(doc)
             if key not in loaded_keys:
                 new_keys.append(key)
                 content = doc.metadata.get("big") or doc.page_content
@@ -141,10 +159,8 @@ def retrieve_node(state: AgentState) -> dict:
         if new_chunks:
             retrieved_documents = "=== NEW VECTOR CONTEXT ===\n" + "\n\n".join(new_chunks)
             loaded_keys.extend(new_keys)
-        elif loaded_keys:
-            retrieved_documents = "All relevant document context is already loaded in previous conversation turns."
         else:
-            retrieved_documents = "No matching vector documents found."
+            retrieved_documents = "All relevant document context is already loaded in previous conversation turns."
 
     return {
         "retrieved_documents": retrieved_documents,
@@ -215,7 +231,7 @@ def generate_node(state: AgentState) -> dict:
         else []
     )
 
-    # 3. Policy A (KV Cache Priority): Maintain exact token prefix sequence across turns and retries
+    # 3.  (KV Cache Priority): Maintain exact token prefix sequence across turns and retries
     updated_history = list(history) + [
         {"role": "user", "content": turn_user_msg},
         {"role": "assistant", "content": final_text},
