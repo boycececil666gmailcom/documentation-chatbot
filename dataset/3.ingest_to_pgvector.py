@@ -1,19 +1,24 @@
 # region Imports
 import json
 import os
+import sys
+import time
 from pathlib import Path
+
+_CURRENT_DIR = Path(__file__).resolve().parent
+_ROOT_DIR = _CURRENT_DIR.parent
+if str(_ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(_ROOT_DIR))
 
 from dotenv import load_dotenv
 from langchain_core.documents import Document
 from langchain_postgres.vectorstores import PGVector
 
-from llm_client import embeddings
+from src.llm_client import embeddings
 
 # endregion
 
 # region Configuration
-_CURRENT_DIR = Path(__file__).resolve().parent
-_ROOT_DIR = _CURRENT_DIR.parent
 load_dotenv(dotenv_path=_ROOT_DIR / ".env")
 
 PGVECTOR_URL = os.getenv(
@@ -59,10 +64,25 @@ def ingest_collapsed_tree(
             for d in batch
         ]
         batch_ids = [str(d["id"]) for d in batch]
-        vector_store.add_documents(documents=batch_docs, ids=batch_ids)
+        max_retries = 5
+        for attempt in range(max_retries):
+            try:
+                vector_store.add_documents(documents=batch_docs, ids=batch_ids)
+                break
+            except Exception as e:
+                if "429" in str(e) and attempt < max_retries - 1:
+                    wait_sec = 15 * (attempt + 1)
+                    print(
+                        f"[Ingestion] Rate limit (429) encountered. Backing off {wait_sec}s (attempt {attempt + 1}/{max_retries})..."
+                    )
+                    time.sleep(wait_sec)
+                else:
+                    raise
+
         print(
             f"[Ingestion] Processed {min(start + BATCH_SIZE, total)}/{total} chunks..."
         )
+        time.sleep(3.2)  # Respect OpenRouter free-tier rate limit (<= 20 req/min)
 
     print(
         f"[Ingestion] Successfully ingested {total} chunks into PGVector collection '{collection_name}'."

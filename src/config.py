@@ -22,7 +22,7 @@ OPENROUTER_DECISIONS_URL = os.getenv(
     "OPENROUTER_DECISIONS_URL", "https://openrouter.ai/api/alpha/decisions"
 )
 OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "deepseek/deepseek-v4-flash-0731")
-OPENROUTER_JEV_MODEL = os.getenv("OPENROUTER_JEV_MODEL", "typesafe/jev-latest")
+OPENROUTER_JEV_MODEL = os.getenv("OPENROUTER_JEV_MODEL", "typesafe/jev-1.13")
 OPENROUTER_EMBED_MODEL = os.getenv(
     "OPENROUTER_EMBED_MODEL", "nvidia/nemotron-3-embed-1b:free"
 )

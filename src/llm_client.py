@@ -1,18 +1,30 @@
-# region LLM Clients
+# region Imports
+from typing import Any
+
+import httpx
 from flashrank import Ranker
-from langchain_community.document_compressors.flashrank_rerank import FlashrankRerank
+from langchain_community.document_compressors.flashrank_rerank import (
+    FlashrankRerank,
+)
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langsmith import traceable
 
 from .config import (
     OPENROUTER_API_KEY,
     OPENROUTER_BASE_URL,
+    OPENROUTER_DECISIONS_URL,
     OPENROUTER_EMBED_MODEL,
+    OPENROUTER_JEV_MODEL,
     OPENROUTER_MODEL,
     OPENROUTER_PROVIDER_IGNORE,
     OPENROUTER_PROVIDER_SORT,
     OPENROUTER_TEMPERATURE,
 )
 
+# endregion
+
+
+# region Generative Clients
 _provider_config = {"allow_fallbacks": True}
 if OPENROUTER_PROVIDER_SORT:
     _provider_config["sort"] = OPENROUTER_PROVIDER_SORT
@@ -50,4 +62,48 @@ embeddings = OpenAIEmbeddings(
 
 # Shared Cross-Encoder reranker instance
 reranker = FlashrankRerank(client=Ranker(), top_n=5)
+# endregion
+
+
+# region Jev Decisions
+@traceable(run_type="llm", name="typesafe/jev")
+def call_jev_decisions(
+    state_payload: dict[str, Any], questions: dict[str, Any]
+) -> dict[str, Any]:
+    """Invokes OpenRouter Decisions API with TypeSafe Jev model."""
+    model = (
+        "typesafe/jev-1.13"
+        if OPENROUTER_JEV_MODEL == "typesafe/jev-latest"
+        else OPENROUTER_JEV_MODEL
+    )
+
+    payload = {
+        "model": model,
+        "state": state_payload,
+        "questions": questions,
+    }
+    headers = {
+        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://github.com/boyce/documentation-chatbot",
+        "X-Title": "Documentation Chatbot",
+    }
+
+    with httpx.Client(timeout=15.0) as client:
+        response = client.post(OPENROUTER_DECISIONS_URL, json=payload, headers=headers)
+        if response.status_code != 200:
+            print(
+                f"[Jev-call_jev_decisions] HTTP Error {response.status_code}: {response.text}"
+            )
+            raise RuntimeError(
+                f"Jev API returned HTTP {response.status_code}: {response.text}"
+            )
+
+        data = response.json()
+        print(
+            f"[Jev-call_jev_decisions] Decisions response received successfully: {list(data.get('answers', {}).keys())}"
+        )
+        return data.get("answers", {})
+
+
 # endregion

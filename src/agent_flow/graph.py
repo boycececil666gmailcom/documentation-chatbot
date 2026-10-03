@@ -73,4 +73,3 @@ if __name__ == "__main__":
     print(f"Response:\n{result.get('final_response', '')}")
     print(f"Citations: {result.get('citations', [])}")
 # endregion
-

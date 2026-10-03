@@ -1,23 +1,11 @@
 # region Imports
-import re
 from typing import cast
 
-import httpx
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
-from ..config import (
-    CHATBOT_THEME,
-    OPENROUTER_API_KEY,
-    OPENROUTER_DECISIONS_URL,
-    OPENROUTER_JEV_MODEL,
-)
-from ..llm_client import hyde_llm, llm
-from ..models import (
-    ClassifierSchema,
-    CritiqueResultSchema,
-    HyDESchema,
-    RAGResponseSchema,
-)
+from ..config import CHATBOT_THEME
+from ..llm_client import call_jev_decisions, hyde_llm, llm
+from ..models import HyDESchema, RAGResponseSchema
 from ..tools import retrieve_VDB
 from .state import AgentState
 
@@ -26,71 +14,29 @@ from .state import AgentState
 
 # region Classifier Node
 def classifier_node(state: AgentState) -> dict:
-    """Classifies if query aligns with configured chatbot theme using TypeSafe Jev via OpenRouter Decisions API."""
+    """Classifies if query aligns with configured chatbot theme using TypeSafe Jev."""
     query = state["query"]
 
-    # Attempt fast System One decision using TypeSafe Jev on OpenRouter
-    try:
-        payload = {
-            "model": OPENROUTER_JEV_MODEL,
-            "state": f"User Query: {query}",
-            "questions": {
-                "domain_scope": {
-                    "type": "choice",
-                    "instructions": (
-                        f"Allowed Domain/Theme: '{CHATBOT_THEME}'. "
-                        "Determine if the user query is relevant to this domain or general technical questions/greetings related to it. "
-                        "Assume the user is already working within this domain unless completely unrelated (cooking, sports, medicine, etc.)."
-                    ),
-                    "criteria": {
-                        "pass": "Relevant technical question or greeting within domain",
-                        "refuse": "Completely unrelated off-topic query",
-                    },
-                }
+    state_payload = {"user_query": query}
+    questions = {
+        "domain_scope": {
+            "type": "choice",
+            "instructions": (
+                f"Allowed Domain/Theme: '{CHATBOT_THEME}'. "
+                "Determine if the user query is relevant to this domain or general technical questions/greetings related to it. "
+                "Assume the user is already working within this domain unless completely unrelated (cooking, sports, medicine, etc.)."
+            ),
+            "criteria": {
+                "pass": "Relevant technical question, concept, or greeting within domain",
+                "refuse": "Completely unrelated off-topic query",
             },
         }
-        headers = {
-            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-            "Content-Type": "application/json",
-        }
-        with httpx.Client(timeout=10.0) as client:
-            response = client.post(
-                OPENROUTER_DECISIONS_URL, json=payload, headers=headers
-            )
-            if response.status_code == 200:
-                data = response.json()
-                choice = (
-                    data.get("answers", {}).get("domain_scope", {}).get("choice")
-                )
-                if choice in ("pass", "refuse"):
-                    return {"should_answer": choice}
-    except Exception:
-        pass
+    }
 
-    # Fallback to structured LLM if Decisions API call fails or encounters an issue
-    system_prompt = (
-        f"You are a domain intent classifier for a technical support assistant.\n"
-        f"Allowed Domain/Theme: '{CHATBOT_THEME}'.\n\n"
-        "Determine if the user query is relevant to this domain or is general greetings/technical questions related to it.\n"
-        "Guideline: Users often ask implicit technical questions without explicitly repeating the product name (e.g., asking about logs, environment variables, build configs, UI layouts, shaders, performance, plugins).\n"
-        "Assume the user is already working within this domain context unless the query is clearly and completely unrelated (e.g., cooking recipes, sports, medical advice).\n\n"
-        "Respond with a JSON object matching this schema:\n"
-        '- "category": "pass" if potentially on-topic or implicit technical query, "refuse" if completely off-topic\n'
-        '- "reason": optional explanation string'
-    )
-
-    structured_llm = llm.with_structured_output(ClassifierSchema)
-    result = cast(
-        ClassifierSchema,
-        structured_llm.invoke(
-            [
-                SystemMessage(content=system_prompt),
-                HumanMessage(content=query),
-            ]
-        ),
-    )
-
-    return {"should_answer": result.category if result else "refuse"}
+    answers = call_jev_decisions(state_payload, questions)
+    choice = answers.get("domain_scope", {}).get("choice", "pass")
+    print(f"[Classifier-classifier_node] Jev classification choice: {choice}")
+    return {"should_answer": choice}
 
 
 # endregion
@@ -98,28 +44,39 @@ def classifier_node(state: AgentState) -> dict:
 
 # region HyDE Nodes
 def hyde_decision_node(state: AgentState) -> dict:
-    """Decides whether HyDE expansion is beneficial for the user query."""
+    """Decides whether HyDE expansion is beneficial for the user query using TypeSafe Jev."""
     query = state["query"].strip()
 
-    # Skip HyDE for technical codes, versions, or error patterns
-    error_pattern = r"(error|err|code|uuid|v\d+\.\d+|\b[A-Z]{2,}-\d+\b|\b\d{3,5}\b)"
-    if re.search(error_pattern, query, re.IGNORECASE):
-        return {
-            "should_hyde": False,
-            "hyde_reason": "Query contains specific identifier or error pattern",
+    state_payload = {"user_query": query}
+    questions = {
+        "hyde_necessity": {
+            "type": "choice",
+            "instructions": (
+                "Evaluate whether hypothetical document expansion (HyDE) is needed for semantic vector retrieval. "
+                "- Choose 'expand' for short, conceptual, or abstract questions lacking explicit identifiers or technical keywords. "
+                "- Choose 'skip' for queries that already contain specific error codes, API names, function signatures, version numbers, or detailed context."
+            ),
+            "criteria": {
+                "expand": "Short or abstract query that benefits from hypothetical passage generation",
+                "skip": "Query has specific keywords, identifiers, error codes, or is already detailed",
+            },
         }
+    }
 
-    # Skip HyDE for detailed long queries
-    if len(query) > 80 or len(query.split()) >= 12:
-        return {
-            "should_hyde": False,
-            "hyde_reason": "Query is already specific and detailed",
-        }
-
-    # Enable HyDE for short or abstract queries
+    answers = call_jev_decisions(state_payload, questions)
+    choice = answers.get("hyde_necessity", {}).get("choice", "skip")
+    should_hyde = choice == "expand"
+    reason = (
+        "Abstract or short query benefits from hypothetical expansion (Jev Decision)"
+        if should_hyde
+        else "Query contains specific terms or details; skipping HyDE (Jev Decision)"
+    )
+    print(
+        f"[HyDE-hyde_decision_node] Jev decision: should_hyde={should_hyde}, reason={reason}"
+    )
     return {
-        "should_hyde": True,
-        "hyde_reason": "Abstract or short query benefits from hypothetical expansion",
+        "should_hyde": should_hyde,
+        "hyde_reason": reason,
     }
 
 
@@ -264,56 +221,70 @@ def refuse_node(state: AgentState) -> dict:
 
 # region Critique Node
 def critique_node(state: AgentState) -> dict:
-    """Evaluates draft answer quality and groundedness against retrieved context or refusal rules."""
+    """Evaluates draft answer quality and groundedness using TypeSafe Jev."""
     should_answer = state.get("should_answer")
-    draft = state.get("final_response")
-    docs = state.get("retrieved_documents")
+    draft = state.get("final_response", "")
+    docs = state.get("retrieved_documents", [])
     query = state["query"]
     attempt_count = state.get("attempt_count", 0)
-    hypo_doc = state.get("hyde_content")
 
     if should_answer == "refuse":
-        prompt = (
-            f"You are a strict quality control evaluator.\n"
-            f"Verify if the draft response is a polite refusal to answer a query outside the theme: '{CHATBOT_THEME}'.\n"
-            f"User Query: {query}\n"
-            f"Draft Response: {draft}\n\n"
-            "Return a valid JSON object matching this schema:\n"
-            '- "is_passed": true if the draft is a polite refusal, false otherwise\n'
-            '- "feedback": explanation string if is_passed is false, otherwise null'
-        )
-    else:
-        prompt = (
-            f"You are a strict quality control evaluator.\n"
-            f"Verify if the draft response is fully grounded in the retrieved documents context and that all inline citations [Topic Name] accurately correspond to the specific facts cited from retrieved topics.\n"
-            f"STRICT CHECK: No extrapolated or invented numbers/facts.\n"
-            f"User Query: {query}\n"
-            f"HyDE Passage: {hypo_doc or 'N/A'}\n"
-            f"Retrieved Context:\n{docs}\n"
-            f"Draft Response: {draft}\n\n"
-            "Return a valid JSON object matching this schema:\n"
-            '- "is_passed": true if fully grounded with zero hallucination, false otherwise\n'
-            '- "feedback": explanation string if is_passed is false, otherwise null'
-        )
-
-    try:
-        structured_llm = llm.with_structured_output(CritiqueResultSchema)
-        eval_result = cast(
-            CritiqueResultSchema,
-            structured_llm.invoke([HumanMessage(content=prompt)]),
-        )
-
-        if eval_result and eval_result.is_passed:
-            return {"critique_feedback": "PASS"}
-
-        return {
-            "critique_feedback": (eval_result.feedback if eval_result else None)
-            or "Failed groundedness validation",
-            "attempt_count": attempt_count + 1,
+        state_payload = {
+            "user_query": query,
+            "draft_response": draft,
+            "theme": CHATBOT_THEME,
         }
-    except Exception:
-        # Fallback to PASS on upstream schema validation errors to prevent pipeline crash
+        questions = {
+            "is_polite_refusal": {
+                "type": "choice",
+                "instructions": (
+                    f"Verify if the draft response is a polite and clear refusal to answer a query outside '{CHATBOT_THEME}'."
+                ),
+                "criteria": {
+                    "pass": "The draft politely declines to answer the off-topic query",
+                    "fail": "The draft is impolite or improperly attempts to answer an off-topic query",
+                },
+            }
+        }
+        answers = call_jev_decisions(state_payload, questions)
+        choice = answers.get("is_polite_refusal", {}).get("choice", "pass")
+    else:
+        doc_snippets = []
+        if isinstance(docs, list):
+            for d in docs[:5]:
+                content = getattr(d, "page_content", str(d))
+                doc_snippets.append(content[:500])
+        context_str = "\n---\n".join(doc_snippets) if doc_snippets else str(docs)[:2000]
+
+        state_payload = {
+            "user_query": query,
+            "retrieved_context": context_str,
+            "draft_response": draft,
+        }
+        questions = {
+            "groundedness": {
+                "type": "choice",
+                "instructions": (
+                    "Strict quality evaluation: verify if the draft response is fully grounded in the retrieved documentation context. "
+                    "Ensure there are no invented facts or numbers, and that claims align with the provided context."
+                ),
+                "criteria": {
+                    "pass": "Draft is completely grounded in retrieved context with zero hallucination",
+                    "fail": "Draft contains unsupported facts, hallucinations, or contradicts retrieved context",
+                },
+            }
+        }
+        answers = call_jev_decisions(state_payload, questions)
+        choice = answers.get("groundedness", {}).get("choice", "pass")
+
+    print(f"[Critique-critique_node] Jev critique decision: choice={choice}")
+    if choice == "pass":
         return {"critique_feedback": "PASS"}
+
+    return {
+        "critique_feedback": "Draft response failed groundedness validation (Jev Decision)",
+        "attempt_count": attempt_count + 1,
+    }
 
 
 # endregion

@@ -21,6 +21,46 @@ services:
       timeout: 5s
       retries: 5
 
+  # Official PostgreSQL GUI (Python/Flask backend - http://localhost:5050)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: documentation-chatbot-pgadmin
+    restart: unless-stopped
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: adminpassword123
+      PGADMIN_REPLACE_SERVERS_ON_STARTUP: "True"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./pgadmin-servers.json:/pgadmin4/servers.json:ro
+    depends_on:
+      - pgvector
+
+  # LangGraph Agent API & Dev Server (http://localhost:2024)
+  langgraph:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: documentation-chatbot-langgraph:latest
+    container_name: documentation-chatbot-langgraph
+    restart: unless-stopped
+    ports:
+      - "2024:2024"
+    environment:
+      PYTHONPATH: /app
+      PGVECTOR_URL: postgresql+psycopg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgrespassword123}@pgvector:5432/${POSTGRES_DB:-documentation_chatbot}
+    env_file:
+      - .env
+    volumes:
+      - ./src:/app/src
+      - ./langgraph.json:/app/langgraph.json
+    depends_on:
+      pgvector:
+        condition: service_healthy
+
 volumes:
   pgvector_data:
+  pgadmin_data:
 # endregion
