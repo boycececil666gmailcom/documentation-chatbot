@@ -64,8 +64,6 @@ if __name__ == "__main__":
 
     test_input = {
         "query": "What is Kanzi fundamentals?",
-        "history": [],
-        "attempt_count": 0,
     }
     print("[Agent-Graph] Executing workflow directly...")
     result = asyncio.run(agent_graph.ainvoke(test_input))

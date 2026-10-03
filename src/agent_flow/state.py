@@ -6,16 +6,12 @@ class InputState(TypedDict):
     """User input payload schema required for workflow execution."""
 
     query: str
-    history: NotRequired[list[dict]]
-    loaded_doc_keys: NotRequired[list[str]]
 
 
 class AgentState(TypedDict):
     """Internal state schema passed across LangGraph nodes."""
 
     query: str
-    history: NotRequired[list[dict]]
-    loaded_doc_keys: NotRequired[list[str]]
     should_answer: NotRequired[Literal["pass", "refuse"]]
     should_hyde: NotRequired[bool]
     hyde_content: NotRequired[str | None]

@@ -117,55 +117,25 @@ def get_chunk_key(doc: Document) -> str:
 
 
 def retrieve_node(state: AgentState) -> dict:
-    """Retrieves document context from vector database, deduplicating against already loaded chunks."""
+    """Retrieves document context from vector database using HyDE passage or user query."""
     query = state["query"]
     hypo_doc = state.get("hyde_content")
     search_target = hypo_doc if hypo_doc else query
 
-    retrieved_documents = state.get("retrieved_documents")
-    loaded_keys = list(state.get("loaded_doc_keys", []))
+    ranked_docs = fetch_ranked_documents(search_target)
+    formatted_chunks = [
+        f"[{get_chunk_key(doc)}] (Score: {doc.metadata.get('relevance_score', 0.0):.3f})\n"
+        f"{doc.metadata.get('big') or doc.page_content}"
+        for doc in ranked_docs
+    ]
 
-    if not retrieved_documents:
-        ranked_docs = fetch_ranked_documents(search_target)
-        new_chunks: list[str] = []
-        new_keys: list[str] = []
+    retrieved_documents = (
+        "=== VECTOR DATABASE CONTEXT ===\n" + "\n\n".join(formatted_chunks)
+        if formatted_chunks
+        else "No matching vector documents found."
+    )
 
-        for doc in ranked_docs:
-            key = get_chunk_key(doc)
-            new_keys.append(key)
-            content = doc.metadata.get("big") or doc.page_content
-            score = doc.metadata.get("relevance_score", 0.0)
-            new_chunks.append(f"[{key}] (Score: {score:.3f})\n{content}")
-
-        if new_chunks:
-            retrieved_documents = "=== NEW VECTOR CONTEXT ===\n" + "\n\n".join(new_chunks)
-            loaded_keys = new_keys
-        else:
-            retrieved_documents = "No matching vector documents found."
-    else:
-        # Multi-turn branch: filter out already loaded chunks to avoid duplicate context
-        ranked_docs = fetch_ranked_documents(search_target)
-        new_chunks: list[str] = []
-        new_keys: list[str] = []
-
-        for doc in ranked_docs:
-            key = get_chunk_key(doc)
-            if key not in loaded_keys:
-                new_keys.append(key)
-                content = doc.metadata.get("big") or doc.page_content
-                score = doc.metadata.get("relevance_score", 0.0)
-                new_chunks.append(f"[{key}] (Score: {score:.3f})\n{content}")
-
-        if new_chunks:
-            retrieved_documents = "=== NEW VECTOR CONTEXT ===\n" + "\n\n".join(new_chunks)
-            loaded_keys.extend(new_keys)
-        else:
-            retrieved_documents = "All relevant document context is already loaded in previous conversation turns."
-
-    return {
-        "retrieved_documents": retrieved_documents,
-        "loaded_doc_keys": loaded_keys,
-    }
+    return {"retrieved_documents": retrieved_documents}
 
 
 # endregion
@@ -173,9 +143,8 @@ def retrieve_node(state: AgentState) -> dict:
 
 # region Generation Node
 def generate_node(state: AgentState) -> dict:
-    """Synthesizes strictly grounded response based on retrieved documents and conversation history."""
+    """Synthesizes strictly grounded response based on retrieved documents and query."""
     query = state["query"]
-    history = state.get("history", [])
     retrieved_documents = state.get("retrieved_documents", "")
 
     system_prompt = (
@@ -187,33 +156,29 @@ def generate_node(state: AgentState) -> dict:
         "4. MISSING INFO: If the context does not contain the answer, state 'Information not available in documentation' and return an empty citations list."
     )
 
-    messages = [SystemMessage(content=system_prompt)]
+    messages = [
+        SystemMessage(content=system_prompt),
+        HumanMessage(content=query),
+    ]
 
-    # 1. Replay established conversational history
-    for msg in history:
-        role, content = msg.get("role"), msg.get("content", "")
-        if role == "user":
-            messages.append(HumanMessage(content=content))
-        elif role == "assistant":
-            messages.append(AIMessage(content=content))
-
-    # 2. Append turn instruction: if fresh turn, append query; if retry, append critique feedback
-    critique_passed = state.get("critique_passed")
+    # Append retry instruction if previous attempt failed critique
+    prev_draft = state.get("final_response")
     feedback = state.get("critique_feedback")
-    if critique_passed is False:
+    if state.get("critique_passed") is False and prev_draft:
+        messages.append(AIMessage(content=prev_draft))
         critique_msg = (
             f"CRITIQUE FEEDBACK: Previous draft was rejected because: {feedback}\n"
             if feedback
             else "CRITIQUE: Previous draft was rejected due to lack of strict groundedness in retrieved documents.\n"
         )
-        turn_user_msg = (
-            f"{critique_msg}"
-            "Revise your answer to strictly ground every claim with precise inline citations [Topic Name] matching the source chunks."
+        messages.append(
+            HumanMessage(
+                content=(
+                    f"{critique_msg}"
+                    "Revise your answer to strictly ground every claim with precise inline citations [Topic Name] matching the source chunks."
+                )
+            )
         )
-    else:
-        turn_user_msg = query
-
-    messages.append(HumanMessage(content=turn_user_msg))
 
     structured_llm = llm.with_structured_output(RAGResponseSchema)
     response = cast(RAGResponseSchema, structured_llm.invoke(messages))
@@ -231,17 +196,9 @@ def generate_node(state: AgentState) -> dict:
         else []
     )
 
-    # 3.  (KV Cache Priority): Maintain exact token prefix sequence across turns and retries
-    updated_history = list(history) + [
-        {"role": "user", "content": turn_user_msg},
-        {"role": "assistant", "content": final_text},
-    ]
-
     return {
         "final_response": final_text,
         "citations": unique_citations,
-        "history": updated_history,
-        "loaded_doc_keys": state.get("loaded_doc_keys", []),
     }
 
 
@@ -250,7 +207,7 @@ def generate_node(state: AgentState) -> dict:
 
 # region Refusal Node
 def refuse_node(state: AgentState) -> dict:
-    """Generates polite refusal for off-theme queries and preserves conversation history."""
+    """Generates polite refusal for off-theme queries."""
     system_prompt = (
         f"You are a customer service assistant bound to the theme '{CHATBOT_THEME}'.\n"
         f"Politely explain that you can only assist with questions related to '{CHATBOT_THEME}', "
@@ -268,17 +225,9 @@ def refuse_node(state: AgentState) -> dict:
         else f"I can only assist with questions related to '{CHATBOT_THEME}'."
     )
 
-    history = state.get("history", [])
-    updated_history = list(history) + [
-        {"role": "user", "content": state["query"]},
-        {"role": "assistant", "content": refusal_text},
-    ]
-
     return {
         "final_response": refusal_text,
         "citations": [],
-        "history": updated_history,
-        "loaded_doc_keys": state.get("loaded_doc_keys", []),
     }
 
 
