@@ -15,7 +15,7 @@ class AgentState(TypedDict):
 
     query: str
     routing_decision: NotRequired[
-        Literal["refuse", "keyword", "general", "vague"]
+        Literal["refuse", "bm25", "hyde_bm25", "hyde"]
     ]
     hypothetical_doc: NotRequired[str | None]
     bm25_query: NotRequired[str | None]

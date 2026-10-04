@@ -26,15 +26,15 @@ def router_node(state: AgentState) -> dict:
                 f"Allowed Domain/Theme: '{CHATBOT_THEME}'. "
                 "Classify domain relevance and determine the optimal retrieval strategy:\n"
                 "- 'refuse': Completely off-topic or unrelated query (e.g., cooking, sports, medicine).\n"
-                "- 'keyword': Query contains explicit keywords, exact API names, error codes, or identifiers (direct BM25 search).\n"
-                "- 'general': General technical question, how-to, or conceptual workflow within domain (hybrid BM25 + HyDE).\n"
-                "- 'vague': Very short, abstract, or ambiguous query lacking specific technical keywords (HyDE expansion)."
+                "- 'bm25': Query contains explicit keywords, exact API names, error codes, or identifiers (direct BM25 search).\n"
+                "- 'hyde_bm25': General technical question, how-to, or conceptual workflow within domain (hybrid BM25 + HyDE).\n"
+                "- 'hyde': Very short, abstract, or ambiguous query lacking specific technical keywords (HyDE expansion)."
             ),
             "criteria": {
                 "refuse": "Off-topic query completely outside domain",
-                "keyword": "Contains specific identifiers, exact APIs, or error codes",
-                "general": "General technical question or workflow within domain",
-                "vague": "Abstract, short, or ambiguous query lacking keywords",
+                "bm25": "Contains specific identifiers, exact APIs, or error codes",
+                "hyde_bm25": "General technical question or workflow within domain",
+                "hyde": "Abstract, short, or ambiguous query lacking keywords",
             },
         }
     }
@@ -43,9 +43,9 @@ def router_node(state: AgentState) -> dict:
         state_payload,
         questions,
         min_confidence=0.20,
-        fallback="general",
+        fallback="hyde_bm25",
     )
-    decision = answers.get("routing_strategy", {}).get("choice", "general")
+    decision = answers.get("routing_strategy", {}).get("choice", "hyde_bm25")
     return {"routing_decision": decision}
 
 
@@ -121,19 +121,19 @@ def hyde_bm25_node(state: AgentState) -> dict:
 # region Retrieval Node
 def retrieve_node(state: AgentState) -> dict:
     """Retrieves candidate document chunks using pure BM25, dense vector, or hybrid retrieval."""
-    decision = state.get("routing_decision", "general")
+    decision = state.get("routing_decision", "hyde_bm25")
     query = state["query"]
     bm25_query = state.get("bm25_query") or query
     hypo_doc = state.get("hypothetical_doc")
 
-    if decision == "keyword":
+    if decision == "bm25":
         print(f"[Retrieve-retrieve_node] Executing pure BM25 keyword retrieval for: '{bm25_query[:60]}...'")
         docs = db.retrieve_bm25(query=bm25_query, top_k=10)
-    elif decision == "vague":
+    elif decision == "hyde":
         search_target = hypo_doc if hypo_doc else query
         print(f"[Retrieve-retrieve_node] Executing dense vector retrieval for: '{search_target[:60]}...'")
         docs = db.retrieve_collapsed_tree(query=search_target, top_k=10)
-    else:  # "general" or fallback
+    else:  # "hyde_bm25" or fallback
         dense_target = hypo_doc if hypo_doc else query
         print(f"[Retrieve-retrieve_node] Executing hybrid BM25 + dense retrieval for: '{query[:60]}...'")
         docs = db.retrieve_hybrid(dense_query=dense_target, sparse_query=bm25_query, top_k=10)

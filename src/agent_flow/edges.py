@@ -6,16 +6,8 @@ from .state import AgentState
 
 # region Edges
 def route_from_router(state: AgentState) -> str:
-    """Routes state from router node to dedicated processing branches ('refuse', 'bm25', 'hyde_bm25', 'hyde')."""
-    decision = state.get("routing_decision", "general")
-    if decision == "refuse":
-        return "refuse"
-    elif decision == "keyword":
-        return "bm25"
-    elif decision == "general":
-        return "hyde_bm25"
-    else:  # "vague"
-        return "hyde"
+    """Routes state from router node directly to matching node ('refuse', 'bm25', 'hyde_bm25', 'hyde')."""
+    return state.get("routing_decision", "hyde_bm25")
 
 
 def route_after_critique(state: AgentState) -> str:
