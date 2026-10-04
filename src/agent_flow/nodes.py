@@ -151,33 +151,26 @@ def get_chunk_key(doc: Document) -> str:
     return str(doc.metadata.get("breadcrumb") or doc.metadata.get("title") or "Unknown Topic")
 
 
+def format_docs_context(docs: list[Document]) -> str:
+    """Formats ranked documents into a structured prompt context block."""
+    if not docs:
+        return "No matching vector documents found."
+    return "\n\n".join(
+        f"--- [Rank {i}] Topic: [{get_chunk_key(doc)}] (Relevance Score: {doc.metadata.get('relevance_score', 0.0):.4f}) ---\n"
+        f"{doc.metadata.get('big') or doc.page_content}"
+        for i, doc in enumerate(docs, 1)
+    )
+
+
 def rerank_node(state: AgentState) -> dict:
     """Scores and reranks candidate documents using FlashRank cross-encoder."""
     docs = state.get("retrieved_docs", [])
     query = state.get("search_query") or state["query"]
-
-    if docs:
-        ranked_docs = reranker.compress_documents(docs, query)
-    else:
-        ranked_docs = []
-
-    formatted_chunks = [
-        f"[{get_chunk_key(doc)}] (Score: {doc.metadata.get('relevance_score', 0.0):.3f})\n"
-        f"{doc.metadata.get('big') or doc.page_content}"
-        for doc in ranked_docs
-    ]
-
-    retrieved_context = (
-        "=== VECTOR DATABASE CONTEXT ===\n" + "\n\n".join(formatted_chunks)
-        if formatted_chunks
-        else "No matching vector documents found."
+    ranked_docs = reranker.compress_documents(docs, query) if docs else []
+    print(
+        f"[Rerank-rerank_node] Compressed {len(docs)} docs -> {len(ranked_docs)} ranked docs"
     )
-
-    print(f"[Rerank-rerank_node] Compressed {len(docs)} docs -> {len(ranked_docs)} ranked docs")
-    return {
-        "ranked_docs": ranked_docs,
-        "retrieved_context": retrieved_context,
-    }
+    return {"ranked_docs": ranked_docs}
 
 
 # endregion
@@ -185,17 +178,21 @@ def rerank_node(state: AgentState) -> dict:
 
 # region Generation Node
 def generate_node(state: AgentState) -> dict:
-    """Synthesizes strictly grounded response based on retrieved documents and query."""
+    """Synthesizes strictly grounded response prioritized by document relevance ranks."""
     query = state["query"]
-    retrieved_context = state.get("retrieved_context", "")
+    ranked_docs = state.get("ranked_docs", [])
+    retrieved_context = format_docs_context(ranked_docs)
 
     system_prompt = (
-        f"Retrieved Document Context:\n{retrieved_context}\n\n"
+        f"Retrieved Document Context (Ordered by Cross-Encoder Relevance):\n{retrieved_context}\n\n"
         "CRITICAL RULES:\n"
-        "1. GROUNDEDNESS: Your answer must be strictly grounded in the retrieved document context. Never invent facts.\n"
-        "2. INLINE CITATIONS: For every factual claim, guideline, or step in your answer, immediately attach an inline citation specifying the exact source topic in brackets (e.g., 'To reduce draw calls, batch static meshes [Performance > Meshes].'). Place citations directly on the relevant sentence or bullet point, NOT as a vague generic dump at the end.\n"
-        "3. CITATIONS ARRAY: In the 'citations' field, include only the topic names that you actively cited inline in the answer.\n"
-        "4. MISSING INFO: If the context does not contain the answer, state 'Information not available in documentation' and return an empty citations list."
+        "1. RANK PRIORITY: The context documents are strictly sorted by relevance (Rank 1 is the primary and most authoritative source). "
+        "Synthesize your answer primarily from the highest-ranked documents (Rank 1 and Rank 2). "
+        "Do not allow lower-ranked or tangential details to contradict or dilute information from higher-ranked documents.\n"
+        "2. GROUNDEDNESS: Your answer must be strictly grounded in the retrieved document context. Never invent facts.\n"
+        "3. INLINE CITATIONS: For every factual claim, guideline, or step in your answer, immediately attach an inline citation specifying the exact source topic in brackets (e.g., 'To reduce draw calls, batch static meshes [Performance > Meshes].'). Place citations directly on the relevant sentence or bullet point, NOT as a vague generic dump at the end.\n"
+        "4. CITATIONS ARRAY: In the 'citations' field, include only the topic names that you actively cited inline in the answer.\n"
+        "5. MISSING INFO: If the context does not contain the answer, state 'Information not available in documentation' and return an empty citations list."
     )
 
     messages = [
@@ -238,9 +235,17 @@ def generate_node(state: AgentState) -> dict:
         else []
     )
 
+    # Validate citations against actual topics present in ranked_docs
+    valid_topics = {get_chunk_key(doc) for doc in ranked_docs}
+    validated_citations = (
+        [c for c in unique_citations if c in valid_topics]
+        if valid_topics and unique_citations
+        else unique_citations
+    )
+
     return {
         "draft_response": final_text,
-        "citations": unique_citations,
+        "citations": validated_citations,
     }
 
 
@@ -281,7 +286,7 @@ def critique_node(state: AgentState) -> dict:
     """Evaluates draft answer quality and groundedness using System 2 LLM (DeepSeek)."""
     routing_decision = state.get("routing_decision")
     draft = state.get("draft_response", "")
-    docs = state.get("retrieved_context", "")
+    docs = format_docs_context(state.get("ranked_docs", []))
     query = state["query"]
     retry_count = state.get("retry_count", 0)
 
