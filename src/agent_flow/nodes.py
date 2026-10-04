@@ -13,68 +13,46 @@ from .state import AgentState
 # endregion
 
 
-# region Classifier Node
-def classifier_node(state: AgentState) -> dict:
-    """Classifies if query aligns with configured chatbot theme using TypeSafe Jev."""
-    query = state["query"]
+# region Router Node
+def router_node(state: AgentState) -> dict:
+    """Classifies domain scope and selects retrieval strategy in a single Jev decision."""
+    query = state["query"].strip()
 
     state_payload = {"user_query": query}
     questions = {
-        "domain_scope": {
+        "routing_strategy": {
             "type": "choice",
             "instructions": (
                 f"Allowed Domain/Theme: '{CHATBOT_THEME}'. "
-                "Determine if the user query is relevant to this domain or general technical questions/greetings related to it. "
-                "Assume the user is already working within this domain unless completely unrelated (cooking, sports, medicine, etc.)."
+                "Classify domain relevance and determine the optimal retrieval strategy:\n"
+                "- 'refuse': Completely off-topic or unrelated query (e.g., cooking, sports, medicine).\n"
+                "- 'keyword': Query contains explicit keywords, exact API names, error codes, or identifiers (direct BM25 search).\n"
+                "- 'general': General technical question, how-to, or conceptual workflow within domain (hybrid BM25 + HyDE).\n"
+                "- 'vague': Very short, abstract, or ambiguous query lacking specific technical keywords (HyDE expansion)."
             ),
             "criteria": {
-                "pass": "Relevant technical question, concept, or greeting within domain",
-                "refuse": "Completely unrelated off-topic query",
+                "refuse": "Off-topic query completely outside domain",
+                "keyword": "Contains specific identifiers, exact APIs, or error codes",
+                "general": "General technical question or workflow within domain",
+                "vague": "Abstract, short, or ambiguous query lacking keywords",
             },
         }
     }
 
-    answers = call_jev_decisions(state_payload, questions)
-    choice = answers.get("domain_scope", {}).get("choice", "pass")
-    return {"domain_route": choice}
+    answers = call_jev_decisions(
+        state_payload,
+        questions,
+        min_confidence=0.20,
+        fallback="general",
+    )
+    decision = answers.get("routing_strategy", {}).get("choice", "general")
+    return {"routing_decision": decision}
 
 
 # endregion
 
 
-# region HyDE Nodes
-def hyde_decision_node(state: AgentState) -> dict:
-    """Decides whether HyDE expansion is beneficial for the user query using TypeSafe Jev."""
-    query = state["query"].strip()
-
-    state_payload = {"user_query": query}
-    questions = {
-        "hyde_necessity": {
-            "type": "choice",
-            "instructions": (
-                "Evaluate whether hypothetical document expansion (HyDE) is needed for semantic vector retrieval. "
-                "- Choose 'expand' for short, conceptual, or abstract questions lacking explicit identifiers or technical keywords. "
-                "- Choose 'skip' for queries that already contain specific error codes, API names, function signatures, version numbers, or detailed context."
-            ),
-            "criteria": {
-                "expand": "Short or abstract query that benefits from hypothetical passage generation",
-                "skip": "Query has specific keywords, identifiers, error codes, or is already detailed",
-            },
-        }
-    }
-
-    # Centralized low-confidence fallback handling (Policy 2: default to expand on confidence < 0.20)
-    answers = call_jev_decisions(
-        state_payload,
-        questions,
-        min_confidence=0.20,
-        fallback="expand",
-    )
-    decision = answers.get("hyde_necessity", {})
-    use_hyde = decision.get("choice") == "expand"
-    return {"use_hyde": use_hyde}
-
-
+# region HyDE Node
 def generate_hypothetical_document(query: str) -> str:
     """Generates a domain-injected hypothetical document passage for query expansion."""
     system_prompt = (
@@ -97,8 +75,44 @@ def generate_hypothetical_document(query: str) -> str:
 
 
 def hyde_node(state: AgentState) -> dict:
-    """Generates hypothetical document passage and updates agent state."""
-    return {"hypothetical_doc": generate_hypothetical_document(state["query"])}
+    """Generates hypothetical document passage for vague or keyword-lacking queries."""
+    hypo_doc = generate_hypothetical_document(state["query"])
+    print(f"[HyDE-hyde_node] Hypothetical doc prepared: '{hypo_doc[:60]}...'")
+    return {
+        "hypothetical_doc": hypo_doc,
+        "search_query": hypo_doc,
+    }
+
+
+# endregion
+
+
+# region BM25 Node
+def bm25_node(state: AgentState) -> dict:
+    """Extracts and normalizes keywords for pure BM25 sparse keyword matching."""
+    query = state["query"].strip()
+    print(f"[BM25-bm25_node] Pure BM25 keyword query: '{query[:60]}...'")
+    return {
+        "bm25_query": query,
+        "search_query": query,
+    }
+
+
+# endregion
+
+
+# region HyDE + BM25 Node
+def hyde_bm25_node(state: AgentState) -> dict:
+    """Generates HyDE passage and combines it with BM25 keywords by composing hyde_node and bm25_node."""
+    hyde_res = hyde_node(state)
+    bm25_res = bm25_node(state)
+    combined_query = f"{bm25_res['bm25_query']}\n{hyde_res['hypothetical_doc']}"
+    print(f"[HyDE_BM25-hyde_bm25_node] Hybrid query prepared: '{combined_query[:60]}...'")
+    return {
+        **hyde_res,
+        **bm25_res,
+        "search_query": combined_query,
+    }
 
 
 # endregion
@@ -117,11 +131,8 @@ def get_chunk_key(doc: Document) -> str:
 
 
 def retrieve_node(state: AgentState) -> dict:
-    """Retrieves document context from vector database using HyDE passage or user query."""
-    query = state["query"]
-    hypo_doc = state.get("hypothetical_doc")
-    search_target = hypo_doc if hypo_doc else query
-
+    """Retrieves document context from vector database using selected strategy."""
+    search_target = state.get("search_query") or state["query"]
     ranked_docs = fetch_ranked_documents(search_target)
     formatted_chunks = [
         f"[{get_chunk_key(doc)}] (Score: {doc.metadata.get('relevance_score', 0.0):.3f})\n"
@@ -237,13 +248,13 @@ def refuse_node(state: AgentState) -> dict:
 # region Critique Node
 def critique_node(state: AgentState) -> dict:
     """Evaluates draft answer quality and groundedness using System 2 LLM (DeepSeek)."""
-    domain_route = state.get("domain_route")
+    routing_decision = state.get("routing_decision")
     draft = state.get("draft_response", "")
     docs = state.get("retrieved_context", "")
     query = state["query"]
     retry_count = state.get("retry_count", 0)
 
-    if domain_route == "refuse":
+    if routing_decision == "refuse":
         prompt = (
             f"You are a strict quality control evaluator.\n"
             f"Verify if the draft response is a polite and clear refusal to answer a query outside the theme: '{CHATBOT_THEME}'.\n"

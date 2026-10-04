@@ -1,15 +1,16 @@
 # region Imports
 from langgraph.graph import END, StateGraph
 
-from .edges import route_after_critique, route_by_category, route_by_hyde_decision
+from .edges import route_after_critique, route_from_router
 from .nodes import (
-    classifier_node,
+    bm25_node,
     critique_node,
     generate_node,
-    hyde_decision_node,
+    hyde_bm25_node,
     hyde_node,
     refuse_node,
     retrieve_node,
+    router_node,
 )
 from .state import AgentState, InputState
 
@@ -20,8 +21,9 @@ from .state import AgentState, InputState
 workflow = StateGraph(AgentState, input=InputState)
 
 # Add Nodes
-workflow.add_node("classifier", classifier_node)
-workflow.add_node("hyde_decision", hyde_decision_node)
+workflow.add_node("router", router_node)
+workflow.add_node("bm25", bm25_node)
+workflow.add_node("hyde_bm25", hyde_bm25_node)
 workflow.add_node("hyde", hyde_node)
 workflow.add_node("retrieve", retrieve_node)
 workflow.add_node("generate", generate_node)
@@ -29,20 +31,21 @@ workflow.add_node("refuse", refuse_node)
 workflow.add_node("critique", critique_node)
 
 # Set Entry Point and Conditional Transitions
-workflow.set_entry_point("classifier")
+workflow.set_entry_point("router")
 
 workflow.add_conditional_edges(
-    "classifier",
-    route_by_category,
-    {"pass": "hyde_decision", "refuse": "refuse"},
+    "router",
+    route_from_router,
+    {
+        "refuse": "refuse",
+        "bm25": "bm25",
+        "hyde_bm25": "hyde_bm25",
+        "hyde": "hyde",
+    },
 )
 
-workflow.add_conditional_edges(
-    "hyde_decision",
-    route_by_hyde_decision,
-    {"enable": "hyde", "skip": "retrieve"},
-)
-
+workflow.add_edge("bm25", "retrieve")
+workflow.add_edge("hyde_bm25", "retrieve")
 workflow.add_edge("hyde", "retrieve")
 workflow.add_edge("retrieve", "generate")
 workflow.add_edge("generate", "critique")
@@ -51,7 +54,7 @@ workflow.add_edge("refuse", "critique")
 workflow.add_conditional_edges(
     "critique",
     route_after_critique,
-    {"approved": END, "rejected": "classifier"},
+    {"approved": END, "rejected": "router"},
 )
 
 agent_graph = workflow.compile()
