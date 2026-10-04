@@ -46,7 +46,11 @@ def router_node(state: AgentState) -> dict:
         fallback="hyde_bm25",
     )
     decision = answers.get("routing_strategy", {}).get("choice", "hyde_bm25")
-    return {"routing_decision": decision}
+    return {
+        "routing_decision": decision,
+        "bm25_docs": [],
+        "hyde_docs": [],
+    }
 
 
 # endregion
@@ -75,11 +79,17 @@ def generate_hypothetical_document(query: str) -> str:
 
 
 def hyde_node(state: AgentState) -> dict:
-    """Generates hypothetical document passage for vague or keyword-lacking queries."""
-    hypo_doc = generate_hypothetical_document(state["query"])
+    """Generates hypothetical passage and retrieves candidate chunks using dense vector similarity."""
+    query = state["query"]
+    print(f"[HyDE-hyde_node] Generating hypothetical doc for: '{query[:60]}...'")
+    hypo_doc = generate_hypothetical_document(query)
     print(f"[HyDE-hyde_node] Hypothetical doc prepared: '{hypo_doc[:60]}...'")
+    print("[HyDE-hyde_node] Executing dense vector retrieval for hypothetical passage...")
+    docs = db.retrieve_collapsed_tree(query=hypo_doc, top_k=10)
+    print(f"[HyDE-hyde_node] Retrieved {len(docs)} dense candidate chunks")
     return {
         "hypothetical_doc": hypo_doc,
+        "hyde_docs": docs,
     }
 
 
@@ -88,44 +98,14 @@ def hyde_node(state: AgentState) -> dict:
 
 # region BM25 Node
 def bm25_node(state: AgentState) -> dict:
-    """Extracts and normalizes keywords for pure BM25 sparse keyword matching."""
+    """Retrieves candidate document chunks using pure BM25 sparse keyword matching."""
     query = state["query"].strip()
-    print(f"[BM25-bm25_node] Pure BM25 keyword query: '{query[:60]}...'")
+    print(f"[BM25-bm25_node] Executing BM25 keyword retrieval for: '{query[:60]}...'")
+    docs = db.retrieve_bm25(query=query, top_k=10)
+    print(f"[BM25-bm25_node] Retrieved {len(docs)} BM25 candidate chunks")
     return {
         "bm25_query": query,
-    }
-
-
-# endregion
-
-
-# region Retrieval Node
-def retrieve_node(state: AgentState) -> dict:
-    """Retrieves candidate document chunks using pure BM25, dense vector, or concurrent hybrid retrieval."""
-    decision = state.get("routing_decision", "hyde_bm25")
-    query = state["query"]
-    bm25_query = state.get("bm25_query") or query
-    hypo_doc = state.get("hypothetical_doc")
-
-    if decision == "bm25":
-        print(f"[Retrieve-retrieve_node] Executing pure BM25 keyword retrieval for: '{bm25_query[:60]}...'")
-        docs = db.retrieve_bm25(query=bm25_query, top_k=10)
-        search_query = bm25_query
-    elif decision == "hyde":
-        search_target = hypo_doc if hypo_doc else query
-        print(f"[Retrieve-retrieve_node] Executing dense vector retrieval for: '{search_target[:60]}...'")
-        docs = db.retrieve_collapsed_tree(query=search_target, top_k=10)
-        search_query = search_target
-    else:  # "hyde_bm25" (concurrent fan-in branch)
-        dense_target = hypo_doc if hypo_doc else query
-        print(f"[Retrieve-retrieve_node] Executing hybrid BM25 + dense retrieval for: '{query[:60]}...'")
-        docs = db.retrieve_hybrid(dense_query=dense_target, sparse_query=bm25_query, top_k=10)
-        search_query = f"{bm25_query}\n{dense_target}"
-
-    print(f"[Retrieve-retrieve_node] Retrieved {len(docs)} candidate documents")
-    return {
-        "retrieved_docs": docs,
-        "search_query": search_query,
+        "bm25_docs": docs,
     }
 
 
@@ -150,14 +130,42 @@ def format_docs_context(docs: list[Document]) -> str:
 
 
 def rerank_node(state: AgentState) -> dict:
-    """Scores and reranks candidate documents using FlashRank cross-encoder."""
-    docs = state.get("retrieved_docs", [])
-    query = state.get("search_query") or state["query"]
-    ranked_docs = reranker.compress_documents(docs, query) if docs else []
+    """Merges and scores candidate documents from BM25 and HyDE using FlashRank cross-encoder."""
+    bm25_docs = state.get("bm25_docs") or []
+    hyde_docs = state.get("hyde_docs") or []
+    legacy_docs = state.get("retrieved_docs") or []
+
+    # Merge and deduplicate candidates across both parallel retrieval branches
+    seen: set[str] = set()
+    candidate_docs: list[Document] = []
+    for doc in bm25_docs + hyde_docs + legacy_docs:
+        key = str(doc.metadata.get("breadcrumb") or doc.metadata.get("title") or doc.page_content[:60])
+        if key not in seen:
+            seen.add(key)
+            candidate_docs.append(doc)
+
+    bm25_query = state.get("bm25_query")
+    hypo_doc = state.get("hypothetical_doc")
+    query = state["query"]
+
+    if bm25_query and hypo_doc:
+        search_query = f"{bm25_query}\n{hypo_doc}"
+    elif hypo_doc:
+        search_query = hypo_doc
+    elif bm25_query:
+        search_query = bm25_query
+    else:
+        search_query = query
+
+    ranked_docs = reranker.compress_documents(candidate_docs, search_query) if candidate_docs else []
     print(
-        f"[Rerank-rerank_node] Compressed {len(docs)} docs -> {len(ranked_docs)} ranked docs"
+        f"[Rerank-rerank_node] Merged {len(candidate_docs)} candidate docs -> {len(ranked_docs)} ranked docs"
     )
-    return {"ranked_docs": ranked_docs}
+    return {
+        "retrieved_docs": candidate_docs,
+        "ranked_docs": ranked_docs,
+        "search_query": search_query,
+    }
 
 
 # endregion

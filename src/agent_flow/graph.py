@@ -9,7 +9,6 @@ from .nodes import (
     hyde_node,
     refuse_node,
     rerank_node,
-    retrieve_node,
     router_node,
 )
 from .state import AgentState, InputState
@@ -24,7 +23,6 @@ workflow = StateGraph(AgentState, input=InputState)
 workflow.add_node("router", router_node)
 workflow.add_node("bm25", bm25_node)
 workflow.add_node("hyde", hyde_node)
-workflow.add_node("retrieve", retrieve_node)
 workflow.add_node("rerank", rerank_node)
 workflow.add_node("generate", generate_node)
 workflow.add_node("refuse", refuse_node)
@@ -39,9 +37,9 @@ workflow.add_conditional_edges(
     ["refuse", "bm25", "hyde"],
 )
 
-workflow.add_edge("bm25", "retrieve")
-workflow.add_edge("hyde", "retrieve")
-workflow.add_edge("retrieve", "rerank")
+# Parallel retrieval branches converge directly into rerank
+workflow.add_edge("bm25", "rerank")
+workflow.add_edge("hyde", "rerank")
 workflow.add_edge("rerank", "generate")
 workflow.add_edge("generate", "critique")
 workflow.add_edge("refuse", "critique")

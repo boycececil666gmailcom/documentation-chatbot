@@ -1,9 +1,12 @@
-# region State
+# region Imports
 from typing import Literal, NotRequired, TypedDict
 
 from langchain_core.documents import Document
 
+# endregion
 
+
+# region State Definitions
 class InputState(TypedDict):
     """User input payload schema required for workflow execution."""
 
@@ -20,6 +23,8 @@ class AgentState(TypedDict):
     hypothetical_doc: NotRequired[str | None]
     bm25_query: NotRequired[str | None]
     search_query: NotRequired[str | None]
+    bm25_docs: NotRequired[list[Document]]
+    hyde_docs: NotRequired[list[Document]]
     retrieved_docs: NotRequired[list[Document]]
     ranked_docs: NotRequired[list[Document]]
     retrieved_context: NotRequired[str | None]
