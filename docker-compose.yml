@@ -21,20 +21,15 @@ services:
       timeout: 5s
       retries: 5
 
-  # Official PostgreSQL GUI (Python/Flask backend - http://localhost:5050)
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: documentation-chatbot-pgadmin
+  # Official DBeaver Web GUI (http://localhost:8978)
+  cloudbeaver:
+    image: dbeaver/cloudbeaver:latest
+    container_name: documentation-chatbot-cloudbeaver
     restart: unless-stopped
     ports:
-      - "5050:80"
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@example.com
-      PGADMIN_DEFAULT_PASSWORD: adminpassword123
-      PGADMIN_REPLACE_SERVERS_ON_STARTUP: "True"
+      - "8978:8978"
     volumes:
-      - pgadmin_data:/var/lib/pgadmin
-      - ./pgadmin-servers.json:/pgadmin4/servers.json:ro
+      - cloudbeaver_data:/opt/cloudbeaver/workspace
     depends_on:
       - pgvector
 
@@ -62,5 +57,5 @@ services:
 
 volumes:
   pgvector_data:
-  pgadmin_data:
+  cloudbeaver_data:
 # endregion
