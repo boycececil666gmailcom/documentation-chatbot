@@ -119,21 +119,48 @@ def hyde_bm25_node(state: AgentState) -> dict:
 
 
 # region Retrieval Node
-def fetch_ranked_documents(query: str) -> list[Document]:
-    """Retrieve and rerank document chunks for a query."""
-    docs = db.retrieve_collapsed_tree(query=query, top_k=10, max_tokens=4000)
-    return reranker.compress_documents(docs, query)
+def retrieve_node(state: AgentState) -> dict:
+    """Retrieves candidate document chunks using pure BM25, dense vector, or hybrid retrieval."""
+    decision = state.get("routing_decision", "general")
+    query = state["query"]
+    bm25_query = state.get("bm25_query") or query
+    hypo_doc = state.get("hypothetical_doc")
+
+    if decision == "keyword":
+        print(f"[Retrieve-retrieve_node] Executing pure BM25 keyword retrieval for: '{bm25_query[:60]}...'")
+        docs = db.retrieve_bm25(query=bm25_query, top_k=10)
+    elif decision == "vague":
+        search_target = hypo_doc if hypo_doc else query
+        print(f"[Retrieve-retrieve_node] Executing dense vector retrieval for: '{search_target[:60]}...'")
+        docs = db.retrieve_collapsed_tree(query=search_target, top_k=10)
+    else:  # "general" or fallback
+        dense_target = hypo_doc if hypo_doc else query
+        print(f"[Retrieve-retrieve_node] Executing hybrid BM25 + dense retrieval for: '{query[:60]}...'")
+        docs = db.retrieve_hybrid(dense_query=dense_target, sparse_query=bm25_query, top_k=10)
+
+    print(f"[Retrieve-retrieve_node] Retrieved {len(docs)} candidate documents")
+    return {"retrieved_docs": docs}
 
 
+# endregion
+
+
+# region Rerank Node
 def get_chunk_key(doc: Document) -> str:
     """Extract unique topic identifier from document metadata."""
     return str(doc.metadata.get("breadcrumb") or doc.metadata.get("title") or "Unknown Topic")
 
 
-def retrieve_node(state: AgentState) -> dict:
-    """Retrieves document context from vector database using selected strategy."""
-    search_target = state.get("search_query") or state["query"]
-    ranked_docs = fetch_ranked_documents(search_target)
+def rerank_node(state: AgentState) -> dict:
+    """Scores and reranks candidate documents using FlashRank cross-encoder."""
+    docs = state.get("retrieved_docs", [])
+    query = state.get("search_query") or state["query"]
+
+    if docs:
+        ranked_docs = reranker.compress_documents(docs, query)
+    else:
+        ranked_docs = []
+
     formatted_chunks = [
         f"[{get_chunk_key(doc)}] (Score: {doc.metadata.get('relevance_score', 0.0):.3f})\n"
         f"{doc.metadata.get('big') or doc.page_content}"
@@ -146,7 +173,11 @@ def retrieve_node(state: AgentState) -> dict:
         else "No matching vector documents found."
     )
 
-    return {"retrieved_context": retrieved_context}
+    print(f"[Rerank-rerank_node] Compressed {len(docs)} docs -> {len(ranked_docs)} ranked docs")
+    return {
+        "ranked_docs": ranked_docs,
+        "retrieved_context": retrieved_context,
+    }
 
 
 # endregion

@@ -9,6 +9,7 @@ from .nodes import (
     hyde_bm25_node,
     hyde_node,
     refuse_node,
+    rerank_node,
     retrieve_node,
     router_node,
 )
@@ -26,6 +27,7 @@ workflow.add_node("bm25", bm25_node)
 workflow.add_node("hyde_bm25", hyde_bm25_node)
 workflow.add_node("hyde", hyde_node)
 workflow.add_node("retrieve", retrieve_node)
+workflow.add_node("rerank", rerank_node)
 workflow.add_node("generate", generate_node)
 workflow.add_node("refuse", refuse_node)
 workflow.add_node("critique", critique_node)
@@ -47,7 +49,8 @@ workflow.add_conditional_edges(
 workflow.add_edge("bm25", "retrieve")
 workflow.add_edge("hyde_bm25", "retrieve")
 workflow.add_edge("hyde", "retrieve")
-workflow.add_edge("retrieve", "generate")
+workflow.add_edge("retrieve", "rerank")
+workflow.add_edge("rerank", "generate")
 workflow.add_edge("generate", "critique")
 workflow.add_edge("refuse", "critique")
 
