@@ -1,106 +1,42 @@
-# RAG Evaluation Progress & Development Journal
-
-過去 1 ヶ月間にわたる 6 回の RAGAS 評価ベンチマーク結果、各イテレーションでの技術的改善手法、および開発ログ（エンジニア日記）のまとめです。
+# RAG Evaluation Journal
 
 ---
 
-## 1. 評価スコア推移サマリー (Benchmark Evolution)
+## 1. Benchmark Evolution Summary
 
-| 評価日 / タイムスタンプ | 主な導入技術・マイルストーン | Faithfulness<br>(忠実度) | Answer Relevancy<br>(回答適合性) | Context Precision<br>(検索適合率) | Context Recall<br>(検索想起性) |
+| Date / Timestamp | Key Milestones & Technologies | Faithfulness | Answer Relevancy | Context Precision | Context Recall |
 | :--- | :--- | :---: | :---: | :---: | :---: |
-| **2026-07-20** (`14:30:00`) | [Baseline] 単純 Dense 検索 + 固定長分割 | `0.4267` | `0.3392` | `0.4937` | `0.3508` |
-| **2026-07-28** (`10:15:00`) | [RAPTOR] 見出し階層化 & Small-to-Big | `0.5564` | `0.4191` | `0.6244` | `0.4411` |
-| **2026-08-05** (`16:45:00`) | [Hybrid & Rerank] Qdrant Hybrid + FlashRank | `0.6595` | `0.4737` | `0.7255` | `0.5532` |
-| **2026-08-12** (`09:30:00`) | [Agentic Flow] LangGraph 自律自己批判ループ | `0.7589` | `0.5141` | `0.8347` | `0.6391` |
-| **2026-08-19** (`01:00:25`) | [Reasoning & Intent] 思考モデル最適化 + 暗黙意図判定 | `0.8331` | `0.5552` | **`0.9062`** | **`0.7214`** |
-| **2026-08-19** (`12:47:35`) | [Domain HyDE & Classifier Fix] ドメイン注入型 HyDE & 過剰拒否防止改修 | **`0.9648`** | **`0.5597`** | `0.8125` | `0.6471` |
+| **2026-07-20** (`14:30:00`) | [Baseline] Naive Dense Retrieval + Fixed-length Chunking | `0.4267` | `0.3392` | `0.4937` | `0.3508` |
+| **2026-07-28** (`10:15:00`) | [RAPTOR] Heading Hierarchy & Small-to-Big Chunking | `0.5564` | `0.4191` | `0.6244` | `0.4411` |
+| **2026-08-05** (`16:45:00`) | [Hybrid & Rerank] Qdrant Hybrid + FlashRank Reranker | `0.6595` | `0.4737` | `0.7255` | `0.5532` |
+| **2026-08-12** (`09:30:00`) | [Agentic Flow] LangGraph Autonomous Self-Critique Loop | `0.7589` | `0.5141` | `0.8347` | `0.6391` |
+| **2026-08-19** (`01:00:25`) | [Reasoning & Intent] Reasoning Model Optimization + Implicit Intent Routing | `0.8331` | `0.5552` | **`0.9062`** | **`0.7214`** |
+| **2026-08-19** (`12:47:35`) | [Domain HyDE & Classifier Fix] Domain-Injected HyDE & False Rejection Guard | **`0.9648`** | **`0.5597`** | `0.8125` | `0.6471` |
 
 ---
 
-## 2. 各イテレーションの改善手法と開発日記
+## 2. Iteration Log
 
-### Week 1: 2026-07-20 — [初期ベースラインの構築]
-* **実装した内容**:
-  * 固定長トークン（500 文字）による単純テキスト分割。
-  * コサイン類似度のみを用いた素朴な Dense ベクトル検索（Top-3 取得）。
-* **課題・ボトルネック**:
-  * トピック間の文脈が寸断され、複合的な質問に対して正解チャンクが Top-3 に全く入らない（Recall: 0.35）。
-  * 根拠のない推測によるハルシネーションが頻発（Faithfulness: 0.43）。
-* **エンジニア開発日記**:
-  > *「固定長分割と単純ベクトル検索ではマニュアルの文脈を拾えず、Recall 0.35 と惨敗。前処理から抜本的な再設計が必要だ。」*
+### Week 1 (2026-07-20) — Baseline Setup
+- **Architecture**: Naive dense retrieval (top-3) with fixed-length chunking (500 chars).
+- **Bottlenecks**: Context boundary severance; low recall (`0.35`) and high hallucination rate (`Faithfulness: 0.43`).
 
----
+### Week 2 (2026-07-28) — RAPTOR & Small-to-Big Chunking
+- **Architecture**: Semantic Markdown chunking, Small-to-Big payload separation, GMM summary trees (RAPTOR).
+- **Impact**: Faithfulness `0.43` -> `0.56` (+13.0%), Context Precision `0.49` -> `0.62` (+13.1%).
 
-### Week 2: 2026-07-28 — [RAPTOR 階層化 & Small-to-Big チャンキング]
-* **実装した内容**:
-  * Markdown の見出し構造（`#`, `##`, `###`）を認識するセマンティック分割の導入。
-  * 検索用（Small / 要約）と文脈注入用（Big / 全文）を分離する Small-to-Big 構造の構築。
-  * GMM クラスタリングによる上位レイヤーの要約ツリー（RAPTOR）を生成。
-* **改善効果**:
-  * **Faithfulness**: `0.4267` ➔ `0.5564` (+12.97%)
-  * **Context Precision**: `0.4937` ➔ `0.6244` (+13.07%)
-* **エンジニア開発日記**:
-  > *「RAPTOR ツリーの導入で全体の要約と詳細の両方を捕捉可能になり、全スコアが 10% 以上向上。着実に手応えを掴んだ。」*
+### Week 3 (2026-08-05) — Hybrid Search & FlashRank
+- **Architecture**: Dense + FastEmbed sparse hybrid retrieval with FlashRank cross-encoder reranking (top-10 -> top-5).
+- **Impact**: Context Precision `0.62` -> `0.73` (+10.1%), Context Recall `0.44` -> `0.55` (+11.2%).
 
----
+### Week 4 (2026-08-12) — Agentic Critique Loop
+- **Architecture**: Stateful LangGraph workflow with a self-critique reflection node and automated retry loop.
+- **Impact**: Faithfulness `0.66` -> `0.76` (+9.9%), Context Precision `0.73` -> `0.83` (+10.9%).
 
-### Week 3: 2026-08-05 — [Qdrant Hybrid Search & FlashRank リランキング]
-* **実装した内容**:
-  * Qdrant の Dense ベクトル + FastEmbed Sparse（BM25 相当）のハイブリッド検索を実装。
-  * 軽量・高速なクロスエンコーダー `FlashRank` による Top-10 取得 ➔ Top-5 への高精度リランキング。
-* **改善効果**:
-  * **Context Precision**: `0.6244` ➔ `0.7255` (+10.11%)
-  * **Context Recall**: `0.4411` ➔ `0.5532` (+11.21%)
-* **エンジニア開発日記**:
-  > *「Qdrant の Hybrid 検索と FlashRank により、専門用語の完全一致と検索順位が劇的に改善。ノイズが綺麗に消えた。」*
+### Week 5 (2026-08-19) — Reasoning & Classification Tuning
+- **Architecture**: Reasoning token allocation optimization (`effort: medium`, `max_tokens: 16384`) and intent classifier prompt refinement for implicit queries.
+- **Impact**: Context Precision `0.83` -> `0.91` (+7.2%), Context Recall `0.64` -> `0.72` (+8.2%).
 
----
-
-### Week 4: 2026-08-12 — [LangGraph による自律エージェント & 自己批判ループ]
-* **実装した内容**:
-  * LangGraph を導入し、パイプラインをステートフルなグラフ構造（Classifier ➔ Retrieve ➔ Generate ➔ Critique）に刷新。
-  * `Critique Node` を配置し、生成されたドラフトにハルシネーションや不整合がないか自己検証して自動リトライする仕組みを構築。
-* **改善効果**:
-  * **Faithfulness**: `0.6595` ➔ `0.7589` (+9.94%)
-  * **Context Precision**: `0.7255` ➔ `0.8347` (+10.92%)
-* **エンジニア開発日記**:
-  > *「LangGraph で自己批判ループを構築。回答のハルシネーションを自動検知・再生成させることで、Faithfulness が 75% を突破。」*
-
----
-
-### Week 5: 2026-08-19 — [推論モデル思考最適化 & 暗黙意図判定の改善]
-* **実装した内容**:
-  * OpenRouter の推論モデル思考トークン（`reasoning: {"effort": "medium"}`、`max_tokens: 16384`）を最適化し、長文回答のトークン切れを解消。
-  * `Classifier Node` のプロンプトを改修し、製品名（Kanzi）が省略された「ログ確認」「環境変数」などの暗黙的な技術質問を誤拒絶せず通過させるルールを適用。
-* **改善効果**:
-  * **Context Precision**: `0.8347` ➔ **`0.9062`** (+7.15%)
-  * **Faithfulness**: `0.7589` ➔ **`0.8331`** (+7.42%)
-  * **Context Recall**: `0.6391` ➔ **`0.7214`** (+8.23%)
-* **エンジニア開発日記**:
-  > *「推論トークン上限と暗黙意図判定を最適化。適合率 90%、忠実度 83% に達し、本番運用に耐えうる完成度へ到達した。」*
-
----
-
-### Week 5.1: 2026-08-19 (`12:47:35`) — [ドメイン注入型 HyDE 導入 & Classifier プロンプト最適化]
-* **実装・検証した内容**:
-  * **ドメイン注入型 HyDE (Domain-Injected HyDE) の導入**: 短いクエリや曖昧な質問に対して、Kanzi 特有の専門語彙（ノード構造、プロパティ、API、レンダリングパイプライン）を補完した仮説ドキュメントを動的生成し、Dense 検索の想起性を底上げ。
-  * **Classifier ノードのプロンプトエンジニアリング**: 意図分類プロンプトを改修し、「ログ確認」「環境変数設定」など製品名（Kanzi）が明記されていない暗黙的技術質問に対する過剰な拒否（False Rejection）を防止。
-  * **評価パイプラインの安定稼働**: RAGAS メトリックのインポート形式を修正し、評価パイプライン ([`2.run_eval.py`](file:///c:/Users/boyce/OneDrive/Desktop/documentation-chatbot/eval/2.run_eval.py)) による 32 問の自動評価および本ジャーナルへの動的同期を実現。
-* **評価結果・詳細分析**:
-  * **Faithfulness**: `0.8331` ➔ **`0.9648`** (+13.17%) — 32問中24問（75%）でスコア `1.0` を達成。HyDE による文脈補完と自律批判ループの組み合わせにより、ハルシネーションを極小化。
-  * **Answer Relevancy**: `0.5552` ➔ **`0.5597`** (+0.45%) — 単一トピック質問では高スコアを記録したものの、4要素以上の複合クエリで構造的過不足が発生し一部スコア低下。
-  * **Context Precision**: `0.8125` — FlashRank リランカーにより上位関連文書の適合率を 80% 以上で維持。
-  * **Context Recall**: `0.6471` — 略称や専門用語が省略された検索クエリでの網羅性を確認。
-* **エンジニア開発日記**:
-  > *「ドメイン注入型 HyDE の導入と Classifier の過剰拒否防止プロンプト改修を適用し、フル評価を実行。Faithfulness が 96.48% を叩き出し、回答の忠実性についてプロダクション品質に達した。次は複合質問に対する Answer Relevancy の改善と、さらなる Recall 80% 超えを目指す。」*
-
----
-
-## 3. 今後のさらなる品質向上ロードマップ
-
-1. **「結論ファースト」指示による Answer Relevancy の改善**:
-   * 生成プロンプトに直接回答ルールとマークダウン構造化を義務付け、Answer Relevancy を `0.55` ➔ `0.80+` へ向上させる。
-2. **複合クエリの自動分解 (Multi-Hop Query Decomposition)**:
-   * 複数の論点が混在する長文質問をサブクエリに分解し、Context Recall を `0.64` ➔ `0.85+` へ引き上げる。
-3. **出典メタデータのインライン引用 (Citation)**:
-   * 各回答の文末に参照元トピック名（例: `[Best practices]`）を付与し、企業の信頼性を担保する。
+### Week 5.1 (2026-08-19) — Domain HyDE & Evaluation Pipeline
+- **Architecture**: Domain-injected HyDE for concise queries, false-rejection safeguards in classifier, and automated 32-sample RAGAS evaluation runner ([`2.run_eval.py`](file:///c:/Users/boyce/OneDrive/Desktop/documentation-chatbot/dataset/eval/2.run_eval.py)).
+- **Impact**: Faithfulness surged to `0.96` (+13.2%, 75% perfect `1.0`); Context Precision at `0.81`.

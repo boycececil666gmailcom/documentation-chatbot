@@ -68,6 +68,6 @@ if __name__ == "__main__":
     print("[Agent-Graph] Executing workflow directly...")
     result = asyncio.run(agent_graph.ainvoke(test_input))
     print("\n[Agent-Graph] === RESULT ===")
-    print(f"Response:\n{result.get('final_response', '')}")
+    print(f"Response:\n{result.get('draft_response', '')}")
     print(f"Citations: {result.get('citations', [])}")
 # endregion

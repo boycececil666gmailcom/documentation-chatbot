@@ -36,7 +36,7 @@ def classifier_node(state: AgentState) -> dict:
 
     answers = call_jev_decisions(state_payload, questions)
     choice = answers.get("domain_scope", {}).get("choice", "pass")
-    return {"should_answer": choice}
+    return {"domain_route": choice}
 
 
 # endregion
@@ -71,8 +71,8 @@ def hyde_decision_node(state: AgentState) -> dict:
         fallback="expand",
     )
     decision = answers.get("hyde_necessity", {})
-    should_hyde = decision.get("choice") == "expand"
-    return {"should_hyde": should_hyde}
+    use_hyde = decision.get("choice") == "expand"
+    return {"use_hyde": use_hyde}
 
 
 def generate_hypothetical_document(query: str) -> str:
@@ -98,7 +98,7 @@ def generate_hypothetical_document(query: str) -> str:
 
 def hyde_node(state: AgentState) -> dict:
     """Generates hypothetical document passage and updates agent state."""
-    return {"hyde_content": generate_hypothetical_document(state["query"])}
+    return {"hypothetical_doc": generate_hypothetical_document(state["query"])}
 
 
 # endregion
@@ -119,7 +119,7 @@ def get_chunk_key(doc: Document) -> str:
 def retrieve_node(state: AgentState) -> dict:
     """Retrieves document context from vector database using HyDE passage or user query."""
     query = state["query"]
-    hypo_doc = state.get("hyde_content")
+    hypo_doc = state.get("hypothetical_doc")
     search_target = hypo_doc if hypo_doc else query
 
     ranked_docs = fetch_ranked_documents(search_target)
@@ -129,13 +129,13 @@ def retrieve_node(state: AgentState) -> dict:
         for doc in ranked_docs
     ]
 
-    retrieved_documents = (
+    retrieved_context = (
         "=== VECTOR DATABASE CONTEXT ===\n" + "\n\n".join(formatted_chunks)
         if formatted_chunks
         else "No matching vector documents found."
     )
 
-    return {"retrieved_documents": retrieved_documents}
+    return {"retrieved_context": retrieved_context}
 
 
 # endregion
@@ -145,10 +145,10 @@ def retrieve_node(state: AgentState) -> dict:
 def generate_node(state: AgentState) -> dict:
     """Synthesizes strictly grounded response based on retrieved documents and query."""
     query = state["query"]
-    retrieved_documents = state.get("retrieved_documents", "")
+    retrieved_context = state.get("retrieved_context", "")
 
     system_prompt = (
-        f"Retrieved Document Context:\n{retrieved_documents}\n\n"
+        f"Retrieved Document Context:\n{retrieved_context}\n\n"
         "CRITICAL RULES:\n"
         "1. GROUNDEDNESS: Your answer must be strictly grounded in the retrieved document context. Never invent facts.\n"
         "2. INLINE CITATIONS: For every factual claim, guideline, or step in your answer, immediately attach an inline citation specifying the exact source topic in brackets (e.g., 'To reduce draw calls, batch static meshes [Performance > Meshes].'). Place citations directly on the relevant sentence or bullet point, NOT as a vague generic dump at the end.\n"
@@ -162,9 +162,9 @@ def generate_node(state: AgentState) -> dict:
     ]
 
     # Append retry instruction if previous attempt failed critique
-    prev_draft = state.get("final_response")
+    prev_draft = state.get("draft_response")
     feedback = state.get("critique_feedback")
-    if state.get("critique_passed") is False and prev_draft:
+    if state.get("is_critique_passed") is False and prev_draft:
         messages.append(AIMessage(content=prev_draft))
         critique_msg = (
             f"CRITIQUE FEEDBACK: Previous draft was rejected because: {feedback}\n"
@@ -197,7 +197,7 @@ def generate_node(state: AgentState) -> dict:
     )
 
     return {
-        "final_response": final_text,
+        "draft_response": final_text,
         "citations": unique_citations,
     }
 
@@ -226,7 +226,7 @@ def refuse_node(state: AgentState) -> dict:
     )
 
     return {
-        "final_response": refusal_text,
+        "draft_response": refusal_text,
         "citations": [],
     }
 
@@ -237,13 +237,13 @@ def refuse_node(state: AgentState) -> dict:
 # region Critique Node
 def critique_node(state: AgentState) -> dict:
     """Evaluates draft answer quality and groundedness using System 2 LLM (DeepSeek)."""
-    should_answer = state.get("should_answer")
-    draft = state.get("final_response", "")
-    docs = state.get("retrieved_documents", "")
+    domain_route = state.get("domain_route")
+    draft = state.get("draft_response", "")
+    docs = state.get("retrieved_context", "")
     query = state["query"]
-    attempt_count = state.get("attempt_count", 0)
+    retry_count = state.get("retry_count", 0)
 
-    if should_answer == "refuse":
+    if domain_route == "refuse":
         prompt = (
             f"You are a strict quality control evaluator.\n"
             f"Verify if the draft response is a polite and clear refusal to answer a query outside the theme: '{CHATBOT_THEME}'.\n"
@@ -290,9 +290,9 @@ def critique_node(state: AgentState) -> dict:
     )
 
     return {
-        "critique_passed": is_passed,
+        "is_critique_passed": is_passed,
         "critique_feedback": feedback,
-        "attempt_count": attempt_count if is_passed else attempt_count + 1,
+        "retry_count": retry_count if is_passed else retry_count + 1,
     }
 
 

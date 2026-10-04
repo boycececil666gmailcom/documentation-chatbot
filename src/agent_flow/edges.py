@@ -6,20 +6,20 @@ from .state import AgentState
 
 # region Edges
 def route_by_category(state: AgentState) -> str:
-    """Routes state based on classification should_answer ('pass' vs 'refuse')."""
-    return state.get("should_answer", "refuse")
+    """Routes state based on classification domain_route ('pass' vs 'refuse')."""
+    return state.get("domain_route", "refuse")
 
 
 def route_by_hyde_decision(state: AgentState) -> str:
     """Routes to 'enable' (hyde_node) or 'skip' (retrieve_node)."""
-    return "enable" if state.get("should_hyde", True) else "skip"
+    return "enable" if state.get("use_hyde", True) else "skip"
 
 
 def route_after_critique(state: AgentState) -> str:
     """Routes to 'approved' (END) or 'rejected' (loop back) based on critique evaluation."""
-    critique_passed = state.get("critique_passed", True)
-    attempt_count = state.get("attempt_count", 0)
-    return "approved" if critique_passed or attempt_count >= 3 else "rejected"
+    is_critique_passed = state.get("is_critique_passed", True)
+    retry_count = state.get("retry_count", 0)
+    return "approved" if is_critique_passed or retry_count >= 3 else "rejected"
 
 
 # endregion

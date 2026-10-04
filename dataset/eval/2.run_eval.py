@@ -51,9 +51,17 @@ def fetch_rag_responses(dataset_path: Path, endpoint_url: str) -> list[dict]:
                     resp = client.post(endpoint_url, json={"query": q, "history": []})
                     resp.raise_for_status()
                     data = resp.json()
-                    answer = data.get("final_response") or data.get("response") or ""
+                    answer = (
+                        data.get("draft_response")
+                        or data.get("final_response")
+                        or data.get("response")
+                        or ""
+                    )
                     raw_ctx = (
-                        data.get("retrieved_documents") or data.get("contexts") or []
+                        data.get("retrieved_context")
+                        or data.get("retrieved_documents")
+                        or data.get("contexts")
+                        or []
                     )
                     contexts = (
                         [str(c) for c in raw_ctx]
