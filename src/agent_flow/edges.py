@@ -5,9 +5,17 @@ from .state import AgentState
 
 
 # region Edges
-def route_from_router(state: AgentState) -> str:
-    """Routes state from router node directly to matching node ('refuse', 'bm25', 'hyde_bm25', 'hyde')."""
-    return state.get("routing_decision", "hyde_bm25")
+def route_from_router(state: AgentState) -> str | list[str]:
+    """Routes state from router: directly to 'refuse', 'bm25', 'hyde', or concurrent ['bm25', 'hyde']."""
+    decision = state.get("routing_decision", "hyde_bm25")
+    if decision == "refuse":
+        return "refuse"
+    if decision == "bm25":
+        return "bm25"
+    if decision == "hyde":
+        return "hyde"
+    # Concurrent Fan-out: triggers both bm25 and hyde in the same Pregel Superstep
+    return ["bm25", "hyde"]
 
 
 def route_after_critique(state: AgentState) -> str:

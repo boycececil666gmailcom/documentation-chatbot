@@ -6,7 +6,6 @@ from .nodes import (
     bm25_node,
     critique_node,
     generate_node,
-    hyde_bm25_node,
     hyde_node,
     refuse_node,
     rerank_node,
@@ -24,7 +23,6 @@ workflow = StateGraph(AgentState, input=InputState)
 # Add Nodes
 workflow.add_node("router", router_node)
 workflow.add_node("bm25", bm25_node)
-workflow.add_node("hyde_bm25", hyde_bm25_node)
 workflow.add_node("hyde", hyde_node)
 workflow.add_node("retrieve", retrieve_node)
 workflow.add_node("rerank", rerank_node)
@@ -38,16 +36,10 @@ workflow.set_entry_point("router")
 workflow.add_conditional_edges(
     "router",
     route_from_router,
-    {
-        "refuse": "refuse",
-        "bm25": "bm25",
-        "hyde_bm25": "hyde_bm25",
-        "hyde": "hyde",
-    },
+    ["refuse", "bm25", "hyde"],
 )
 
 workflow.add_edge("bm25", "retrieve")
-workflow.add_edge("hyde_bm25", "retrieve")
 workflow.add_edge("hyde", "retrieve")
 workflow.add_edge("retrieve", "rerank")
 workflow.add_edge("rerank", "generate")
@@ -60,7 +52,7 @@ workflow.add_conditional_edges(
     {"approved": END, "rejected": "router"},
 )
 
-agent_graph = workflow.compile()
+agent_graph = workflow.compile(name="KanziDocumentationAgent")
 # endregion
 
 

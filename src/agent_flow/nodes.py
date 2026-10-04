@@ -80,7 +80,6 @@ def hyde_node(state: AgentState) -> dict:
     print(f"[HyDE-hyde_node] Hypothetical doc prepared: '{hypo_doc[:60]}...'")
     return {
         "hypothetical_doc": hypo_doc,
-        "search_query": hypo_doc,
     }
 
 
@@ -94,24 +93,6 @@ def bm25_node(state: AgentState) -> dict:
     print(f"[BM25-bm25_node] Pure BM25 keyword query: '{query[:60]}...'")
     return {
         "bm25_query": query,
-        "search_query": query,
-    }
-
-
-# endregion
-
-
-# region HyDE + BM25 Node
-def hyde_bm25_node(state: AgentState) -> dict:
-    """Generates HyDE passage and combines it with BM25 keywords by composing hyde_node and bm25_node."""
-    hyde_res = hyde_node(state)
-    bm25_res = bm25_node(state)
-    combined_query = f"{bm25_res['bm25_query']}\n{hyde_res['hypothetical_doc']}"
-    print(f"[HyDE_BM25-hyde_bm25_node] Hybrid query prepared: '{combined_query[:60]}...'")
-    return {
-        **hyde_res,
-        **bm25_res,
-        "search_query": combined_query,
     }
 
 
@@ -120,7 +101,7 @@ def hyde_bm25_node(state: AgentState) -> dict:
 
 # region Retrieval Node
 def retrieve_node(state: AgentState) -> dict:
-    """Retrieves candidate document chunks using pure BM25, dense vector, or hybrid retrieval."""
+    """Retrieves candidate document chunks using pure BM25, dense vector, or concurrent hybrid retrieval."""
     decision = state.get("routing_decision", "hyde_bm25")
     query = state["query"]
     bm25_query = state.get("bm25_query") or query
@@ -129,17 +110,23 @@ def retrieve_node(state: AgentState) -> dict:
     if decision == "bm25":
         print(f"[Retrieve-retrieve_node] Executing pure BM25 keyword retrieval for: '{bm25_query[:60]}...'")
         docs = db.retrieve_bm25(query=bm25_query, top_k=10)
+        search_query = bm25_query
     elif decision == "hyde":
         search_target = hypo_doc if hypo_doc else query
         print(f"[Retrieve-retrieve_node] Executing dense vector retrieval for: '{search_target[:60]}...'")
         docs = db.retrieve_collapsed_tree(query=search_target, top_k=10)
-    else:  # "hyde_bm25" or fallback
+        search_query = search_target
+    else:  # "hyde_bm25" (concurrent fan-in branch)
         dense_target = hypo_doc if hypo_doc else query
         print(f"[Retrieve-retrieve_node] Executing hybrid BM25 + dense retrieval for: '{query[:60]}...'")
         docs = db.retrieve_hybrid(dense_query=dense_target, sparse_query=bm25_query, top_k=10)
+        search_query = f"{bm25_query}\n{dense_target}"
 
     print(f"[Retrieve-retrieve_node] Retrieved {len(docs)} candidate documents")
-    return {"retrieved_docs": docs}
+    return {
+        "retrieved_docs": docs,
+        "search_query": search_query,
+    }
 
 
 # endregion
