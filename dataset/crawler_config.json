@@ -1,0 +1,25 @@
+{
+  "crawler": {
+    "root_urls": [
+      "https://docs.kanzi.com/4.1.0/en/kanzi-fundamentals/kanzi-fundamentals.html",
+      "https://docs.kanzi.com/4.1.0/en/working-with/working-with.html",
+      "https://docs.kanzi.com/4.1.0/en/best-practices/best-practices.html"
+    ],
+    "output_path": "1.crawler.json",
+    "max_depth": 3,
+    "max_concurrency": 30,
+    "css_selector": "article",
+    "allowed_prefixes": null
+  },
+  "raptor": {
+    "input_path": "1.crawler.json",
+    "output_path": "2.flattened_chunks.json",
+    "max_concurrency": 20
+  },
+  "ingest": {
+    "input_path": "2.flattened_chunks.json",
+    "batch_size": 64,
+    "collection_name": "raptor_chunks",
+    "rate_limit_delay": 3.2
+  }
+}
