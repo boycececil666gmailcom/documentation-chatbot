@@ -1,0 +1,47 @@
+{
+  "generator": {
+    "doc_path": "0.doc.json",
+    "dataset_path": "1.dataset.json",
+    "test_size": 30,
+    "max_chunks": 20,
+    "weights": {
+      "single_specific": 0.25,
+      "single_abstract": 0.25,
+      "multi_specific": 0.25,
+      "multi_abstract": 0.25
+    }
+  },
+  "query": {
+    "dataset_path": "1.dataset.json",
+    "mode": "direct",
+    "endpoint_url": "http://localhost:2024",
+    "max_samples": null,
+    "timeout": 90.0,
+    "max_retries": 3
+  },
+  "evaluation": {
+    "output_dir": ".",
+    "output_prefix": "2.run_eval_",
+    "max_workers": 2,
+    "timeout": 240,
+    "max_retries": 5
+  },
+  "visualization": {
+    "csv_pattern": "2.run_eval_*.csv",
+    "targets": {
+      "faithfulness": 0.80,
+      "answer_relevancy": 0.75,
+      "context_precision": 0.85,
+      "context_recall": 0.80
+    }
+  },
+  "journal": {
+    "journal_path": "JOURNAL.md",
+    "milestone_title": "[LangGraph Agent] Native Graph Benchmark Run"
+  },
+  "langsmith": {
+    "dataset_path": "1.dataset.json",
+    "dataset_name": "kanzi-documentation-eval",
+    "description": "Kanzi QA RAG evaluation test set synthesized via KnowledgeGraph"
+  }
+}

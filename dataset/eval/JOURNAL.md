@@ -38,5 +38,5 @@
 - **Impact**: Context Precision `0.83` -> `0.91` (+7.2%), Context Recall `0.64` -> `0.72` (+8.2%).
 
 ### Week 5.1 (2026-08-19) — Domain HyDE & Evaluation Pipeline
-- **Architecture**: Domain-injected HyDE for concise queries, false-rejection safeguards in classifier, and automated 32-sample RAGAS evaluation runner ([`2.run_eval.py`](file:///c:/Users/boyce/OneDrive/Desktop/documentation-chatbot/dataset/eval/2.run_eval.py)).
+- **Architecture**: Domain-injected HyDE for concise queries, false-rejection safeguards in classifier, and automated 32-sample RAGAS evaluation runner ([`pipeline.ipynb`](file:///c:/Users/boyce/OneDrive/Desktop/documentation-chatbot/dataset/eval/pipeline.ipynb)).
 - **Impact**: Faithfulness surged to `0.96` (+13.2%, 75% perfect `1.0`); Context Precision at `0.81`.
