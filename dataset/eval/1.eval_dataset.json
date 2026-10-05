@@ -1,7 +1,11 @@
 [
   {
-    "question": "Is there an option to conect to Claude when seting up the Kanzi Documentation MCP server in VS Cdoe?",
-    "right_answer": "Yes, the documentation indicates that you can install the Kanzi Documentation MCP server to VS Code and connect to Claude.",
+    "inputs": {
+      "query": "Is there an option to conect to Claude when seting up the Kanzi Documentation MCP server in VS Cdoe?"
+    },
+    "outputs": {
+      "ground_truth": "Yes, the documentation indicates that you can install the Kanzi Documentation MCP server to VS Code and connect to Claude."
+    },
     "metadata": {
       "id": "sample-01",
       "ground_truth_contexts": [
@@ -11,8 +15,12 @@
     }
   },
   {
-    "question": "how I connect to Claude with Kanzi Documentation MCP server?",
-    "right_answer": "You can connect to Claude by installing the Kanzi Documentation MCP server to VS Code.",
+    "inputs": {
+      "query": "how I connect to Claude with Kanzi Documentation MCP server?"
+    },
+    "outputs": {
+      "ground_truth": "You can connect to Claude by installing the Kanzi Documentation MCP server to VS Code."
+    },
     "metadata": {
       "id": "sample-02",
       "ground_truth_contexts": [
@@ -22,8 +30,12 @@
     }
   },
   {
-    "question": "As an embedded graphics software engineer reviewing the Kanzi UI features documentation, how can I view the reference page in Markdown and integrate the documentation server with my environment?",
-    "right_answer": "Based on the provided documentation, you can select the option to view the page as Markdown and install the Kanzi Documentation MCP server to VS Code to connect to Claude.",
+    "inputs": {
+      "query": "As an embedded graphics software engineer reviewing the Kanzi UI features documentation, how can I view the reference page in Markdown and integrate the documentation server with my environment?"
+    },
+    "outputs": {
+      "ground_truth": "Based on the provided documentation, you can select the option to view the page as Markdown and install the Kanzi Documentation MCP server to VS Code to connect to Claude."
+    },
     "metadata": {
       "id": "sample-03",
       "ground_truth_contexts": [
@@ -33,8 +45,12 @@
     }
   },
   {
-    "question": "What is the benefit of developing Kanzi Engine plugins?",
-    "right_answer": "Developing Kanzi Engine plugins enables you to implement functionality that can be reused across different applications.",
+    "inputs": {
+      "query": "What is the benefit of developing Kanzi Engine plugins?"
+    },
+    "outputs": {
+      "ground_truth": "Developing Kanzi Engine plugins enables you to implement functionality that can be reused across different applications."
+    },
     "metadata": {
       "id": "sample-04",
       "ground_truth_contexts": [
@@ -44,8 +60,12 @@
     }
   },
   {
-    "question": "As an automotive HMI developer setting up my development environment, which server can I install to VS Code according to the documentation?",
-    "right_answer": "According to the documentation, you can install the Kanzi Documentation MCP server to VS Code.",
+    "inputs": {
+      "query": "As an automotive HMI developer setting up my development environment, which server can I install to VS Code according to the documentation?"
+    },
+    "outputs": {
+      "ground_truth": "According to the documentation, you can install the Kanzi Documentation MCP server to VS Code."
+    },
     "metadata": {
       "id": "sample-05",
       "ground_truth_contexts": [
@@ -55,8 +75,12 @@
     }
   },
   {
-    "question": "Wut kind of layout control is an Emptty Node 2D?",
-    "right_answer": "In Kanzi, an Empty Node 2D is an absolute positioning control that acts as a container to group its child nodes.",
+    "inputs": {
+      "query": "Wut kind of layout control is an Emptty Node 2D?"
+    },
+    "outputs": {
+      "ground_truth": "In Kanzi, an Empty Node 2D is an absolute positioning control that acts as a container to group its child nodes."
+    },
     "metadata": {
       "id": "sample-06",
       "ground_truth_contexts": [
@@ -66,8 +90,12 @@
     }
   },
   {
-    "question": "How does Kanzi Studio show that a State Manager overrides property values on a node?",
-    "right_answer": "In the Kanzi Studio Node Tree window, an indicator appears next to a node to show when a State Manager, Binding, Data Source Binding, or an Animation overrides the values of some properties in that node.",
+    "inputs": {
+      "query": "How does Kanzi Studio show that a State Manager overrides property values on a node?"
+    },
+    "outputs": {
+      "ground_truth": "In the Kanzi Studio Node Tree window, an indicator appears next to a node to show when a State Manager, Binding, Data Source Binding, or an Animation overrides the values of some properties in that node."
+    },
     "metadata": {
       "id": "sample-07",
       "ground_truth_contexts": [
@@ -77,8 +105,12 @@
     }
   },
   {
-    "question": "How can an embedded graphics developer optimize the startup time of a Kanzi application by modifying image asset formats and managing resource deployment to the GPU?",
-    "right_answer": "To optimize startup time regarding the GPU in a Kanzi application, you can:\n\n1. Use raw and compressed image formats instead of .png and .jpg formats, allowing Kanzi to process less data before sending it to the GPU.\n2. Utilize parallel resource loading to load and process application resources in multiple threads and deploy them to the GPU over multiple frames.",
+    "inputs": {
+      "query": "How can an embedded graphics developer optimize the startup time of a Kanzi application by modifying image asset formats and managing resource deployment to the GPU?"
+    },
+    "outputs": {
+      "ground_truth": "To optimize startup time regarding the GPU in a Kanzi application, you can:\n\n1. Use raw and compressed image formats instead of .png and .jpg formats, allowing Kanzi to process less data before sending it to the GPU.\n2. Utilize parallel resource loading to load and process application resources in multiple threads and deploy them to the GPU over multiple frames."
+    },
     "metadata": {
       "id": "sample-08",
       "ground_truth_contexts": [
@@ -88,8 +120,12 @@
     }
   },
   {
-    "question": "where to find overview tutorial for Kanzi Studio",
-    "right_answer": "According to the documentation, for an overview of Kanzi Studio, see the \"Tutorial: Getting started with Kanzi Studio\".",
+    "inputs": {
+      "query": "where to find overview tutorial for Kanzi Studio"
+    },
+    "outputs": {
+      "ground_truth": "According to the documentation, for an overview of Kanzi Studio, see the \"Tutorial: Getting started with Kanzi Studio\"."
+    },
     "metadata": {
       "id": "sample-09",
       "ground_truth_contexts": [
@@ -99,8 +135,12 @@
     }
   },
   {
-    "question": "Kanzi embedded graphics application development build tools integration accessing CMake Gradle without setting environment variables",
-    "right_answer": "For build tools integration, you can use the Kanzi Command Prompt. It opens the Windows Command Prompt with the appropriate Kanzi environment variables pre-configured for that specific Kanzi version, allowing you to access Kanzi utilities and build tools like Gradle and CMake without needing to configure environment variables manually or use absolute paths.",
+    "inputs": {
+      "query": "Kanzi embedded graphics application development build tools integration accessing CMake Gradle without setting environment variables"
+    },
+    "outputs": {
+      "ground_truth": "For build tools integration, you can use the Kanzi Command Prompt. It opens the Windows Command Prompt with the appropriate Kanzi environment variables pre-configured for that specific Kanzi version, allowing you to access Kanzi utilities and build tools like Gradle and CMake without needing to configure environment variables manually or use absolute paths."
+    },
     "metadata": {
       "id": "sample-10",
       "ground_truth_contexts": [
@@ -110,8 +150,12 @@
     }
   },
   {
-    "question": "Kanzi UI Layout and Nodes",
-    "right_answer": "According to the Kanzi documentation overview, Kanzi includes the following features related to UI layouts and nodes:\n\n- Layout nodes: Content Layout nodes, Dock Layout nodes, Flow Layout nodes, Grid Layout nodes, Layout control nodes, Stack Layout nodes, and Trajectory Layout nodes.\n- Other node types and components: Button nodes, Camera node, Empty Node nodes, Instantiator node, Light nodes, List Box nodes, Model node, Node components, Page and Page Host nodes, Scene node, Screen node, Scroll View nodes, Slider nodes, Text nodes, and Viewport nodes.",
+    "inputs": {
+      "query": "Kanzi UI Layout and Nodes"
+    },
+    "outputs": {
+      "ground_truth": "According to the Kanzi documentation overview, Kanzi includes the following features related to UI layouts and nodes:\n\n- Layout nodes: Content Layout nodes, Dock Layout nodes, Flow Layout nodes, Grid Layout nodes, Layout control nodes, Stack Layout nodes, and Trajectory Layout nodes.\n- Other node types and components: Button nodes, Camera node, Empty Node nodes, Instantiator node, Light nodes, List Box nodes, Model node, Node components, Page and Page Host nodes, Scene node, Screen node, Scroll View nodes, Slider nodes, Text nodes, and Viewport nodes."
+    },
     "metadata": {
       "id": "sample-11",
       "ground_truth_contexts": [
@@ -121,8 +165,12 @@
     }
   },
   {
-    "question": "As an automotve HMI devloper workign on embedded dislpays, what spcific areas and components of my Kanzi applicaton can I evaluate using the performence profiling and measurment systm?",
-    "right_answer": "According to the context, the Kanzi performance profiling system allows you to measure the performance of:\n\n* Different parts of the Kanzi Engine during application startup and runtime.\n* Your Kanzi application code.\n* Resource loading and deployment.",
+    "inputs": {
+      "query": "As an automotve HMI devloper workign on embedded dislpays, what spcific areas and components of my Kanzi applicaton can I evaluate using the performence profiling and measurment systm?"
+    },
+    "outputs": {
+      "ground_truth": "According to the context, the Kanzi performance profiling system allows you to measure the performance of:\n\n* Different parts of the Kanzi Engine during application startup and runtime.\n* Your Kanzi application code.\n* Resource loading and deployment."
+    },
     "metadata": {
       "id": "sample-12",
       "ground_truth_contexts": [
@@ -132,8 +180,12 @@
     }
   },
   {
-    "question": "How can a Material Brush be created and applied to adjust the appearance of a 2D node?",
-    "right_answer": "To fill a 2D node with a material using a Material Brush, follow these steps:\n\n1. In the Library, press Alt and right-click \"Materials and Textures\", select \"Material Brush\", and name the brush.\n2. In the Properties, set the \"Material\" property to the material you want to use.\n3. In the Node Tree, select the 2D node you want to fill, add the \"Background Brush\" or \"Foreground Brush\" property in the Properties, and select the Material Brush you created.\n4. Adjust the appearance of the material by setting properties (such as Ambient Color, Texture, and Blend Mode) either directly in the Material Brush or in the node that uses the Material Brush.",
+    "inputs": {
+      "query": "How can a Material Brush be created and applied to adjust the appearance of a 2D node?"
+    },
+    "outputs": {
+      "ground_truth": "To fill a 2D node with a material using a Material Brush, follow these steps:\n\n1. In the Library, press Alt and right-click \"Materials and Textures\", select \"Material Brush\", and name the brush.\n2. In the Properties, set the \"Material\" property to the material you want to use.\n3. In the Node Tree, select the 2D node you want to fill, add the \"Background Brush\" or \"Foreground Brush\" property in the Properties, and select the Material Brush you created.\n4. Adjust the appearance of the material by setting properties (such as Ambient Color, Texture, and Blend Mode) either directly in the Material Brush or in the node that uses the Material Brush."
+    },
     "metadata": {
       "id": "sample-13",
       "ground_truth_contexts": [
@@ -143,8 +195,12 @@
     }
   },
   {
-    "question": "how Layout control nodes like Stack Layout or Grid Layout is applying transformation to immediate child node?",
-    "right_answer": "Layout control nodes, such as Stack Layout and Grid Layout nodes, apply their own transformations on all immediate child nodes. In turn, those child nodes define their own layout considering their own child nodes, layout transformations, margins, and alignments.",
+    "inputs": {
+      "query": "how Layout control nodes like Stack Layout or Grid Layout is applying transformation to immediate child node?"
+    },
+    "outputs": {
+      "ground_truth": "Layout control nodes, such as Stack Layout and Grid Layout nodes, apply their own transformations on all immediate child nodes. In turn, those child nodes define their own layout considering their own child nodes, layout transformations, margins, and alignments."
+    },
     "metadata": {
       "id": "sample-14",
       "ground_truth_contexts": [
@@ -154,8 +210,12 @@
     }
   },
   {
-    "question": "best practices removing redundant animation data channels",
-    "right_answer": "To create more efficient animations, you should remove the Animation Data channels that do not animate anything.",
+    "inputs": {
+      "query": "best practices removing redundant animation data channels"
+    },
+    "outputs": {
+      "ground_truth": "To create more efficient animations, you should remove the Animation Data channels that do not animate anything."
+    },
     "metadata": {
       "id": "sample-15",
       "ground_truth_contexts": [
@@ -165,8 +225,12 @@
     }
   },
   {
-    "question": "How can I achive faster startp time in my embeded Kanzi UI aplicashun using paralel resorce loadng and asynchronus resorce deploymnt to the GPU acros multple frams?",
-    "right_answer": "To optimize startup time using asynchronous and parallel resource handling in a Kanzi application, you can use parallel resource loading to load and process application resources across multiple threads and deploy the resources to the GPU over multiple frames. Additionally, you can design the application for gradual loading (such as showing a loading screen while the base UI loads, then preloading resources for other parts asynchronously) and use the `DeploymentQueueBudget` configuration setting in a Kanzi Android framework (droidfw) application to control the amount of time Kanzi spends deploying resources each frame.",
+    "inputs": {
+      "query": "How can I achive faster startp time in my embeded Kanzi UI aplicashun using paralel resorce loadng and asynchronus resorce deploymnt to the GPU acros multple frams?"
+    },
+    "outputs": {
+      "ground_truth": "To optimize startup time using asynchronous and parallel resource handling in a Kanzi application, you can use parallel resource loading to load and process application resources across multiple threads and deploy the resources to the GPU over multiple frames. Additionally, you can design the application for gradual loading (such as showing a loading screen while the base UI loads, then preloading resources for other parts asynchronously) and use the `DeploymentQueueBudget` configuration setting in a Kanzi Android framework (droidfw) application to control the amount of time Kanzi spends deploying resources each frame."
+    },
     "metadata": {
       "id": "sample-16",
       "ground_truth_contexts": [
@@ -176,8 +240,12 @@
     }
   },
   {
-    "question": "According to the Kanzi documentation pages that offer integration to connect to Claude, how does using half-float accuracy for vertex attributes affect mesh data size, and what impact do mipmaps have on GPU memory use?",
-    "right_answer": "Based on the Kanzi documentation, switching to half-float accuracy instead of float for vertex attributes decreases the mesh data size by half when the pivot point of the mesh is centered. On the other hand, using mipmaps increases GPU memory usage by one third, though it enhances performance when the full texture does not need to be sampled.",
+    "inputs": {
+      "query": "According to the Kanzi documentation pages that offer integration to connect to Claude, how does using half-float accuracy for vertex attributes affect mesh data size, and what impact do mipmaps have on GPU memory use?"
+    },
+    "outputs": {
+      "ground_truth": "Based on the Kanzi documentation, switching to half-float accuracy instead of float for vertex attributes decreases the mesh data size by half when the pivot point of the mesh is centered. On the other hand, using mipmaps increases GPU memory usage by one third, though it enhances performance when the full texture does not need to be sampled."
+    },
     "metadata": {
       "id": "sample-17",
       "ground_truth_contexts": [
@@ -188,8 +256,12 @@
     }
   },
   {
-    "question": "In Kanzi Studio, how are cubemap textures with mismatched face sizes or formats visually indicated, and what is considered the easiest way to add functionality to UI elements without leaving Kanzi Studio?",
-    "right_answer": "In Kanzi Studio, when the size and format of the images across the faces of a cubemap texture do not match, Kanzi Studio marks the texture using red type (and at runtime, Kanzi falls back to using the default cubemap texture). Meanwhile, the easiest way to add functionality and behavior to UI elements without leaving Kanzi Studio or creating project/solution files is by using code behind, which allows you to observe the implemented behavior immediately in the Preview.",
+    "inputs": {
+      "query": "In Kanzi Studio, how are cubemap textures with mismatched face sizes or formats visually indicated, and what is considered the easiest way to add functionality to UI elements without leaving Kanzi Studio?"
+    },
+    "outputs": {
+      "ground_truth": "In Kanzi Studio, when the size and format of the images across the faces of a cubemap texture do not match, Kanzi Studio marks the texture using red type (and at runtime, Kanzi falls back to using the default cubemap texture). Meanwhile, the easiest way to add functionality and behavior to UI elements without leaving Kanzi Studio or creating project/solution files is by using code behind, which allows you to observe the implemented behavior immediately in the Preview."
+    },
     "metadata": {
       "id": "sample-18",
       "ground_truth_contexts": [
@@ -200,8 +272,12 @@
     }
   },
   {
-    "question": "Acording to the Kanzi Documentation MCP server artickles on perfromance and animashun, how much extra GPU memmory do mipmaps reqire when downscaling texures, and what specifc acshun must an enginer take when using the Kanzi Engine API to aply multple animashuns to an obekt to stop them from unnecesarily consuuming resourses once they end?",
-    "right_answer": "According to the provided documentation:\n\n1. **Mipmaps GPU Memory Usage**: Mipmaps create a set of downscaled sublevels from a large texture and increase GPU memory use by one third.\n2. **Animation Resource Management**: When using the Kanzi Engine API to apply multiple animations to an object, you must explicitly remove them after they end; otherwise, the animation objects remain alive in the modifier stack to provide property values upon request and will continue consuming resources.",
+    "inputs": {
+      "query": "Acording to the Kanzi Documentation MCP server artickles on perfromance and animashun, how much extra GPU memmory do mipmaps reqire when downscaling texures, and what specifc acshun must an enginer take when using the Kanzi Engine API to aply multple animashuns to an obekt to stop them from unnecesarily consuuming resourses once they end?"
+    },
+    "outputs": {
+      "ground_truth": "According to the provided documentation:\n\n1. **Mipmaps GPU Memory Usage**: Mipmaps create a set of downscaled sublevels from a large texture and increase GPU memory use by one third.\n2. **Animation Resource Management**: When using the Kanzi Engine API to apply multiple animations to an object, you must explicitly remove them after they end; otherwise, the animation objects remain alive in the modifier stack to provide property values upon request and will continue consuming resources."
+    },
     "metadata": {
       "id": "sample-19",
       "ground_truth_contexts": [
@@ -212,8 +288,12 @@
     }
   },
   {
-    "question": "In Kanzi Studio how it tell me when cubemap texture face images size and format not match, and which shader profile template in Kanzi Studio I should use for low precision and high performance application?",
-    "right_answer": "In Kanzi Studio, when the size and format of images in a cubemap texture do not match, it uses red type to mark those textures. For low precision and high performance applications, Kanzi Studio provides the \"High performance vertex shaders\" template, which utilizes vertex-based shaders where most GPU-specific computations (such as applying lights using the Phong reflection model) are performed in the vertex shader.",
+    "inputs": {
+      "query": "In Kanzi Studio how it tell me when cubemap texture face images size and format not match, and which shader profile template in Kanzi Studio I should use for low precision and high performance application?"
+    },
+    "outputs": {
+      "ground_truth": "In Kanzi Studio, when the size and format of images in a cubemap texture do not match, it uses red type to mark those textures. For low precision and high performance applications, Kanzi Studio provides the \"High performance vertex shaders\" template, which utilizes vertex-based shaders where most GPU-specific computations (such as applying lights using the Phong reflection model) are performed in the vertex shader."
+    },
     "metadata": {
       "id": "sample-20",
       "ground_truth_contexts": [
@@ -224,8 +304,12 @@
     }
   },
   {
-    "question": "me install Kanzi Documentation MCP server in vs code for graphics work but me confused on few things, so what hardware graphics api is require if i want run geometry and tessellation shaders in kanzi and what precision need use for variables ranging [-2..2] on mobile device, and also for animation system what is the three main things it consist of and which timeline type let me group timelines together to play at same time?",
-    "right_answer": "Based on the provided documentation:\n\n1. **Hardware Requirement for Geometry and Tessellation Shaders**: The hardware where you run your Kanzi application must support OpenGL ES 3.2 or Vulkan 1.1.\n2. **Precision for [-2..2] Variables**: For mobile and embedded devices, you should use low precision for all variables that range [-2..2].\n3. **Three Main Components of the Animation System**: The Kanzi animation system consists of:\n   - **Animations**: Define how to animate a property (such as from-to animations and keyframe animations).\n   - **Timelines**: Map animations to time and to the objects you want to animate.\n   - **Animation players**: Receive messages sent with actions and generate messages intercepted with triggers to control playback.\n4. **Grouping Timelines**: The **Parallel timeline** allows you to group timelines that Kanzi plays at the same time (ending when the animations in the last child timeline end).",
+    "inputs": {
+      "query": "me install Kanzi Documentation MCP server in vs code for graphics work but me confused on few things, so what hardware graphics api is require if i want run geometry and tessellation shaders in kanzi and what precision need use for variables ranging [-2..2] on mobile device, and also for animation system what is the three main things it consist of and which timeline type let me group timelines together to play at same time?"
+    },
+    "outputs": {
+      "ground_truth": "Based on the provided documentation:\n\n1. **Hardware Requirement for Geometry and Tessellation Shaders**: The hardware where you run your Kanzi application must support OpenGL ES 3.2 or Vulkan 1.1.\n2. **Precision for [-2..2] Variables**: For mobile and embedded devices, you should use low precision for all variables that range [-2..2].\n3. **Three Main Components of the Animation System**: The Kanzi animation system consists of:\n   - **Animations**: Define how to animate a property (such as from-to animations and keyframe animations).\n   - **Timelines**: Map animations to time and to the objects you want to animate.\n   - **Animation players**: Receive messages sent with actions and generate messages intercepted with triggers to control playback.\n4. **Grouping Timelines**: The **Parallel timeline** allows you to group timelines that Kanzi plays at the same time (ending when the animations in the last child timeline end)."
+    },
     "metadata": {
       "id": "sample-21",
       "ground_truth_contexts": [
@@ -236,8 +320,12 @@
     }
   },
   {
-    "question": "Kanzi Studio default Text Block 2D pixel-perfect rendering and viewing log messages in Preview Log window",
-    "right_answer": "In Kanzi Studio, projects by default include a style that renders text in all Text Block 2D nodes as pixel-perfect (which can also be set on other 2D nodes by enabling the Node 2D > Snap to Pixel property). When you build, run, or interact with your application in the Kanzi Studio Preview, log messages generated by logging macros (such as kzLogInfo with a defined category) are printed to the Kanzi Studio Log window or the debug console.",
+    "inputs": {
+      "query": "Kanzi Studio default Text Block 2D pixel-perfect rendering and viewing log messages in Preview Log window"
+    },
+    "outputs": {
+      "ground_truth": "In Kanzi Studio, projects by default include a style that renders text in all Text Block 2D nodes as pixel-perfect (which can also be set on other 2D nodes by enabling the Node 2D > Snap to Pixel property). When you build, run, or interact with your application in the Kanzi Studio Preview, log messages generated by logging macros (such as kzLogInfo with a defined category) are printed to the Kanzi Studio Log window or the debug console."
+    },
     "metadata": {
       "id": "sample-22",
       "ground_truth_contexts": [
@@ -248,8 +336,12 @@
     }
   },
   {
-    "question": "In Kanzi docs that say view this page as Markdown, which node I need to use for showing imported meshes and how centering mesh pivot point can decrease vertex data size by half?",
-    "right_answer": "According to the Kanzi documentation:\n\n1. You use the **Model** node to show imported meshes in your Kanzi application.\n2. When the pivot point of a mesh is centered to the mesh, you can decrease the mesh data size by half by using **half-float accuracy** for the vertex attributes instead of float.",
+    "inputs": {
+      "query": "In Kanzi docs that say view this page as Markdown, which node I need to use for showing imported meshes and how centering mesh pivot point can decrease vertex data size by half?"
+    },
+    "outputs": {
+      "ground_truth": "According to the Kanzi documentation:\n\n1. You use the **Model** node to show imported meshes in your Kanzi application.\n2. When the pivot point of a mesh is centered to the mesh, you can decrease the mesh data size by half by using **half-float accuracy** for the vertex attributes instead of float."
+    },
     "metadata": {
       "id": "sample-23",
       "ground_truth_contexts": [
@@ -260,8 +352,12 @@
     }
   },
   {
-    "question": "In Kanzi Studio where I click on main menu for open Kanzi Command Prompt, and also which menu option I select to remove generated cached files?",
-    "right_answer": "In Kanzi Studio, you can perform these actions using the main menu:\n\n1. To open the Kanzi Command Prompt, go to the main menu and select File > Open Kanzi Command Prompt.\n2. To remove generated temporary files (cached files such as compressed images and thumbnails), go to the main menu and select Project > Clean Cached Files.",
+    "inputs": {
+      "query": "In Kanzi Studio where I click on main menu for open Kanzi Command Prompt, and also which menu option I select to remove generated cached files?"
+    },
+    "outputs": {
+      "ground_truth": "In Kanzi Studio, you can perform these actions using the main menu:\n\n1. To open the Kanzi Command Prompt, go to the main menu and select File > Open Kanzi Command Prompt.\n2. To remove generated temporary files (cached files such as compressed images and thumbnails), go to the main menu and select Project > Clean Cached Files."
+    },
     "metadata": {
       "id": "sample-24",
       "ground_truth_contexts": [
@@ -272,8 +368,12 @@
     }
   },
   {
-    "question": "If Margin set in Styles and state overrides at same time, which one take precedence and what Margin enforce in layout?",
-    "right_answer": "Under Kanzi's property precedence rules, state overrides (evaluated under Modified value) have the highest precedence and will override the values set by styles (such as Named styles or Typed styles). In layout calculations, the Margin property enforces the object's spacing relative to the border of its parent layout (for instance, Horizontal Margin sets the spacing on the left and right sides relative to the parent layout).",
+    "inputs": {
+      "query": "If Margin set in Styles and state overrides at same time, which one take precedence and what Margin enforce in layout?"
+    },
+    "outputs": {
+      "ground_truth": "Under Kanzi's property precedence rules, state overrides (evaluated under Modified value) have the highest precedence and will override the values set by styles (such as Named styles or Typed styles). In layout calculations, the Margin property enforces the object's spacing relative to the border of its parent layout (for instance, Horizontal Margin sets the spacing on the left and right sides relative to the parent layout)."
+    },
     "metadata": {
       "id": "sample-25",
       "ground_truth_contexts": [
@@ -284,8 +384,12 @@
     }
   },
   {
-    "question": "How do layout control nodes utilize attached properties to arrange child elements, and how can a developer adjust node appearance and behavior through animations without causing layout recalculations?",
-    "right_answer": "In Kanzi, properties are used to specify and configure the state, appearance, and behavior of nodes. Layout control nodes, such as the Grid Layout, use attached properties (like the Row and Column properties) that are set directly on child nodes rather than the layout container itself to define how those children are positioned. Furthermore, to modify node appearance and behavior during animations without triggering layout recalculations, developers can apply render transformations. Render transformations are applied after the layout pass but before rendering, allowing nodes within layout control nodes to be animated without affecting layout calculations.",
+    "inputs": {
+      "query": "How do layout control nodes utilize attached properties to arrange child elements, and how can a developer adjust node appearance and behavior through animations without causing layout recalculations?"
+    },
+    "outputs": {
+      "ground_truth": "In Kanzi, properties are used to specify and configure the state, appearance, and behavior of nodes. Layout control nodes, such as the Grid Layout, use attached properties (like the Row and Column properties) that are set directly on child nodes rather than the layout container itself to define how those children are positioned. Furthermore, to modify node appearance and behavior during animations without triggering layout recalculations, developers can apply render transformations. Render transformations are applied after the layout pass but before rendering, allowing nodes within layout control nodes to be animated without affecting layout calculations."
+    },
     "metadata": {
       "id": "sample-26",
       "ground_truth_contexts": [
@@ -296,8 +400,12 @@
     }
   },
   {
-    "question": "When develop UI in Kanzi, how layout control nodes is applying transformation to child node, and how properties specifying node appearance and behavior is used for configure child node like attached property in Grid Layout?",
-    "right_answer": "In Kanzi, layout control nodes (such as Stack Layout and Grid Layout nodes) apply their own transformations on all immediate child nodes, which in turn define their own layout by considering their own child nodes, layout transformations, margins, and alignments.\n\nRegarding node appearance and behavior, properties provide the means to specify and examine the state, appearance, and behavior of nodes. While most properties are defined in the classes that use them to set the object's own appearance or state, some properties configure other objects. These are called attached properties; for example, the Grid Layout defines the Row and Column properties, but they are set on the child nodes of the Grid Layout rather than on the Grid Layout node itself.",
+    "inputs": {
+      "query": "When develop UI in Kanzi, how layout control nodes is applying transformation to child node, and how properties specifying node appearance and behavior is used for configure child node like attached property in Grid Layout?"
+    },
+    "outputs": {
+      "ground_truth": "In Kanzi, layout control nodes (such as Stack Layout and Grid Layout nodes) apply their own transformations on all immediate child nodes, which in turn define their own layout by considering their own child nodes, layout transformations, margins, and alignments.\n\nRegarding node appearance and behavior, properties provide the means to specify and examine the state, appearance, and behavior of nodes. While most properties are defined in the classes that use them to set the object's own appearance or state, some properties configure other objects. These are called attached properties; for example, the Grid Layout defines the Row and Column properties, but they are set on the child nodes of the Grid Layout rather than on the Grid Layout node itself."
+    },
     "metadata": {
       "id": "sample-27",
       "ground_truth_contexts": [
@@ -308,8 +416,12 @@
     }
   },
   {
-    "question": "How dose a Margin propertie get evaluted between Styles and state overrides in precedense?",
-    "right_answer": "In Kanzi, layout properties like Margin (which enforces object spacing relative to the border of a parent layout) are resolved according to the property system's precedence rules. Under these rules, state overrides (classified as modified values) have the highest precedence, taking priority over and overriding property values defined by both local settings and styles (named styles and typed styles).",
+    "inputs": {
+      "query": "How dose a Margin propertie get evaluted between Styles and state overrides in precedense?"
+    },
+    "outputs": {
+      "ground_truth": "In Kanzi, layout properties like Margin (which enforces object spacing relative to the border of a parent layout) are resolved according to the property system's precedence rules. Under these rules, state overrides (classified as modified values) have the highest precedence, taking priority over and overriding property values defined by both local settings and styles (named styles and typed styles)."
+    },
     "metadata": {
       "id": "sample-28",
       "ground_truth_contexts": [
@@ -320,8 +432,12 @@
     }
   },
   {
-    "question": "for performance optimization why check log message and where find build environment configuration to set environment variable?",
-    "right_answer": "For performance optimization, you should pay attention to log messages because Kanzi prints warnings and errors in the Kanzi Studio Log window and debug console to highlight bottlenecks and issues; resolving them is critical since even seemingly minor warnings can negatively affect loading times and target hardware performance.\n\nTo access the Build Environment Configuration to set environment variables for the Kanzi Command Prompt, navigate in the Kanzi Studio main menu to Edit > User Preferences, go to the Advanced tab, and click Open Build Environment Configuration.",
+    "inputs": {
+      "query": "for performance optimization why check log message and where find build environment configuration to set environment variable?"
+    },
+    "outputs": {
+      "ground_truth": "For performance optimization, you should pay attention to log messages because Kanzi prints warnings and errors in the Kanzi Studio Log window and debug console to highlight bottlenecks and issues; resolving them is critical since even seemingly minor warnings can negatively affect loading times and target hardware performance.\n\nTo access the Build Environment Configuration to set environment variables for the Kanzi Command Prompt, navigate in the Kanzi Studio main menu to Edit > User Preferences, go to the Advanced tab, and click Open Build Environment Configuration."
+    },
     "metadata": {
       "id": "sample-29",
       "ground_truth_contexts": [
@@ -332,8 +448,12 @@
     }
   },
   {
-    "question": "Kanzi best practices embedded and mobile development using Kanzi Command Prompt for Android environment setup variables",
-    "right_answer": "When creating applications in embedded and mobile development, Kanzi recommends using the Kanzi Command Prompt as a best practice to access utilities and build tools like Gradle and CMake without having to specify absolute paths or manually set environment variables.\n\nFor Android environment setup, the Kanzi Command Prompt automatically configures key environment variables including:\n- `ANDROID_HOME`: Sets the path to the Android SDK.\n- `ANDROID_STUDIO`: Sets the path to the Android Studio executable.\n- `JAVA_HOME`: Sets the path to the 64-bit JDK.\n- `KANZI_HOME`: Sets the path to the Kanzi workspace.\n\nThese variables can be configured in Kanzi Studio by navigating to Edit > User Preferences > Advanced tab > Open Build Environment Configuration, where they can be modified directly or updated by editing the `%ProgramData%\\Rightware\\<KanziVersion>\\kanzi_environment_variables.bat` file in a text editor.",
+    "inputs": {
+      "query": "Kanzi best practices embedded and mobile development using Kanzi Command Prompt for Android environment setup variables"
+    },
+    "outputs": {
+      "ground_truth": "When creating applications in embedded and mobile development, Kanzi recommends using the Kanzi Command Prompt as a best practice to access utilities and build tools like Gradle and CMake without having to specify absolute paths or manually set environment variables.\n\nFor Android environment setup, the Kanzi Command Prompt automatically configures key environment variables including:\n- `ANDROID_HOME`: Sets the path to the Android SDK.\n- `ANDROID_STUDIO`: Sets the path to the Android Studio executable.\n- `JAVA_HOME`: Sets the path to the 64-bit JDK.\n- `KANZI_HOME`: Sets the path to the Kanzi workspace.\n\nThese variables can be configured in Kanzi Studio by navigating to Edit > User Preferences > Advanced tab > Open Build Environment Configuration, where they can be modified directly or updated by editing the `%ProgramData%\\Rightware\\<KanziVersion>\\kanzi_environment_variables.bat` file in a text editor."
+    },
     "metadata": {
       "id": "sample-30",
       "ground_truth_contexts": [
@@ -344,8 +464,12 @@
     }
   },
   {
-    "question": "How does resolving log mesages suuport performance optimization, and where do I acess the Build Environment Configuration window to configre variables for build tools?",
-    "right_answer": "Resolving warnings and errors from the Kanzi Studio Log window and debug console supports performance optimization because even seemingly unimportant warnings can significantly impact application loading times, help identify bottlenecks, and ensure optimal performance on target platforms. To configure the environment variables required for build tools used in the Kanzi Command Prompt (such as Gradle and CMake), go to the Kanzi Studio main menu, select Edit > User Preferences, navigate to the Advanced tab, and click Open Build Environment Configuration.",
+    "inputs": {
+      "query": "How does resolving log mesages suuport performance optimization, and where do I acess the Build Environment Configuration window to configre variables for build tools?"
+    },
+    "outputs": {
+      "ground_truth": "Resolving warnings and errors from the Kanzi Studio Log window and debug console supports performance optimization because even seemingly unimportant warnings can significantly impact application loading times, help identify bottlenecks, and ensure optimal performance on target platforms. To configure the environment variables required for build tools used in the Kanzi Command Prompt (such as Gradle and CMake), go to the Kanzi Studio main menu, select Edit > User Preferences, navigate to the Advanced tab, and click Open Build Environment Configuration."
+    },
     "metadata": {
       "id": "sample-31",
       "ground_truth_contexts": [
@@ -356,8 +480,12 @@
     }
   },
   {
-    "question": "When devloping human-machine interfaces (HMI), were does Kanzi Studio print log warnngs, and how can I open the Kanzi Command Promt directly from the Kanzi Studio main menue?",
-    "right_answer": "When developing human-machine interfaces (HMI), Kanzi prints warnings and error log messages to the Kanzi Studio Log window and the Kanzi debug console to help identify issues and performance bottlenecks. To open the Kanzi Command Prompt directly from the Kanzi Studio main menu, navigate to File > Open Kanzi Command Prompt.",
+    "inputs": {
+      "query": "When devloping human-machine interfaces (HMI), were does Kanzi Studio print log warnngs, and how can I open the Kanzi Command Promt directly from the Kanzi Studio main menue?"
+    },
+    "outputs": {
+      "ground_truth": "When developing human-machine interfaces (HMI), Kanzi prints warnings and error log messages to the Kanzi Studio Log window and the Kanzi debug console to help identify issues and performance bottlenecks. To open the Kanzi Command Prompt directly from the Kanzi Studio main menu, navigate to File > Open Kanzi Command Prompt."
+    },
     "metadata": {
       "id": "sample-32",
       "ground_truth_contexts": [
