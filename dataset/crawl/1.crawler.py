@@ -83,21 +83,12 @@ async def crawl_site(
             for i in (res.links or {}).get("internal", [])
             if i.get("href")
         ]
-        external_links = [
-            i["href"].strip()
-            for i in (res.links or {}).get("external", [])
-            if i.get("href")
-        ]
 
         node = {
             "url": url,
             "title": get_page_title(res.markdown or "", url),
             "depth_level": depth,
             "markdown_content": res.markdown or "",
-            "links": {
-                "internal": list(dict.fromkeys(internal_links)),
-                "external": list(dict.fromkeys(external_links)),
-            },
             "sub_documents": [],
         }
 
