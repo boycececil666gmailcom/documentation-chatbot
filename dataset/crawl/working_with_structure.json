@@ -1,0 +1,2226 @@
+{
+  "title": "Working with …",
+  "url": "https://docs.kanzi.com/4.1.0/en/working-with/working-with.html",
+  "depth_level": 1,
+  "children": [
+    {
+      "title": "2D content",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/2d-content/adjusting-the-appearance.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Blending and compositing 2D nodes",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/2d-content/blending-2d-nodes.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "2D effects",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/effects/2d-effects.html",
+          "depth_level": 3,
+          "children": [
+            {
+              "title": "Using the Blur Effect 2D effect",
+              "url": "https://docs.kanzi.com/4.1.0/en/working-with/effects/blur-effect-2d.html",
+              "depth_level": 4,
+              "children": []
+            },
+            {
+              "title": "Using the Mask Effect 2D effect",
+              "url": "https://docs.kanzi.com/4.1.0/en/working-with/effects/mask-effect-2d.html",
+              "depth_level": 4,
+              "children": []
+            },
+            {
+              "title": "Using the Outline Effect 2D effect",
+              "url": "https://docs.kanzi.com/4.1.0/en/working-with/effects/outline-effect-2d.html",
+              "depth_level": 4,
+              "children": []
+            },
+            {
+              "title": "Using the Shadow Effect 2D effect",
+              "url": "https://docs.kanzi.com/4.1.0/en/working-with/effects/shadow-effect-2d.html",
+              "depth_level": 4,
+              "children": []
+            },
+            {
+              "title": "Using multiple effects",
+              "url": "https://docs.kanzi.com/4.1.0/en/working-with/effects/multiple-effects.html",
+              "depth_level": 4,
+              "children": []
+            },
+            {
+              "title": "Using effects in the Kanzi Engine API",
+              "url": "https://docs.kanzi.com/4.1.0/en/working-with/effects/2d-effects-using-api.html",
+              "depth_level": 4,
+              "children": []
+            }
+          ]
+        },
+        {
+          "title": "Adding 2D nodes to a 3D scene",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/2d-content/2D-nodes-in-3D-scene.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Creating a 3D perspective effect for 2D nodes",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/2d-content/setting-the-perspective.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Applying custom rendering to 2D nodes",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/2d-content/applying-custom-rendering.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Caching 2D nodes",
+          "url": "https://docs.kanzi.com/4.1.0/en/best-practices/rendering/caching-2d-nodes.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "2D effects",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/effects/2d-effects.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Using the Blur Effect 2D effect",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/effects/blur-effect-2d.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the Mask Effect 2D effect",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/effects/mask-effect-2d.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the Outline Effect 2D effect",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/effects/outline-effect-2d.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the Shadow Effect 2D effect",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/effects/shadow-effect-2d.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using multiple effects",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/effects/multiple-effects.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using effects in the Kanzi Engine API",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/effects/2d-effects-using-api.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "3D assets",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/3d-assets/3d-assets.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Preparing 3D assets in third-party tools",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/3d-assets/preparing-3d-assets-in-3rd-party-tools.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Importing 3D assets",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/3d-assets/importing-3d-assets.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Merging 3D assets",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/3d-assets/merging-3d-assets.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using 3D models with UVs",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/3d-assets/uvs.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Activities",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/activities/activities.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Using the Activity Browser",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/activities/activity-browser.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Exclusive Activity Host",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/activities/eah.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Data-Driven Exclusive Activity Host",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/activities/ddeah.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Parallel Activity Host",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/activities/pah.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Creating transitions between Activities",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/activities/activity-transitions.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Programming Activities with Code Behind",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/activities/code-behind.html",
+          "depth_level": 3,
+          "children": [
+            {
+              "title": "C++ Code Behind",
+              "url": "https://docs.kanzi.com/4.1.0/en/working-with/activities/cpp-code-behind.html",
+              "depth_level": 4,
+              "children": []
+            },
+            {
+              "title": "Java Code Behind",
+              "url": "https://docs.kanzi.com/4.1.0/en/working-with/activities/java-code-behind.html",
+              "depth_level": 4,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "AI tools",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/ai-tools/using-kanzi-ai-tools.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Kanzi Documentation MCP server",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/ai-tools/kanzi-documentation-mcp-server.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Kanzi API MCP server",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/ai-tools/kanzi-api-mcp-server.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Aliases",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/aliases/using-aliases.html",
+      "depth_level": 2,
+      "children": []
+    },
+    {
+      "title": "Android",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/android/android.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Requirements",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/android/requirements.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Kanzi Android framework (droidfw)",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/android/droidfw/android-droidfw.html",
+          "depth_level": 3,
+          "children": [
+            {
+              "title": "Working with Kanzi Android framework (droidfw) projects",
+              "url": "https://docs.kanzi.com/4.1.0/en/working-with/android/droidfw/droidfw-projects.html",
+              "depth_level": 4,
+              "children": []
+            },
+            {
+              "title": "Using the Kanzi views and view adapters",
+              "url": "https://docs.kanzi.com/4.1.0/en/working-with/android/droidfw/views.html",
+              "depth_level": 4,
+              "children": []
+            },
+            {
+              "title": "Observing state changes and handling events in Kanzi Android framework (droidfw)",
+              "url": "https://docs.kanzi.com/4.1.0/en/working-with/android/droidfw/events-and-state-changes.html",
+              "depth_level": 4,
+              "children": []
+            },
+            {
+              "title": "Using Kanzi Java and Kotlin API",
+              "url": "https://docs.kanzi.com/4.1.0/en/working-with/java/using-java.html",
+              "depth_level": 4,
+              "children": []
+            },
+            {
+              "title": "Using plugins in Kanzi Android framework (droidfw)",
+              "url": "https://docs.kanzi.com/4.1.0/en/working-with/android/droidfw/plugins-droidfw.html",
+              "depth_level": 4,
+              "children": []
+            },
+            {
+              "title": "Migrating from Kanzi application framework (appfw) to Kanzi Android framework (droidfw)",
+              "url": "https://docs.kanzi.com/4.1.0/en/working-with/android/droidfw/migrating-from-appfw.html",
+              "depth_level": 4,
+              "children": []
+            },
+            {
+              "title": "Kanzi Android framework API reference",
+              "url": "https://docs.kanzi.com/4.1.0/en/reference/kanzi-droidfw-api/index.html",
+              "depth_level": 4,
+              "children": []
+            },
+            {
+              "title": "Kanzi Engine Java API reference",
+              "url": "https://docs.kanzi.com/4.1.0/en/reference/kanzi-java-api/index.html",
+              "depth_level": 4,
+              "children": []
+            }
+          ]
+        },
+        {
+          "title": "Kanzi Android Service",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/android/android-service.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Kanzi application framework (appfw)",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/android/android-appfw.html",
+          "depth_level": 3,
+          "children": [
+            {
+              "title": "Kanzi Android application framework API reference",
+              "url": "https://docs.kanzi.com/4.1.0/en/reference/kanzi-appfw-android-api/index.html",
+              "depth_level": 4,
+              "children": []
+            },
+            {
+              "title": "Application configuration reference",
+              "url": "https://docs.kanzi.com/4.1.0/en/working-with/application-configurations/reference-for-application-configuration.html",
+              "depth_level": 4,
+              "children": []
+            }
+          ]
+        },
+        {
+          "title": "Deployment",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/deploying-applications/deploying-kanzi-applications-for-android.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Troubleshooting",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/android/troubleshooting.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Animations",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/animations/animations.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Creating keyframe animations",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/animations/animating-property-values.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using keyframe animations",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/animations/triggering-animations-with-the-play-animation-action.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Creating property-driven animations",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/animations/property-driven-animations.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Interpolating property values",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/animations/property-target-interpolator.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Interpolating property values using easing functions",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/animations/property-target-easing-interpolator.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Incrementing the value of a property type",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/animations/property-animator.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Editing timeline sequences",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/animations/editing-timeline-sequences.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Editing animation clips",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/animations/editing-animation-clips.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Importing animations",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/animations/importing-animations.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Creating animations and timelines using the Kanzi Engine API",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/animations/creating-animations-using-api.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Blending animations",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/animations/blending-animations.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Application",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/application-configurations/application-configuration.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Application configuration reference",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/application-configurations/reference-for-application-configuration.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Asset packages",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/asset-packages/asset-packages.html",
+      "depth_level": 2,
+      "children": []
+    },
+    {
+      "title": "Asset Toolkit",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/asset-toolkit/asset-toolkit.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Using the Asset Toolkit assets",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/asset-toolkit/using-the-asset-toolkit-assets.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Automation",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/automation/automation.html",
+      "depth_level": 2,
+      "children": []
+    },
+    {
+      "title": "Bindings",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/bindings/bindings.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Using bindings",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/bindings/using-bindings.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Customizing instances of prefabs",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/bindings/using-bindings-to-customize-prefabs.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Bindings expressions reference",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/bindings/reference-for-bindings-expressions.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Troubleshooting bindings",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/bindings/troubleshooting.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Bookmarks",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/bookmarks/using-bookmarks.html",
+      "depth_level": 2,
+      "children": []
+    },
+    {
+      "title": "Brushes",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/brushes/using-brushes.html",
+      "depth_level": 2,
+      "children": []
+    },
+    {
+      "title": "Button nodes",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/buttons/buttons.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Using the Button nodes",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/buttons/using-buttons.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the Toggle Button nodes",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/buttons/using-toggle-buttons.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the Toggle Button Group nodes",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/buttons/using-toggle-button-groups.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Camera node",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/cameras/cameras.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Using the Camera node",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/cameras/creating-and-using-cameras-for-previews.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Making nodes turn to a Camera node",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/cameras/making-objects-turn-to-a-camera.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Color workflow",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/color/color.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Color editors in Kanzi Studio",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/color/color-editors.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Content control nodes",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/controls/content-controls.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Using the Image node",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/images/using-images.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the Nine Patch Image node",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/images/using-nine-patch-images.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Data sources",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/data-sources/data-sources.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Defining a data source",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/data-sources/defining-a-data-source.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using a data source",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/data-sources/using-a-data-source.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Defining a data source using Lua",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/data-sources/lua-data-source.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Deploying Applications",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/deploying-applications/deploying-kanzi-applications.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Deploying Kanzi applications to Android",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/deploying-applications/deploying-kanzi-applications-for-android.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Deploying Kanzi applications to iOS",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/deploying-applications/deploying-kanzi-applications-for-ios.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Deploying Kanzi applications to RCar Gen3/INTEGRITY",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/deploying-applications/deploying-kanzi-applications-to-integrity.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Deploying Kanzi applications to Linux",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/deploying-applications/deploying-your-application-to-linux.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Deploying Kanzi applications to QNX",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/deploying-applications/deploying-kanzi-applications-for-qnx.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Deploying Kanzi applications to Windows",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/deploying-applications/deploying-kanzi-applications-for-windows.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Empty Node nodes",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/empty-nodes/using-empty-nodes.html",
+      "depth_level": 2,
+      "children": []
+    },
+    {
+      "title": "Factory content",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/factory-content/factory-content.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Using the Factory Content assets",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/factory-content/using-the-factory-content-assets.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Filters",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/filters/filters.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Using the Contains Property Filter",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/filters/using-contains-property-filters.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the Object Type Filter",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/filters/using-object-type-filters.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the Property Is Equal Filter",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/filters/using-property-is-equal-filters.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the Sorting Filter",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/filters/using-sorting-filters.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the Tag Filter",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/filters/using-tag-filters.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Focus",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/focus/focus.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Using focus",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/focus/setting-focus.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the Key Manipulator",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/input/key-manipulator.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the Navigation Manipulator",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/input/navigation-manipulator.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Grid Layout nodes",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/grids/using-grid-layouts.html",
+      "depth_level": 2,
+      "children": []
+    },
+    {
+      "title": "Images",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/images/images.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Using the Image node",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/images/using-images.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the Nine Patch Image node",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/images/using-nine-patch-images.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Importing images",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/images/importing-images.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Preparing images in third-party tools",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/images/preparing-images-in-3rd-party-tools.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Importing Adobe Photoshop PSD files",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/images/importing-photoshop-files-with-layers.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Importing",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/importing/importing.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Preparing 3D assets in third-party tools",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/3d-assets/preparing-3d-assets-in-3rd-party-tools.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Importing 3D assets",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/3d-assets/importing-3d-assets.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Merging 3D assets",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/3d-assets/merging-3d-assets.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Importing animations",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/animations/importing-animations.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Importing images",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/images/importing-images.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Preparing images in third-party tools",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/images/preparing-images-in-3rd-party-tools.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Importing Adobe Photoshop PSD files",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/images/importing-photoshop-files-with-layers.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Importing fonts",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/importing/importing-fonts.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Input",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/input/handling-input.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Using the Click Manipulator",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/input/click-manipulator.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the Drag-And-Drop Manipulator",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/input/drag-and-drop-manipulator.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the Key Manipulator",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/input/key-manipulator.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the Long-Press Manipulator",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/input/long-press-manipulator.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the Multi-Click Manipulator",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/input/multi-click-manipulator.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the Navigation Manipulator",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/input/navigation-manipulator.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the Pan Manipulator",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/input/pan-manipulator.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the Pinch Manipulator",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/input/pinch-manipulator.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "iOS",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/ios/ios.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Requirements",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/ios/requirements.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Instantiator node",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/instantiator-nodes/instantiator-nodes.html",
+      "depth_level": 2,
+      "children": []
+    },
+    {
+      "title": "Interactivity control nodes",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/controls/controls.html",
+      "depth_level": 2,
+      "children": []
+    },
+    {
+      "title": "Java and Kotlin",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/java/using-java.html",
+      "depth_level": 2,
+      "children": []
+    },
+    {
+      "title": "Kanzi Command Prompt",
+      "url": "https://docs.kanzi.com/4.1.0/en/best-practices/using-kanzi-command-prompt.html",
+      "depth_level": 2,
+      "children": []
+    },
+    {
+      "title": "kzb files",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/kzb-binaries/kzb-files.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Using kzb files",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/kzb-binaries/using-kzb-binaries.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Layout control nodes",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/layouts/layouts.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Layouts",
+          "url": "https://docs.kanzi.com/4.1.0/en/kanzi-fundamentals/layouts.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the Content Layout nodes",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/layouts/using-content-layouts.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the Dock Layout nodes",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/layouts/using-dock-layouts.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the Flow Layout nodes",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/layouts/using-flow-layouts.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the Grid Layout nodes",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/grids/using-grid-layouts.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the Stack Layout nodes",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/layouts/using-stack-layouts.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the Trajectory Layout nodes",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/trajectories/using-trajectory-layouts.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Light nodes",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/lights/using-lights.html",
+      "depth_level": 2,
+      "children": []
+    },
+    {
+      "title": "List Box nodes",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/container-controls/list-box-nodes.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Using the Grid List Box nodes",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/grids/using-grid-list-boxes.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the Trajectory List Box 3D node",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/trajectories/using-trajectory-list-boxes.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the List Box Item Container prefabs",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/container-controls/using-list-box-item-containers.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Localization",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/localization/localization.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Localizing applications",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/localization/localizing-applications.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using locales",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/localization/using-locales.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Kanzi Studio localization plugin API reference",
+          "url": "https://docs.kanzi.com/4.1.0/en/reference/kanzi-localization-api/index.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Logging",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/logging/logging.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Using Write Log action",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/logging/write-log-action.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Lua",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/lua/using-lua.html",
+      "depth_level": 2,
+      "children": []
+    },
+    {
+      "title": "Material types and materials",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/materials/materials.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Using material types",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/materials/using-material-types.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using materials",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/materials/using-materials.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Physically-based material properties",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/materials/physically-based-materials.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using smart materials",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/materials/using-smart-materials.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Creating textured materials",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/materials/creating-textured-materials.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Creating transparent materials",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/materials/creating-transparent-materials.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using hardware composition",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/materials/using-hardware-composition.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Meshes",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/meshes/meshes.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Importing 3D assets",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/3d-assets/importing-3d-assets.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Optimizing meshes",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/meshes/editing-meshes.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Editing the origin of nodes",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/meshes/editing-the-origin-of-nodes.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Meshes best practices",
+          "url": "https://docs.kanzi.com/4.1.0/en/best-practices/meshes/meshes-best-practices.html",
+          "depth_level": 3,
+          "children": [
+            {
+              "title": "Preparing 3D assets in third-party tools",
+              "url": "https://docs.kanzi.com/4.1.0/en/working-with/3d-assets/preparing-3d-assets-in-3rd-party-tools.html",
+              "depth_level": 4,
+              "children": []
+            },
+            {
+              "title": "Optimizing meshes",
+              "url": "https://docs.kanzi.com/4.1.0/en/working-with/meshes/editing-meshes.html",
+              "depth_level": 4,
+              "children": []
+            },
+            {
+              "title": "Optimizing fragment shaders",
+              "url": "https://docs.kanzi.com/4.1.0/en/best-practices/shaders/optimizing-pixel-shaders.html",
+              "depth_level": 4,
+              "children": []
+            },
+            {
+              "title": "Reducing the number of rendered vertices",
+              "url": "https://docs.kanzi.com/4.1.0/en/best-practices/meshes/reducing-the-number-of-rendered-vertices.html",
+              "depth_level": 4,
+              "children": []
+            },
+            {
+              "title": "Setting the correct size of vertex cache",
+              "url": "https://docs.kanzi.com/4.1.0/en/best-practices/meshes/setting-the-correct-size-of-vertex-cache.html",
+              "depth_level": 4,
+              "children": []
+            },
+            {
+              "title": "Editing the origin of nodes and setting the data type for vertex attributes",
+              "url": "https://docs.kanzi.com/4.1.0/en/best-practices/meshes/setting-the-correct-data-type.html",
+              "depth_level": 4,
+              "children": []
+            },
+            {
+              "title": "Setting culling",
+              "url": "https://docs.kanzi.com/4.1.0/en/best-practices/meshes/setting-culling.html",
+              "depth_level": 4,
+              "children": []
+            }
+          ]
+        },
+        {
+          "title": "Using materials",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/materials/using-materials.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using skinned meshes",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/skinning/using-skinned-meshes.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Creating meshes using the Kanzi Engine API",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/meshes/meshes-api.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Morphs",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/morphs/using-morphs.html",
+      "depth_level": 2,
+      "children": []
+    },
+    {
+      "title": "Node components",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/node-components/node-components.html",
+      "depth_level": 2,
+      "children": []
+    },
+    {
+      "title": "Object sources",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/object-sources/using-object-sources.html",
+      "depth_level": 2,
+      "children": []
+    },
+    {
+      "title": "Package Manager",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/package-manager/package-manager.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Using Package Manager Kanzi Studio plugin",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/package-manager/using-kpm-studio-plugin.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using Package Manager to create and deploy an asset package",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/package-manager/kpm-to-create-deploy-assets.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using Package Manager to create and deploy an Engine plugin",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/package-manager/kpm-to-create-deploy-engine-plugin.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Page and Page Host nodes",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/pages/using-pages.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Setting transitions between Page nodes",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/pages/using-page-transitions.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Performance profiling",
+      "url": "https://docs.kanzi.com/4.1.0/en/best-practices/performance/profiling.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Measuring the performance of your application code",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/performance-profiling/profiling-application-code.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Measuring the performance of Kanzi Engine",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/performance-profiling/profiling-kanzi-engine.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Resource profiling reference",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/performance-profiling/resource-profiling-reference.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Measuring the loading and deployment time of resources",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/performance-profiling/resource-profiling.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Plugins - Kanzi Engine",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/plugins/plugins-kanzi-engine.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Using Kanzi Engine plugins",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/plugins/installing-kanzi-engine-plugins.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Creating Kanzi Engine plugins",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/plugins/creating-kanzi-engine-plugins.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Debugging native Kanzi Engine plugins",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/plugins/debugging-kanzi-engine-plugins.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Extending the functionality of Kanzi Engine",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/plugins/configuring-custom-components-for-kanzi-studio.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Extending the functionality of Kanzi Engine with Java",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/plugins/configuring-custom-java-components-for-kanzi.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Reference for showing Kanzi Engine plugin custom types in Kanzi Studio",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/plugins/reference-for-showing-kanzi-engine-plugin-custom-types.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Kanzi Studio property editors for property types declared in Kanzi Engine plugins",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/plugins/studio-editors.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Plugins - Kanzi Studio",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/plugins/plugins.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Installing Kanzi Studio plugins",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/plugins/installing-kanzi-studio-plugins.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Creating Kanzi Studio command plugins",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/plugins/creating-kanzi-studio-plugins.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Creating Kanzi Studio window plugins",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/plugins/creating-kanzi-studio-window-plugins.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Defining a property editor",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/plugins/creating-plugin-property-editors.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Overview of Kanzi Studio plugin API",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/plugins/reference-kanzi-studio-plugin-interface.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Debugging Kanzi Studio plugins",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/plugins/debugging-kanzi-studio-plugins.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Kanzi Studio plugin API reference",
+          "url": "https://docs.kanzi.com/4.1.0/en/reference/kanzi-studio-plugin-api/index.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Kanzi Studio localization plugin API reference",
+          "url": "https://docs.kanzi.com/4.1.0/en/reference/kanzi-localization-api/index.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Key input codes reference",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/plugins/reference-for-keyboard-keycodes.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Prefabs",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/prefabs/prefabs.html",
+      "depth_level": 2,
+      "children": []
+    },
+    {
+      "title": "Preview",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/preview/preview.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Controlling the Preview",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/preview/controlling-your-application-in-the-preview.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Editing your application in the Preview",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/preview/editing-in-the-preview.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Analyzing your application in the Preview",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/preview/debugging-in-the-preview.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using rulers and guides",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/preview/using-rulers-and-guides.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Target Preview",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/preview/using-target-preview.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Prism graphs",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/prism-graphs/prism-graphs.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Creating Prism graphs",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/prism-graphs/creating-graphs.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Creating Bloom Effect with Prism Graphs",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/prism-graphs/creating-bloom-effect-and-post-processing.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Adding shadows to Prism render graphs",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/prism-graphs/using-shadows.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Binding Render Pass node properties",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/prism-graphs/using-prism-property-bindings.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Projects",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/projects/projects.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Creating a project",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/projects/creating-a-new-project.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Combining Kanzi Studio projects into a Kanzi application",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/projects/using-assets-from-another-project.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Configuring Kanzi Studio projects",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/projects/configuring-projects.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Documenting a project",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/projects/documenting-a-project.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Creating backups of your projects",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/backups/backups.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Importing projects",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/projects/importing-projects.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Merging projects",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/projects/merging-projects.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Sharing project items",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/projects/sharing-project-items.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Cleaning up your project",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/projects/cleaning-up-a-project.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Finding invalid project items",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/projects/finding-invalid-project-items.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Integrating third-party libraries into Kanzi projects",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/projects/integrating-third-party-libraries-into-projects.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Migrating projects from Kanzi 3.9 to Kanzi 4",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/projects/migrating-projects-from-kanzi-3-9-to-kanzi-4.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Kzm file format",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/projects/kzm-files.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Property types",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/property-types/property-types.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Using properties in Kanzi Studio",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/property-types/using-properties.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Creating property types",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/property-types/creating-custom-property-types.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Rendering",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/rendering/rendering.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Rendering best practices",
+          "url": "https://docs.kanzi.com/4.1.0/en/best-practices/rendering/rendering-best-practices.html",
+          "depth_level": 3,
+          "children": [
+            {
+              "title": "Optimizing the rendering of layouts",
+              "url": "https://docs.kanzi.com/4.1.0/en/best-practices/rendering/optimizing-rendering-of-layouts.html",
+              "depth_level": 4,
+              "children": []
+            },
+            {
+              "title": "Preventing overdraw with the Sorting Filter",
+              "url": "https://docs.kanzi.com/4.1.0/en/best-practices/rendering/preventing-overdraw-with-sorting-filters.html",
+              "depth_level": 4,
+              "children": []
+            },
+            {
+              "title": "Caching 2D nodes",
+              "url": "https://docs.kanzi.com/4.1.0/en/best-practices/rendering/caching-2d-nodes.html",
+              "depth_level": 4,
+              "children": []
+            },
+            {
+              "title": "Composition and blending",
+              "url": "https://docs.kanzi.com/4.1.0/en/best-practices/rendering/composition-and-blending.html",
+              "depth_level": 4,
+              "children": []
+            },
+            {
+              "title": "Rendering partially transparent nodes",
+              "url": "https://docs.kanzi.com/4.1.0/en/best-practices/rendering/rendering-transparent-objects.html",
+              "depth_level": 4,
+              "children": []
+            },
+            {
+              "title": "Configuring nodes for efficient rendering",
+              "url": "https://docs.kanzi.com/4.1.0/en/best-practices/rendering/setting-layers-for-efficient-rendering.html",
+              "depth_level": 4,
+              "children": []
+            },
+            {
+              "title": "Applying anti-aliasing",
+              "url": "https://docs.kanzi.com/4.1.0/en/best-practices/rendering/anti-aliasing.html",
+              "depth_level": 4,
+              "children": []
+            },
+            {
+              "title": "Setting culling",
+              "url": "https://docs.kanzi.com/4.1.0/en/best-practices/meshes/setting-culling.html",
+              "depth_level": 4,
+              "children": []
+            }
+          ]
+        },
+        {
+          "title": "Using render passes",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/rendering/using-render-pass-prefabs.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using Kanzi Studio render pass presets",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/rendering/using-render-pass-templates.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using lights in rendering",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/rendering/lights-rendering.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Collecting nodes for rendering",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/rendering/filtering-node-lists.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Rendering content to composition targets",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/rendering/rendering-to-composition-target.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Setting materials for rendering",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/rendering/rendering-materials.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Rendering multiple render passes or textures",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/rendering/rendering-multiple.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Creating cubemap reflections",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/rendering/cubemap-render-pass.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Creating a post-processing effect",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/rendering/post-processing-grayscale.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Distributing rendering across several frames",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/rendering/distributing-rendering.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Applying a stencil to 3D content",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/rendering/stencil-buffer.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Rendering decals",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/rendering/rendering-decals.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the light nodes",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/lights/using-lights.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using OpenGL ES 3.0+ in Kanzi",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/rendering/using-opengl-es-30.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "OpenGL extensions used in Kanzi",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/rendering/opengl-extensions.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Resource files",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/resource-files/resource-files.html",
+      "depth_level": 2,
+      "children": []
+    },
+    {
+      "title": "Resources",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/resources/resources.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Using resource dictionaries",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/resources/using-resource-dictionaries.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Setting how Kanzi Engine handles unused resources",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/resources/unused-resources.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Accessing resources using bindings",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/resources/acquiring-resources.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Finding invalid project items",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/projects/finding-invalid-project-items.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Resource management",
+          "url": "https://docs.kanzi.com/4.1.0/en/kanzi-fundamentals/resource-management.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Measuring the loading and deployment time of resources",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/performance-profiling/resource-profiling.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Rust",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/rust/using-rust.html",
+      "depth_level": 2,
+      "children": []
+    },
+    {
+      "title": "Scene node",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/scenes/scenes.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Importing 3D assets",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/3d-assets/importing-3d-assets.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Screen node",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/screens/screens.html",
+      "depth_level": 2,
+      "children": []
+    },
+    {
+      "title": "Scroll View nodes",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/scroll-views/using-scroll-views.html",
+      "depth_level": 2,
+      "children": []
+    },
+    {
+      "title": "Shader graphs",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/shader-graphs/shader-graphs.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Creating shader graphs",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/shader-graphs/creating-shader-graphs.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Creating a PBR material",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/shader-graphs/creating-pbr-material.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Promoting parameters",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/shader-graphs/promoting-parameters.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Custom shading with the GLSL Code node",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/shader-graphs/creating-glsl-code-shader.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Parameters",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/shader-graphs/parameters.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Shaders",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/shaders/shaders.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Editing shaders",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/shaders/editing-shaders.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the shader include library",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/shaders/shader-include-library.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Shaders best practices",
+          "url": "https://docs.kanzi.com/4.1.0/en/best-practices/shaders/shaders-best-practices.html",
+          "depth_level": 3,
+          "children": [
+            {
+              "title": "Reducing shader switches",
+              "url": "https://docs.kanzi.com/4.1.0/en/best-practices/shaders/reducing-shader-switches.html",
+              "depth_level": 4,
+              "children": []
+            },
+            {
+              "title": "Using binary shaders",
+              "url": "https://docs.kanzi.com/4.1.0/en/best-practices/shaders/using-binary-shaders.html",
+              "depth_level": 4,
+              "children": []
+            },
+            {
+              "title": "Optimizing fragment shaders",
+              "url": "https://docs.kanzi.com/4.1.0/en/best-practices/shaders/optimizing-pixel-shaders.html",
+              "depth_level": 4,
+              "children": []
+            }
+          ]
+        },
+        {
+          "title": "Using geometry shaders",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/shaders/geometry-shader.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using tessellation shaders",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/shaders/tessellation-shaders.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Skinning",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/skinning/using-skinned-meshes.html",
+      "depth_level": 2,
+      "children": []
+    },
+    {
+      "title": "Slider nodes",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/sliders/using-sliders.html",
+      "depth_level": 2,
+      "children": []
+    },
+    {
+      "title": "Stack Layout nodes",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/layouts/using-stack-layouts.html",
+      "depth_level": 2,
+      "children": []
+    },
+    {
+      "title": "State manager",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/state-managers/state-managers.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Using state managers",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/state-managers/using-state-managers.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using state transitions",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/state-managers/using-transitions.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Styles",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/styles/using-styles.html",
+      "depth_level": 2,
+      "children": []
+    },
+    {
+      "title": "Tags",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/tags/using-tags.html",
+      "depth_level": 2,
+      "children": []
+    },
+    {
+      "title": "Text nodes",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/text/text.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Using the Text Block nodes",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/text/using-text-blocks.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the Text Box nodes",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/text/using-text-boxes.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Importing fonts",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/importing/importing-fonts.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Textures",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/textures/textures.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Using single textures",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/textures/using-single-textures.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using cubemap textures",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/textures/using-cubemap-textures.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using volume textures",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/textures/using-volume-textures.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using environment textures",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/textures/using-environment-textures.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using image-based lighting cubemap textures",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/textures/using-ibl-textures.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using render target textures",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/textures/using-render-target-textures.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Creating textured materials",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/materials/creating-textured-materials.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Loading images from the file system",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/textures/loading-texture-images-from-the-file-system.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Images and textures best practices",
+          "url": "https://docs.kanzi.com/4.1.0/en/best-practices/images-and-textures/images-and-textures-best-practices.html",
+          "depth_level": 3,
+          "children": [
+            {
+              "title": "Adjusting the data size",
+              "url": "https://docs.kanzi.com/4.1.0/en/best-practices/images-and-textures/adjusting-the-data-size.html",
+              "depth_level": 4,
+              "children": []
+            },
+            {
+              "title": "Compressing textures",
+              "url": "https://docs.kanzi.com/4.1.0/en/best-practices/images-and-textures/compressing-textures.html",
+              "depth_level": 4,
+              "children": []
+            },
+            {
+              "title": "Filtering textures",
+              "url": "https://docs.kanzi.com/4.1.0/en/best-practices/images-and-textures/filtering-textures.html",
+              "depth_level": 4,
+              "children": []
+            },
+            {
+              "title": "Using mipmaps",
+              "url": "https://docs.kanzi.com/4.1.0/en/best-practices/images-and-textures/using-mipmaps.html",
+              "depth_level": 4,
+              "children": []
+            },
+            {
+              "title": "Using a tile atlas",
+              "url": "https://docs.kanzi.com/4.1.0/en/best-practices/images-and-textures/using-tile-atlases.html",
+              "depth_level": 4,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Theming",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/themes/theming-applications.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Exporting Themes",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/themes/exporting-themes.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using Themes",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/themes/using-themes.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Trajectories",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/trajectories/trajectories.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Using angle trajectories",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/trajectories/using-angle-trajectories.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using arc trajectories",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/trajectories/using-arc-trajectories.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using circle trajectories",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/trajectories/using-circle-trajectories.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using ellipse trajectories",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/trajectories/using-ellipse-trajectories.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using line trajectories",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/trajectories/using-line-trajectories.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using rectangle trajectories",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/trajectories/using-rectangle-trajectories.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using spiral trajectories",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/trajectories/using-spiral-trajectories.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using spline trajectories",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/trajectories/using-spline-trajectories.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the Trajectory Layout nodes",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/trajectories/using-trajectory-layouts.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the Trajectory List Box 3D node",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/trajectories/using-trajectory-list-boxes.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using trapezoid trajectories",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/trajectories/using-trapezoid-trajectories.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Trajectory Layout nodes",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/trajectories/using-trajectory-layouts.html",
+      "depth_level": 2,
+      "children": []
+    },
+    {
+      "title": "Triggers",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/triggers/triggers.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Using triggers",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/triggers/using-triggers.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using messages",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/triggers/using-messages.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using Write Log action",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/logging/write-log-action.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Triggers reference",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/triggers/reference-for-triggers.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Actions and messages reference",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/triggers/reference-for-actions.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Version control",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/version-control/version-control.html",
+      "depth_level": 2,
+      "children": []
+    },
+    {
+      "title": "Viewport nodes",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/viewports/using-viewports.html",
+      "depth_level": 2,
+      "children": [
+        {
+          "title": "Using the Viewport 2D node",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/viewports/viewport-2d.html",
+          "depth_level": 3,
+          "children": []
+        },
+        {
+          "title": "Using the Viewport 3D node",
+          "url": "https://docs.kanzi.com/4.1.0/en/working-with/viewports/viewport-3d.html",
+          "depth_level": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "title": "Workspace",
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/workspaces/customizing-your-workspace.html",
+      "depth_level": 2,
+      "children": []
+    }
+  ]
+}

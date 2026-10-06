@@ -143,10 +143,10 @@ def format_docs_context(docs: list[Document]) -> str:
             for anc in reversed(ancestors):
                 anc_layer = anc.get("raptor_layer", 0)
                 anc_title = anc.get("title", "")
-                anc_summary = anc.get("summary", "")
-                if anc_summary:
+                anc_lead = anc.get("lead_content", "")
+                if anc_lead:
                     hierarchy_lines.append(
-                        f"- [RAPTOR Level {anc_layer} Scope ({anc_title})]: {anc_summary}"
+                        f"- [RAPTOR Level {anc_layer} Overview ({anc_title})]: {anc_lead}"
                     )
 
         children_topics = meta.get("raptor_children_topics", [])
@@ -163,7 +163,7 @@ def format_docs_context(docs: list[Document]) -> str:
                 "[RAPTOR Hierarchical Context]:\n" + "\n".join(hierarchy_lines)
             )
 
-        raw_content = meta.get("big") or doc.page_content
+        raw_content = doc.page_content
         block_components.append(f"[Detailed Source Content]:\n{raw_content}")
         context_blocks.append("\n".join(block_components))
 

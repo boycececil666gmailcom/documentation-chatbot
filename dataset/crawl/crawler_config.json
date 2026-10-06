@@ -13,11 +13,11 @@
   },
   "raptor": {
     "input_path": "1.crawler.json",
-    "output_path": "2.flattened_chunks.json",
+    "output_path": "2.structure_chunks.json",
     "max_concurrency": 20
   },
   "ingest": {
-    "input_path": "2.flattened_chunks.json",
+    "input_path": "2.structure_chunks.json",
     "batch_size": 64,
     "collection_name": "raptor_chunks",
     "rate_limit_delay": 3.2

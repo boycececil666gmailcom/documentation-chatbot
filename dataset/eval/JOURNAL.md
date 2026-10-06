@@ -12,6 +12,7 @@
 | **2026-08-12** (`09:30:00`) | [Agentic Flow] LangGraph Autonomous Self-Critique Loop | `0.7589` | `0.5141` | `0.8347` | `0.6391` |
 | **2026-08-19** (`01:00:25`) | [Reasoning & Intent] Reasoning Model Optimization + Implicit Intent Routing | `0.8331` | `0.5552` | **`0.9062`** | **`0.7214`** |
 | **2026-08-19** (`12:47:35`) | [Domain HyDE & Classifier Fix] Domain-Injected HyDE & False Rejection Guard | **`0.9648`** | **`0.5597`** | `0.8125` | `0.6471` |
+| **2026-08-19** (`12:47:35`) | [LangGraph Agent] Native Graph Benchmark Run | `0.9648` | `0.5597` | `0.8125` | `0.6471` |
 
 ---
 

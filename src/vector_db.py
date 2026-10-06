@@ -85,12 +85,10 @@ def get_bm25_retriever() -> BM25Retriever:
             meta_dict = dict(meta)
             meta_dict["chunk_id"] = str(row[0])
 
-            # Enrich BM25 searchable text with RAPTOR breadcrumb hierarchy, summary, and keywords
+            # Enrich BM25 searchable text with RAPTOR breadcrumb hierarchy and original text
             breadcrumb = meta_dict.get("breadcrumb", "")
-            summary = meta_dict.get("summary", "")
-            keywords = " ".join(meta_dict.get("keywords", []))
-            raw_content = str(meta_dict.get("big") or row[1])
-            searchable_text = f"Topic: {breadcrumb}\nSummary: {summary}\nKeywords: {keywords}\n\n{raw_content}"
+            raw_content = str(row[1] or "")
+            searchable_text = f"Topic: {breadcrumb}\n\n{raw_content}" if breadcrumb else raw_content
 
             docs.append(
                 Document(
@@ -119,11 +117,13 @@ def get_ancestors(parent_id: str | None, max_depth: int = 3) -> list[dict]:
     depth = 0
     while curr_id and curr_id in h_map and depth < max_depth:
         p_meta = h_map[curr_id]
+        p_lead = p_meta.get("document", "")
+        lead_excerpt = p_lead[:300] + "..." if len(p_lead) > 300 else p_lead
         ancestors.append(
             {
                 "chunk_id": curr_id,
                 "title": p_meta.get("title", ""),
-                "summary": p_meta.get("summary", ""),
+                "lead_content": lead_excerpt,
                 "breadcrumb": p_meta.get("breadcrumb", ""),
                 "raptor_layer": p_meta.get("raptor_layer", 0),
             }
@@ -134,7 +134,7 @@ def get_ancestors(parent_id: str | None, max_depth: int = 3) -> list[dict]:
 
 
 def expand_raptor_context(docs: list[Document]) -> list[Document]:
-    """Enriches Document objects with RAPTOR ancestor summaries and hierarchical context."""
+    """Enriches Document objects with RAPTOR ancestor lead preambles and hierarchical context."""
     if not docs:
         return []
     h_map, c_map = get_hierarchy_index()
@@ -144,17 +144,17 @@ def expand_raptor_context(docs: list[Document]) -> list[Document]:
         parent_id = meta.get("parent_id")
         chunk_id = meta.get("chunk_id") or getattr(doc, "id", None)
 
-        # 1. Ancestor chain expansion (Leaf / Child -> Parent Summaries)
+        # 1. Ancestor chain expansion (Leaf / Child -> Parent Overview)
         if parent_id and "raptor_ancestors" not in meta:
             meta["raptor_ancestors"] = get_ancestors(parent_id)
 
-        # 2. Children expansion (if current node is a summary node Layer <= 1)
+        # 2. Children expansion (if current node is a high-level node Layer <= 1)
         layer = meta.get("raptor_layer", 2)
         if layer < 2 and chunk_id and "raptor_children_topics" not in meta:
             children = c_map.get(str(chunk_id), [])
             if children:
                 meta["raptor_children_topics"] = [
-                    {"title": c.get("title", ""), "summary": c.get("summary", "")[:120]}
+                    {"title": c.get("title", ""), "breadcrumb": c.get("breadcrumb", "")}
                     for c in children[:5]
                 ]
 
@@ -184,7 +184,7 @@ def expand_raptor_candidates(
                     seen_breadcrumbs.add(bc)
                     child_doc = Document(
                         id=child.get("chunk_id"),
-                        page_content=str(child.get("big") or child.get("document", "")),
+                        page_content=str(child.get("document", "")),
                         metadata=child,
                     )
                     expanded.append(child_doc)
@@ -209,7 +209,7 @@ def retrieve_collapsed_tree(
     current_tokens = 0
 
     for doc in candidate_docs:
-        content = doc.metadata.get("big") or doc.page_content
+        content = doc.page_content
         approx_tokens = max(1, len(content) // 4)
         if current_tokens + approx_tokens > max_tokens and selected_docs:
             break
