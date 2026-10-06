@@ -68,7 +68,7 @@ def get_hierarchy_index() -> tuple[dict[str, dict], dict[str, list[dict]]]:
 
 
 def get_bm25_retriever() -> BM25Retriever:
-    """Lazily initialize and return the in-memory BM25Retriever from Postgres chunks."""
+    """Lazily initialize and return the in-memory BM25Retriever from Postgres chunks enriched with RAPTOR hierarchy."""
     global _bm25_retriever
     if _bm25_retriever is None:
         conn_str = PGVECTOR_URL.replace("+psycopg", "")
@@ -84,10 +84,18 @@ def get_bm25_retriever() -> BM25Retriever:
             meta = row[2] if isinstance(row[2], dict) else json.loads(row[2])
             meta_dict = dict(meta)
             meta_dict["chunk_id"] = str(row[0])
+
+            # Enrich BM25 searchable text with RAPTOR breadcrumb hierarchy, summary, and keywords
+            breadcrumb = meta_dict.get("breadcrumb", "")
+            summary = meta_dict.get("summary", "")
+            keywords = " ".join(meta_dict.get("keywords", []))
+            raw_content = str(meta_dict.get("big") or row[1])
+            searchable_text = f"Topic: {breadcrumb}\nSummary: {summary}\nKeywords: {keywords}\n\n{raw_content}"
+
             docs.append(
                 Document(
                     id=str(row[0]),
-                    page_content=str(meta_dict.get("big") or row[1]),
+                    page_content=searchable_text,
                     metadata=meta_dict,
                 )
             )
