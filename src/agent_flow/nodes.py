@@ -84,7 +84,9 @@ def hyde_node(state: AgentState) -> dict:
     print(f"[HyDE-hyde_node] Generating hypothetical doc for: '{query[:60]}...'")
     hypo_doc = generate_hypothetical_document(query)
     print(f"[HyDE-hyde_node] Hypothetical doc prepared: '{hypo_doc[:60]}...'")
-    print("[HyDE-hyde_node] Executing dense vector retrieval for hypothetical passage...")
+    print(
+        "[HyDE-hyde_node] Executing dense vector retrieval for hypothetical passage..."
+    )
     docs = db.retrieve_collapsed_tree(query=hypo_doc, top_k=10)
     print(f"[HyDE-hyde_node] Retrieved {len(docs)} dense candidate chunks")
     return {
@@ -115,22 +117,61 @@ def bm25_node(state: AgentState) -> dict:
 # region Rerank Node
 def get_chunk_key(doc: Document) -> str:
     """Extract unique topic identifier from document metadata."""
-    return str(doc.metadata.get("breadcrumb") or doc.metadata.get("title") or "Unknown Topic")
-
-
-def format_docs_context(docs: list[Document]) -> str:
-    """Formats ranked documents into a structured prompt context block."""
-    if not docs:
-        return "No matching vector documents found."
-    return "\n\n".join(
-        f"--- [Rank {i}] Topic: [{get_chunk_key(doc)}] (Relevance Score: {doc.metadata.get('relevance_score', 0.0):.4f}) ---\n"
-        f"{doc.metadata.get('big') or doc.page_content}"
-        for i, doc in enumerate(docs, 1)
+    return str(
+        doc.metadata.get("breadcrumb") or doc.metadata.get("title") or "Unknown Topic"
     )
 
 
+def format_docs_context(docs: list[Document]) -> str:
+    """Formats ranked documents into a structured prompt context block enriched with RAPTOR hierarchy."""
+    if not docs:
+        return "No matching vector documents found."
+
+    context_blocks: list[str] = []
+    for i, doc in enumerate(docs, 1):
+        meta = doc.metadata
+        topic_key = get_chunk_key(doc)
+        relevance_score = meta.get("relevance_score", 0.0)
+        layer = meta.get("raptor_layer", 2)
+
+        header = f"--- [Rank {i}] Topic: [{topic_key}] (RAPTOR Layer: {layer}, Relevance Score: {relevance_score:.4f}) ---"
+
+        # RAPTOR Hierarchical Context Expansion (Ancestors & Parent Scope)
+        hierarchy_lines: list[str] = []
+        ancestors = meta.get("raptor_ancestors", [])
+        if ancestors:
+            for anc in reversed(ancestors):
+                anc_layer = anc.get("raptor_layer", 0)
+                anc_title = anc.get("title", "")
+                anc_summary = anc.get("summary", "")
+                if anc_summary:
+                    hierarchy_lines.append(
+                        f"- [RAPTOR Level {anc_layer} Scope ({anc_title})]: {anc_summary}"
+                    )
+
+        children_topics = meta.get("raptor_children_topics", [])
+        if children_topics:
+            sub_titles = [c.get("title", "") for c in children_topics if c.get("title")]
+            if sub_titles:
+                hierarchy_lines.append(
+                    f"- [RAPTOR Sub-topics in Branch]: {', '.join(sub_titles)}"
+                )
+
+        block_components = [header]
+        if hierarchy_lines:
+            block_components.append(
+                "[RAPTOR Hierarchical Context]:\n" + "\n".join(hierarchy_lines)
+            )
+
+        raw_content = meta.get("big") or doc.page_content
+        block_components.append(f"[Detailed Source Content]:\n{raw_content}")
+        context_blocks.append("\n".join(block_components))
+
+    return "\n\n".join(context_blocks)
+
+
 def rerank_node(state: AgentState) -> dict:
-    """Merges and scores candidate documents from BM25 and HyDE using FlashRank cross-encoder."""
+    """Merges, expands with RAPTOR tree, and scores candidate documents using FlashRank cross-encoder."""
     bm25_docs = state.get("bm25_docs") or []
     hyde_docs = state.get("hyde_docs") or []
     legacy_docs = state.get("retrieved_docs") or []
@@ -139,10 +180,19 @@ def rerank_node(state: AgentState) -> dict:
     seen: set[str] = set()
     candidate_docs: list[Document] = []
     for doc in bm25_docs + hyde_docs + legacy_docs:
-        key = str(doc.metadata.get("breadcrumb") or doc.metadata.get("title") or doc.page_content[:60])
+        key = str(
+            doc.metadata.get("breadcrumb")
+            or doc.metadata.get("title")
+            or doc.page_content[:60]
+        )
         if key not in seen:
             seen.add(key)
             candidate_docs.append(doc)
+
+    # RAPTOR Top-Down Candidate Expansion: Inject child chunks for matched summary nodes
+    expanded_candidates = db.expand_raptor_candidates(
+        candidate_docs, max_children_per_parent=2
+    )
 
     bm25_query = state.get("bm25_query")
     hypo_doc = state.get("hypothetical_doc")
@@ -157,13 +207,21 @@ def rerank_node(state: AgentState) -> dict:
     else:
         search_query = query
 
-    ranked_docs = reranker.compress_documents(candidate_docs, search_query) if candidate_docs else []
+    ranked_docs = (
+        reranker.compress_documents(expanded_candidates, search_query)
+        if expanded_candidates
+        else []
+    )
+
+    # RAPTOR Bottom-Up Context Expansion: Attach ancestor scope and parent summaries to ranked docs
+    enriched_ranked_docs = db.expand_raptor_context(ranked_docs)
+
     print(
-        f"[Rerank-rerank_node] Merged {len(candidate_docs)} candidate docs -> {len(ranked_docs)} ranked docs"
+        f"[Rerank-rerank_node] Merged {len(candidate_docs)} candidates -> expanded to {len(expanded_candidates)} -> {len(enriched_ranked_docs)} RAPTOR-enriched ranked docs"
     )
     return {
-        "retrieved_docs": candidate_docs,
-        "ranked_docs": ranked_docs,
+        "retrieved_docs": expanded_candidates,
+        "ranked_docs": enriched_ranked_docs,
         "search_query": search_query,
     }
 
@@ -187,7 +245,8 @@ def generate_node(state: AgentState) -> dict:
         "2. GROUNDEDNESS: Your answer must be strictly grounded in the retrieved document context. Never invent facts.\n"
         "3. INLINE CITATIONS: For every factual claim, guideline, or step in your answer, immediately attach an inline citation specifying the exact source topic in brackets (e.g., 'To reduce draw calls, batch static meshes [Performance > Meshes].'). Place citations directly on the relevant sentence or bullet point, NOT as a vague generic dump at the end.\n"
         "4. CITATIONS ARRAY: In the 'citations' field, include only the topic names that you actively cited inline in the answer.\n"
-        "5. MISSING INFO: If the context does not contain the answer, state 'Information not available in documentation' and return an empty citations list."
+        "5. MISSING INFO: If the context does not contain the answer, state 'Information not available in documentation' and return an empty citations list.\n"
+        "6. HIERARCHICAL CONTEXT: Utilize the [RAPTOR Hierarchical Context] to understand the architectural domain and high-level concepts, while synthesizing specific technical details, APIs, and instructions from [Detailed Source Content]."
     )
 
     messages = [
@@ -292,8 +351,8 @@ def critique_node(state: AgentState) -> dict:
             f"User Query: {query}\n"
             f"Draft Response: {draft}\n\n"
             "Return valid JSON matching CritiqueResultSchema:\n"
-            '- is_passed: true if polite refusal, false otherwise\n'
-            '- feedback: explanation string if false, otherwise null'
+            "- is_passed: true if polite refusal, false otherwise\n"
+            "- feedback: explanation string if false, otherwise null"
         )
     else:
         prompt = (
@@ -305,8 +364,8 @@ def critique_node(state: AgentState) -> dict:
             "1. Groundedness: Is the answer supported by the retrieved documentation without unverified extrapolation?\n"
             "2. Inline Citations: Do inline citations accurately reference source topics?\n\n"
             "Return valid JSON matching CritiqueResultSchema:\n"
-            '- is_passed: true if grounded and accurate, false otherwise\n'
-            '- feedback: concise explanation of what claim or citation failed if false, otherwise null'
+            "- is_passed: true if grounded and accurate, false otherwise\n"
+            "- feedback: concise explanation of what claim or citation failed if false, otherwise null"
         )
 
     try:

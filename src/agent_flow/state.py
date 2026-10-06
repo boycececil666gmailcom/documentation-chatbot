@@ -17,9 +17,7 @@ class AgentState(TypedDict):
     """Internal state schema passed across LangGraph nodes."""
 
     query: str
-    routing_decision: NotRequired[
-        Literal["refuse", "bm25", "hyde_bm25", "hyde"]
-    ]
+    routing_decision: NotRequired[Literal["refuse", "bm25", "hyde_bm25", "hyde"]]
     hypothetical_doc: NotRequired[str | None]
     bm25_query: NotRequired[str | None]
     search_query: NotRequired[str | None]
