@@ -178,6 +178,7 @@ documentation-chatbot/
 - [Python 3.11+](https://www.python.org/)
 - [uv](https://docs.astral.sh/uv/) (recommended for local development)
 - [OpenRouter API Key](https://openrouter.ai/)
+- [LangSmith API Key](https://smith.langchain.com/)
 
 ### Environment Configuration
 
