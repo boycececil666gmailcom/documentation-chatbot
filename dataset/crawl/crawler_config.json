@@ -1,23 +1,29 @@
 {
   "crawler": {
-    "root_urls": [
-      "https://docs.kanzi.com/4.1.0/en/kanzi-fundamentals/kanzi-fundamentals.html",
-      "https://docs.kanzi.com/4.1.0/en/working-with/working-with.html",
-      "https://docs.kanzi.com/4.1.0/en/best-practices/best-practices.html"
+    "seed_url": "https://docs.kanzi.com/4.1.0/en/working-with/performance-profiling/profiling-application-code.html",
+    "target_sections": [
+      "Best practices",
+      "Working with",
+      "References"
     ],
     "output_path": "1.crawler.json",
-    "max_depth": 3,
     "max_concurrency": 30,
-    "css_selector": "article",
-    "allowed_prefixes": null
+    "css_selector": "article"
   },
-  "raptor": {
+  "hierarchy": {
     "input_path": "1.crawler.json",
-    "output_path": "2.structure_chunks.json",
-    "max_concurrency": 20
+    "output_path": "2.structure_hierarchy.json"
+  },
+  "chunker": {
+    "input_path": "2.structure_hierarchy.json",
+    "output_path": "3.chunks.json",
+    "chunk_size": 3000,
+    "chunk_overlap": 300,
+    "max_doc_length_threshold": 3500
   },
   "ingest": {
-    "input_path": "2.structure_chunks.json",
+    "input_path": "3.chunks.json",
+    "output_path": "4.ingest_pgvector.json",
     "batch_size": 64,
     "collection_name": "raptor_chunks",
     "rate_limit_delay": 3.2

@@ -1,5 +1,4 @@
 # region Ingestion
-import argparse
 import json
 import math
 import sys
@@ -28,8 +27,8 @@ with open(CONFIG_PATH, encoding="utf-8") as f:
     config = json.load(f)
 
 ingest_cfg = config.get("ingest", {})
-INPUT_FILE = CURRENT_DIR / ingest_cfg.get("input_path", "2.structure_chunks.json")
-OUTPUT_FILE = CURRENT_DIR / "3.ingest_pgvector.json"
+INPUT_FILE = CURRENT_DIR / ingest_cfg.get("input_path", "3.chunks.json")
+OUTPUT_FILE = CURRENT_DIR / ingest_cfg.get("output_path", "4.ingest_pgvector.json")
 
 
 def query_database_status() -> dict[str, Any]:
@@ -37,22 +36,42 @@ def query_database_status() -> dict[str, Any]:
     conn_str = PGVECTOR_URL.replace("+psycopg", "")
     with psycopg.connect(conn_str) as conn:
         with conn.cursor() as cur:
-            cur.execute("SELECT count(*) FROM langchain_pg_embedding")
+            cur.execute(
+                """
+                SELECT count(*) FROM langchain_pg_embedding
+                WHERE collection_id IN (
+                    SELECT uuid FROM langchain_pg_collection WHERE name = %s
+                )
+                """,
+                (PGVECTOR_COLLECTION_NAME,),
+            )
             total_db_rows = cur.fetchone()[0]
 
             cur.execute(
                 """
                 SELECT cmetadata->>'raptor_layer', count(*)
                 FROM langchain_pg_embedding
+                WHERE collection_id IN (
+                    SELECT uuid FROM langchain_pg_collection WHERE name = %s
+                )
                 GROUP BY cmetadata->>'raptor_layer'
                 ORDER BY 1
-                """
+                """,
+                (PGVECTOR_COLLECTION_NAME,),
             )
             rows = cur.fetchall()
             layers = {f"layer_{r[0]}": r[1] for r in rows if r[0] is not None}
 
-            # Check sample doc preview
-            cur.execute("SELECT document FROM langchain_pg_embedding LIMIT 1")
+            cur.execute(
+                """
+                SELECT document FROM langchain_pg_embedding
+                WHERE collection_id IN (
+                    SELECT uuid FROM langchain_pg_collection WHERE name = %s
+                )
+                LIMIT 1
+                """,
+                (PGVECTOR_COLLECTION_NAME,),
+            )
             sample_doc = cur.fetchone()
             preview = sample_doc[0][:100] if sample_doc else ""
 
@@ -63,6 +82,35 @@ def query_database_status() -> dict[str, Any]:
     }
 
 
+def wipe_database(collection_only: bool = True) -> int:
+    """Explicitly deletes stale records from PGVector database.
+
+    If collection_only is True, purges rows belonging to PGVECTOR_COLLECTION_NAME.
+    If False, truncates langchain_pg_embedding completely.
+    """
+    conn_str = PGVECTOR_URL.replace("+psycopg", "")
+    with psycopg.connect(conn_str) as conn:
+        with conn.cursor() as cur:
+            if collection_only:
+                cur.execute(
+                    """
+                    DELETE FROM langchain_pg_embedding
+                    WHERE collection_id IN (
+                        SELECT uuid FROM langchain_pg_collection WHERE name = %s
+                    )
+                    """,
+                    (PGVECTOR_COLLECTION_NAME,),
+                )
+            else:
+                cur.execute("TRUNCATE TABLE langchain_pg_embedding CASCADE")
+            deleted_count = cur.rowcount
+            conn.commit()
+    print(
+        f"[Ingestion-wipe_database] Purged {deleted_count} stale rows for collection '{PGVECTOR_COLLECTION_NAME}'."
+    )
+    return deleted_count
+
+
 def batch_ingest(
     chunks_data: list[dict[str, Any]],
     batch_size: int = 64,
@@ -70,6 +118,9 @@ def batch_ingest(
     wipe: bool = True,
 ) -> dict[str, Any]:
     """Ingests chunks into PGVector where page_content is stored in document column and cmetadata is clean."""
+    if wipe:
+        wipe_database(collection_only=True)
+
     total = len(chunks_data)
     start_time = time.time()
     total_batches = math.ceil(total / batch_size)
@@ -81,7 +132,7 @@ def batch_ingest(
         embeddings=embeddings,
         collection_name=PGVECTOR_COLLECTION_NAME,
         connection=PGVECTOR_URL,
-        pre_delete_collection=wipe,
+        pre_delete_collection=False,
         use_jsonb=True,
     )
 
@@ -90,7 +141,13 @@ def batch_ingest(
         batch = chunks_data[start : start + batch_size]
         batch_docs = []
         batch_ids = []
+        seen_batch_ids: set[str] = set()
         for d in batch:
+            doc_id = str(d["id"])
+            if doc_id in seen_batch_ids:
+                continue
+            seen_batch_ids.add(doc_id)
+
             text = (d.get("content") or d.get("metadata", {}).get("big", "")).strip()[:12000]
             if not text:
                 continue
@@ -100,7 +157,7 @@ def batch_ingest(
                     metadata={k: v for k, v in d.get("metadata", {}).items() if k != "big"},
                 )
             )
-            batch_ids.append(str(d["id"]))
+            batch_ids.append(doc_id)
 
         if not batch_docs:
             continue
@@ -132,7 +189,7 @@ def batch_ingest(
     summary = {
         "timestamp": datetime.now(UTC).isoformat(),
         "collection_name": PGVECTOR_COLLECTION_NAME,
-        "status": "success",
+        "status": "synchronized" if db_status["total_db_rows"] == total else "outdated_mismatch",
         "source_file": INPUT_FILE.name,
         "target_search_field": "document (canonical content column)",
         "embedding_model": OPENROUTER_EMBED_MODEL,
@@ -148,63 +205,21 @@ def batch_ingest(
     return summary
 
 
-def generate_status_report(records: list[dict[str, Any]]) -> dict[str, Any]:
-    """Generates an inspection status report from current database state."""
-    total = len(records)
-    total_batches = math.ceil(total / ingest_cfg.get("batch_size", 64))
-    db_status = query_database_status()
-
-    summary = {
-        "timestamp": datetime.now(UTC).isoformat(),
-        "collection_name": PGVECTOR_COLLECTION_NAME,
-        "status": "success",
-        "source_file": INPUT_FILE.name,
-        "target_search_field": "document (canonical content column)",
-        "embedding_model": OPENROUTER_EMBED_MODEL,
-        "total_source_chunks": total,
-        "database_rows": db_status["total_db_rows"],
-        "batch_size": ingest_cfg.get("batch_size", 64),
-        "total_batches": total_batches,
-        "layer_distribution": db_status["layers"],
-        "integrity_check": "passed" if db_status["total_db_rows"] == total else "mismatch",
-        "sample_preview": db_status["sample_preview"],
-    }
-    return summary
-
-
 def main() -> None:
-    """CLI entrypoint for ingestion and reporting."""
-    parser = argparse.ArgumentParser(
-        description="Ingest chunks into PGVector and export 3.ingest_pgvector.json report."
-    )
-    parser.add_argument(
-        "--status",
-        action="store_true",
-        help="Generate result report from current database state without re-ingesting",
-    )
-    parser.add_argument(
-        "--run",
-        action="store_true",
-        help="Execute full batch re-ingestion with OpenRouter embeddings",
-    )
-    args = parser.parse_args()
-
+    """Purges stale collection records and ingests all chunks into PGVector."""
     if not INPUT_FILE.exists():
         raise FileNotFoundError(f"Input chunks file not found: {INPUT_FILE}")
 
     with open(INPUT_FILE, encoding="utf-8") as f:
         records: list[dict[str, Any]] = json.load(f)
 
-    if args.run:
-        summary = batch_ingest(
-            chunks_data=records,
-            batch_size=ingest_cfg.get("batch_size", 64),
-            delay=ingest_cfg.get("rate_limit_delay", 3.2),
-            wipe=True,
-        )
-    else:
-        # Default or --status: inspect and generate official report
-        summary = generate_status_report(records)
+    # 1. Clean up VDB & 2. Ingest new chunks
+    summary = batch_ingest(
+        chunks_data=records,
+        batch_size=ingest_cfg.get("batch_size", 64),
+        delay=ingest_cfg.get("rate_limit_delay", 3.2),
+        wipe=True,
+    )
 
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump(summary, f, ensure_ascii=False, indent=2)

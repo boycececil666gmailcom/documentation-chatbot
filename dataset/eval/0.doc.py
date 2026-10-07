@@ -18,7 +18,9 @@ with open(CONFIG_PATH, encoding="utf-8") as f:
     eval_config = json.load(f)
 
 gen_cfg = eval_config.get("generator", {})
-CHUNKS_SOURCE = ROOT_DIR / "dataset" / "crawl" / "2.structure_chunks.json"
+CHUNKS_SOURCE = ROOT_DIR / "dataset" / "crawl" / "3.chunks.json"
+if not CHUNKS_SOURCE.exists():
+    CHUNKS_SOURCE = ROOT_DIR / "dataset" / "crawl" / "2.structure_chunks.json"
 OUTPUT_FILE = CURRENT_DIR / gen_cfg.get("doc_path", "0.doc.json")
 
 

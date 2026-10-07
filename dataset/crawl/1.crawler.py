@@ -3,9 +3,11 @@ import asyncio
 import json
 import re
 import sys
+import urllib.request
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urljoin
 
+from bs4 import BeautifulSoup
 from crawl4ai import AsyncWebCrawler, CrawlerRunConfig
 from dotenv import load_dotenv
 
@@ -30,111 +32,137 @@ def normalize_url(url: str) -> str:
     return url.split("#")[0].strip()
 
 
-def get_section_prefix(url: str) -> str:
-    """Extract documentation section base prefix from URL."""
-    parsed = urlparse(url)
-    parts = parsed.path.strip("/").split("/")
-    if len(parts) >= 3:
-        return f"https://{parsed.netloc}/{'/'.join(parts[:3])}/"
-    return url.rsplit("/", 1)[0] + "/"
+def extract_sidebar_trees(seed_url: str, target_sections: list[str]) -> list[dict]:
+    """Parses navigation sidebar from seed_url HTML and constructs exact hierarchical document trees."""
+    req = urllib.request.Request(seed_url, headers={"User-Agent": "Mozilla/5.0"})
+    html = urllib.request.urlopen(req).read().decode("utf-8")
+    soup = BeautifulSoup(html, "html.parser")
+    sidebar = soup.find("div", class_="sidebar-tree")
+    if not sidebar:
+        raise ValueError(f"Could not locate 'sidebar-tree' container in {seed_url}")
+
+    top_ul = sidebar.find("ul")
+    if not top_ul:
+        raise ValueError(f"Could not locate top-level 'ul' in sidebar of {seed_url}")
+
+    def _parse_li(li, depth: int = 1) -> dict:
+        a = li.find("a", recursive=False) or li.find("a")
+        href = a.get("href", "") if a else ""
+        full_url = seed_url if href == "#" or not href else urljoin(seed_url, href)
+        full_url = normalize_url(full_url)
+        title = a.get_text(strip=True) if a else "Untitled"
+
+        sub_ul = li.find("ul", recursive=False)
+        sub_documents = []
+        if sub_ul:
+            for child_li in sub_ul.find_all("li", recursive=False):
+                child_node = _parse_li(child_li, depth + 1)
+                if child_node:
+                    sub_documents.append(child_node)
+
+        return {
+            "url": full_url,
+            "title": title,
+            "depth_level": depth,
+            "markdown_content": "",
+            "sub_documents": sub_documents,
+        }
+
+    trees = []
+    for li in top_ul.find_all("li", recursive=False):
+        a = li.find("a", recursive=False) or li.find("a")
+        if not a:
+            continue
+        text = a.get_text(strip=True)
+        if any(ts.lower() in text.lower() for ts in target_sections):
+            section_tree = _parse_li(li, depth=1)
+            trees.append(section_tree)
+
+    return trees
 
 
-def get_page_title(markdown: str, fallback_url: str) -> str:
-    """Extract clean H1 title or derive from URL slug."""
-    for line in markdown.splitlines():
-        trimmed = line.strip()
-        if trimmed.startswith("#") and not trimmed.startswith("##"):
-            clean_title = re.sub(r"\[.*?\]", "", trimmed.lstrip("#")).strip()
-            if clean_title:
-                return clean_title
-    slug = fallback_url.rstrip("/").split("/")[-1].replace(".html", "").replace("-", " ")
-    return slug.title() or "Documentation Page"
-
-
-async def crawl_site(
-    root_urls: list[str],
-    max_depth: int = 3,
+async def crawl_sidebar_site(
+    seed_url: str,
+    target_sections: list[str],
     max_concurrency: int = 30,
     css_selector: str = "article",
 ) -> list[dict]:
-    """Recursively crawls documentation roots and extracts hierarchical document trees."""
+    """Crawls exact sidebar-defined hierarchical tree by caching unique pages and populating markdown."""
+    print(
+        f"[Crawler-crawl_sidebar_site] Extracting sidebar structure for sections: {target_sections}..."
+    )
+    trees = extract_sidebar_trees(seed_url, target_sections)
+
+    unique_urls: set[str] = set()
+
+    def _collect_urls(node: dict) -> None:
+        if node.get("url"):
+            unique_urls.add(node["url"])
+        for child in node.get("sub_documents", []):
+            _collect_urls(child)
+
+    for tree in trees:
+        _collect_urls(tree)
+
+    print(
+        f"[Crawler-crawl_sidebar_site] Discovered {len(unique_urls)} unique pages across {len(trees)} section trees."
+    )
+
     semaphore = asyncio.Semaphore(max_concurrency)
-    visited: set[str] = set()
-    prefixes = [get_section_prefix(u) for u in root_urls]
     run_config = CrawlerRunConfig(css_selector=css_selector)
+    page_cache: dict[str, dict] = {}
 
-    async def _crawl_node(crawler: AsyncWebCrawler, url: str, depth: int = 1) -> dict | None:
-        url = normalize_url(url)
-        if not any(url.startswith(p) for p in prefixes) or url in visited:
-            return None
-        visited.add(url)
-
-        try:
-            async with semaphore:
+    async def _fetch_page(crawler: AsyncWebCrawler, url: str) -> None:
+        async with semaphore:
+            try:
                 res = await crawler.arun(url=url, config=run_config)
-            if not res.success:
-                return None
-        except Exception as e:
-            print(f"[Crawler-_crawl_node] Warning: Failed to crawl {url}: {e}")
-            return None
+                page_cache[url] = (res.markdown or "") if res.success else ""
+            except Exception as e:
+                print(f"[Crawler-_fetch_page] Warning: Failed to crawl {url}: {e}")
+                page_cache[url] = ""
 
-        internal_links = [
-            normalize_url(i["href"])
-            for i in (res.links or {}).get("internal", [])
-            if i.get("href")
-        ]
-
-        node = {
-            "url": url,
-            "title": get_page_title(res.markdown or "", url),
-            "depth_level": depth,
-            "markdown_content": res.markdown or "",
-            "sub_documents": [],
-        }
-
-        if depth < max_depth and internal_links:
-            children_urls = [
-                u
-                for u in dict.fromkeys(internal_links)
-                if any(u.startswith(p) for p in prefixes) and u not in visited
-            ]
-            if children_urls:
-                children = await asyncio.gather(
-                    *[_crawl_node(crawler, u, depth + 1) for u in children_urls]
-                )
-                node["sub_documents"] = [c for c in children if c is not None]
-
-        return node
-
-    print(
-        f"[Crawler-crawl_site] Crawling {len(root_urls)} roots (max depth = {max_depth}, max concurrency = {max_concurrency})..."
-    )
+    print(f"[Crawler-crawl_sidebar_site] Scraping content with concurrency = {max_concurrency}...")
     async with AsyncWebCrawler() as crawler:
-        results = await asyncio.gather(*[_crawl_node(crawler, u, 1) for u in root_urls])
-        valid_trees = [r for r in results if r is not None]
+        tasks = [_fetch_page(crawler, url) for url in unique_urls]
+        await asyncio.gather(*tasks)
 
-    print(
-        f"[Crawler-crawl_site] Completed: scraped {len(visited)} pages across {len(valid_trees)} trees."
-    )
-    return valid_trees
+    def _populate_content(node: dict) -> None:
+        url = node.get("url", "")
+        if url in page_cache:
+            node["markdown_content"] = page_cache[url]
+        for child in node.get("sub_documents", []):
+            _populate_content(child)
+
+    for tree in trees:
+        _populate_content(tree)
+
+    print(f"[Crawler-crawl_sidebar_site] Content populated across all hierarchical trees.")
+    return trees
 
 
 async def main() -> None:
-    """Execute site crawling and export intermediate tree artifact."""
-    root_urls = crawler_cfg.get("root_urls", [])
-    max_depth = crawler_cfg.get("max_depth", 3)
+    """Execute sidebar crawling and export canonical intermediate tree artifact."""
+    seed_url = crawler_cfg.get(
+        "seed_url",
+        "https://docs.kanzi.com/4.1.0/en/working-with/performance-profiling/profiling-application-code.html",
+    )
+    target_sections = crawler_cfg.get(
+        "target_sections",
+        ["Best practices", "Working with", "References"],
+    )
     max_concurrency = crawler_cfg.get("max_concurrency", 30)
     css_selector = crawler_cfg.get("css_selector", "article")
 
-    crawled_trees = await crawl_site(
-        root_urls=root_urls,
-        max_depth=max_depth,
+    crawled_trees = await crawl_sidebar_site(
+        seed_url=seed_url,
+        target_sections=target_sections,
         max_concurrency=max_concurrency,
         css_selector=css_selector,
     )
+
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump(crawled_trees, f, ensure_ascii=False, indent=2)
-    print(f"[Crawler-main] Saved document tree to '{OUTPUT_FILE.name}'")
+    print(f"[Crawler-main] Saved canonical document trees to '{OUTPUT_FILE.name}'")
 
 
 if __name__ == "__main__":

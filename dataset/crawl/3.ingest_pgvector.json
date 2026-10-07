@@ -1,20 +1,15 @@
 {
-  "timestamp": "2026-10-06T11:17:39.845296+00:00",
+  "timestamp": "2026-10-07T01:25:21.308576+00:00",
   "collection_name": "raptor_chunks",
-  "status": "success",
+  "status": "ready_for_ingest",
   "source_file": "2.structure_chunks.json",
   "target_search_field": "document (canonical content column)",
   "embedding_model": "nvidia/nemotron-3-embed-1b:free",
-  "total_source_chunks": 2574,
-  "ingested_chunks": 2574,
-  "database_rows": 2574,
+  "total_source_chunks": 4547,
+  "database_rows": 0,
   "batch_size": 64,
-  "total_batches": 41,
-  "layer_distribution": {
-    "layer_0": 3,
-    "layer_1": 96,
-    "layer_2": 2475
-  },
-  "elapsed_seconds": 276.62,
-  "integrity_check": "passed"
+  "total_batches": 72,
+  "layer_distribution": {},
+  "integrity_check": "empty",
+  "sample_preview": ""
 }
