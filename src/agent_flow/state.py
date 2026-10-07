@@ -23,7 +23,7 @@ class AgentState(TypedDict):
     search_query: NotRequired[str | None]
     bm25_docs: NotRequired[list[Document]]
     hyde_docs: NotRequired[list[Document]]
-    retrieved_docs: NotRequired[list[Document]]
+    expanded_docs: NotRequired[list[Document]]
     ranked_docs: NotRequired[list[Document]]
     retrieved_context: NotRequired[str | None]
     draft_response: NotRequired[str]

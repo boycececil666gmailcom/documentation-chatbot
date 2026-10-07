@@ -213,7 +213,7 @@ def main() -> None:
     with open(INPUT_FILE, encoding="utf-8") as f:
         records: list[dict[str, Any]] = json.load(f)
 
-    # 1. Clean up VDB & 2. Ingest new chunks
+    # Clean up VDB and ingest new chunks with metadata into PGVector
     summary = batch_ingest(
         chunks_data=records,
         batch_size=ingest_cfg.get("batch_size", 64),

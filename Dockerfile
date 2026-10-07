@@ -12,6 +12,7 @@ WORKDIR /app
 ENV UV_COMPILE_BYTECODE=1
 ENV UV_PROJECT_ENVIRONMENT=/usr/local
 ENV PYTHONUNBUFFERED=1
+ENV LOG_LEVEL=WARNING
 
 COPY pyproject.toml uv.lock /app/
 RUN uv sync --frozen --no-install-project --no-dev
@@ -24,5 +25,5 @@ COPY langgraph.json /app/langgraph.json
 # region Runtime Configuration
 EXPOSE 2024
 
-CMD ["langgraph", "dev", "--host", "0.0.0.0", "--port", "2024", "--no-browser"]
+CMD ["langgraph", "dev", "--host", "0.0.0.0", "--port", "2024", "--no-browser", "--server-log-level", "WARNING"]
 # endregion

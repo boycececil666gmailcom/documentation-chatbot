@@ -52,6 +52,7 @@ services:
     environment:
       PYTHONPATH: /app
       PGVECTOR_URL: postgresql+psycopg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgrespassword123}@pgvector:5432/${POSTGRES_DB:-documentation_chatbot}
+      LOG_LEVEL: WARNING
     env_file:
       - .env
     volumes:

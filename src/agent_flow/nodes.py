@@ -170,29 +170,49 @@ def format_docs_context(docs: list[Document]) -> str:
     return "\n\n".join(context_blocks)
 
 
-def rerank_node(state: AgentState) -> dict:
-    """Merges, expands with RAPTOR tree, and scores candidate documents using FlashRank cross-encoder."""
+# region Hierarchy Context Expansion Node
+def context_expansion_by_hierarchy_node(state: AgentState) -> dict:
+    """Merges retrieval candidates and enriches each chunk with parent document context before reranking."""
     bm25_docs = state.get("bm25_docs") or []
     hyde_docs = state.get("hyde_docs") or []
-    legacy_docs = state.get("retrieved_docs") or []
 
-    # Merge and deduplicate candidates across both parallel retrieval branches
+    # Merge and deduplicate candidates across parallel retrieval branches
     seen: set[str] = set()
-    candidate_docs: list[Document] = []
-    for doc in bm25_docs + hyde_docs + legacy_docs:
+    initial_candidates: list[Document] = []
+    for doc in bm25_docs + hyde_docs:
         key = str(
-            doc.metadata.get("breadcrumb")
+            doc.metadata.get("doc_id")
+            or doc.metadata.get("breadcrumb")
             or doc.metadata.get("title")
             or doc.page_content[:60]
         )
         if key not in seen:
             seen.add(key)
-            candidate_docs.append(doc)
+            initial_candidates.append(doc)
 
-    # RAPTOR Top-Down Candidate Expansion: Inject child chunks for matched summary nodes
+    # 1. RAPTOR Top-Down Candidate Expansion: Inject child chunks for matched summary nodes
     expanded_candidates = db.expand_raptor_candidates(
-        candidate_docs, max_children_per_parent=2
+        initial_candidates, max_children_per_parent=2
     )
+
+    # 2. Parent Context Expansion: Enrich candidates with parent document title, lead overview, and breadcrumbs
+    parent_enriched_candidates = db.expand_parent_context(expanded_candidates)
+
+    print(
+        f"[HierarchyExpansion-context_expansion_by_hierarchy_node] Initial candidates {len(initial_candidates)} -> expanded to {len(expanded_candidates)} -> hierarchy-enriched {len(parent_enriched_candidates)} docs"
+    )
+    return {
+        "expanded_docs": parent_enriched_candidates,
+    }
+
+
+# endregion
+
+
+# region Rerank Node
+def rerank_node(state: AgentState) -> dict:
+    """Scores parent-expanded candidate documents using FlashRank cross-encoder."""
+    expanded_docs = state.get("expanded_docs") or []
 
     bm25_query = state.get("bm25_query")
     hypo_doc = state.get("hypothetical_doc")
@@ -208,19 +228,18 @@ def rerank_node(state: AgentState) -> dict:
         search_query = query
 
     ranked_docs = (
-        reranker.compress_documents(expanded_candidates, search_query)
-        if expanded_candidates
+        reranker.compress_documents(expanded_docs, search_query)
+        if expanded_docs
         else []
     )
 
-    # RAPTOR Bottom-Up Context Expansion: Attach ancestor scope and parent summaries to ranked docs
+    # RAPTOR Bottom-Up Context Expansion: Attach ancestor scope and summaries to top ranked docs
     enriched_ranked_docs = db.expand_raptor_context(ranked_docs)
 
     print(
-        f"[Rerank-rerank_node] Merged {len(candidate_docs)} candidates -> expanded to {len(expanded_candidates)} -> {len(enriched_ranked_docs)} RAPTOR-enriched ranked docs"
+        f"[Rerank-rerank_node] Ranked {len(expanded_docs)} parent-enriched candidates -> {len(enriched_ranked_docs)} top ranked docs"
     )
     return {
-        "retrieved_docs": expanded_candidates,
         "ranked_docs": enriched_ranked_docs,
         "search_query": search_query,
     }

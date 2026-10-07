@@ -34,7 +34,7 @@ splitter = RecursiveCharacterTextSplitter(
 
 
 def split_structured_documents(documents: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Splits oversized structured documents into logical embeddable chunks."""
+    """Splits oversized structured documents into logical embeddable chunks with parent and child IDs."""
     all_chunks: list[dict[str, Any]] = []
 
     for doc in documents:
@@ -47,6 +47,7 @@ def split_structured_documents(documents: list[dict[str, Any]]) -> list[dict[str
         url = doc["url"]
         meta = doc.get("metadata", {})
         parent_id = meta.get("parent_id", "")
+        child_ids = meta.get("child_ids", [])
         layer = meta.get("raptor_layer", 2)
         bc = meta.get("breadcrumb", title)
 
@@ -62,6 +63,7 @@ def split_structured_documents(documents: list[dict[str, Any]]) -> list[dict[str
                     "metadata": {
                         "parent_id": parent_id,
                         "doc_id": doc_id,
+                        "child_ids": child_ids,
                         "title": part_title,
                         "url": url,
                         "raptor_layer": layer,
@@ -79,6 +81,7 @@ def split_structured_documents(documents: list[dict[str, Any]]) -> list[dict[str
                 "metadata": {
                     "parent_id": parent_id,
                     "doc_id": doc_id,
+                    "child_ids": child_ids,
                     "title": title,
                     "url": url,
                     "raptor_layer": layer,

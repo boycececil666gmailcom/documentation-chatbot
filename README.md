@@ -50,9 +50,9 @@ Documentation-heavy platforms often struggle with escalating support ticket volu
 
 ### Functional Requirements (FR)
 
-- **FR-1 (Ingestion & Knowledge Indexing)**: Scrape web documentation using Crawl4AI, structure content into hierarchical heading-aware chunks (RAPTOR small-to-big strategy), and persist dual representations in PostgreSQL pgvector and an in-memory sparse keyword index.
+- **FR-1 (Ingestion & Knowledge Indexing)**: Scrape web documentation using Crawl4AI, structure content into hierarchical heading-aware chunks (4-stage observable pipeline with `parent_id` & `child_ids`), and persist dual representations in PostgreSQL pgvector and an in-memory sparse keyword index.
 - **FR-2 (Semantic Intent Routing)**: Evaluate user query intent and domain boundaries using the TypeSafe Jev decisions API with confidence thresholding (`min_confidence=0.20`), routing queries deterministically to `refuse`, `bm25`, `hyde`, or concurrent `hyde_bm25`.
-- **FR-3 (Multi-Strategy Retrieval & RAPTOR Hierarchical Reranking)**: Perform parallel sparse keyword retrieval (BM25) and hypothetical document dense search (HyDE + Nemotron embeddings), expand summary nodes top-down with child chunks, re-score candidates with FlashRank cross-encoder, and enrich top ranked contexts with RAPTOR ancestor summaries (Layer 0/1 scope).
+- **FR-3 (Multi-Strategy Retrieval & Hierarchical Reranking)**: Perform parallel sparse keyword retrieval (BM25) and hypothetical document dense search (HyDE + Nemotron embeddings), dynamically expand parent context and child subtopics in the `context_expansion_by_hierarchy` node, re-score candidates with FlashRank cross-encoder, and enrich top ranked contexts with RAPTOR ancestor summaries (Layer 0/1 scope).
 - **FR-4 (Grounded Synthesis & System 2 Critique Loop)**: Synthesize responses using DeepSeek models strictly bound to ranked contexts with inline topic citations `[Topic Name]`, followed by an automated reflection critique node that triggers stateful re-routing and revisions if ungrounded claims are detected (up to 3 retry attempts).
 
 ### Non-Functional Requirements (NFR)
@@ -80,9 +80,10 @@ flowchart TB
     Router -.->|"routing_decision: bm25"| BM25["bm25<br/>(Sparse Keyword Match)"]
     Router -.->|"routing_decision: refuse"| Refuse["refuse<br/>(Domain Boundary Refusal)"]
 
-    Hyde --> Rerank["rerank<br/>(FlashRank Cross-Encoder)"]
-    BM25 --> Rerank
+    Hyde --> ContextExpansion["context_expansion_by_hierarchy<br/>(Context Expansion by Hierarchy)"]
+    BM25 --> ContextExpansion
 
+    ContextExpansion --> Rerank["rerank<br/>(FlashRank Cross-Encoder)"]
     Rerank --> Generate["generate<br/>(Grounded Answer Synthesis)"]
     Generate --> Critique["critique<br/>(System 2 Quality Evaluation)"]
     Refuse --> Critique
@@ -95,6 +96,7 @@ flowchart TB
     classDef hydeNode fill:#ECFCCB,stroke:#84CC16,stroke-width:2px,color:#365314;
     classDef bm25Node fill:#EDE9FE,stroke:#8B5CF6,stroke-width:2px,color:#4C1D95;
     classDef refuseNode fill:#CFFAFE,stroke:#06B6D4,stroke-width:2px,color:#164E63;
+    classDef contextExpansionNode fill:#FEF3C7,stroke:#F59E0B,stroke-width:2px,color:#78350F;
     classDef rerankNode fill:#EDE9FE,stroke:#8B5CF6,stroke-width:2px,color:#4C1D95;
     classDef generateNode fill:#CFFAFE,stroke:#06B6D4,stroke-width:2px,color:#164E63;
     classDef critiqueNode fill:#DBEAFE,stroke:#3B82F6,stroke-width:2px,color:#1E3A8A;
@@ -104,6 +106,7 @@ flowchart TB
     class Hyde hydeNode;
     class BM25 bm25Node;
     class Refuse refuseNode;
+    class ContextExpansion contextExpansionNode;
     class Rerank rerankNode;
     class Generate generateNode;
     class Critique critiqueNode;
@@ -116,7 +119,8 @@ flowchart TB
 | `router` | **Intent Classification & Routing**<br/>Invokes TypeSafe Jev Decisions API (`typesafe/jev-1.13`) on OpenRouter to evaluate question intent and select optimal retrieval strategy (`refuse`, `bm25`, `hyde`, `hyde_bm25`). | `query` | `routing_decision`<br/>`bm25_docs: []`<br/>`hyde_docs: []` |
 | `hyde` | **Hypothetical Document Expansion & Dense Search**<br/>Generates domain-injected 2-3 sentence hypothetical documentation excerpt using `hyde_llm`, then performs vector similarity search against PGVector (`raptor_chunks`). | `query` | `hypothetical_doc`<br/>`hyde_docs` |
 | `bm25` | **Sparse Keyword Retrieval**<br/>Executes exact keyword matching against in-memory `BM25Retriever` constructed from PostgreSQL document chunks to reliably locate API names and identifiers. | `query` | `bm25_query`<br/>`bm25_docs` |
-| `rerank` | **RAPTOR Expansion & Neural Reranking**<br/>Merges `bm25` and `hyde` candidates, expands summary nodes top-down with child chunks, computes relevance scores with FlashRank, and enriches top docs bottom-up with RAPTOR ancestor summaries. | `bm25_docs`<br/>`hyde_docs`<br/>`query` | `retrieved_docs`<br/>`ranked_docs`<br/>`search_query` |
+| `context_expansion_by_hierarchy` | **Context Expansion by Hierarchy**<br/>Merges sparse and dense candidates, deduplicates them, and executes real-time resolution of parent document overviews and related subtopics via `parent_id` and `child_ids` before FlashRank reranking. | `bm25_docs`<br/>`hyde_docs` | `expanded_docs` |
+| `rerank` | **Neural Reranking & Context Enrichment**<br/>Computes semantic relevance scores of hierarchy-enriched chunks against query using FlashRank cross-encoder, and enriches top docs bottom-up with RAPTOR ancestor summaries. | `expanded_docs`<br/>`query` | `ranked_docs`<br/>`search_query` |
 | `generate` | **Rank-Prioritized Grounded Synthesis**<br/>Synthesizes answers strictly grounded in ranked context chunks and macro-level RAPTOR parent summaries with inline citations `[Topic Name]`. Validates citations against actual retrieved topic keys. | `ranked_docs`<br/>`query`<br/>`critique_feedback` | `draft_response`<br/>`citations` |
 | `refuse` | **Domain Boundary Enforcement**<br/>Generates a polite refusal response when the router classifies a query as completely off-topic relative to `CHATBOT_THEME`. | `query` | `draft_response`<br/>`citations: []` |
 | `critique` | **System 2 Reflection & Groundedness Audit**<br/>Audit evaluator (DeepSeek) validating whether claims are factually supported by documentation context and citations are accurate. Sets `is_critique_passed`. | `draft_response`<br/>`ranked_docs`<br/>`query` | `is_critique_passed`<br/>`critique_feedback`<br/>`retry_count` |
@@ -127,7 +131,7 @@ flowchart TB
    - `refuse`: Routes directly to `refuse` node for out-of-domain queries.
    - `bm25`: Routes to `bm25` node for exact identifier / error code lookups.
    - `hyde`: Routes to `hyde` node for abstract or short queries lacking specific keywords.
-   - `hyde_bm25`: Triggers concurrent fan-out returning `["bm25", "hyde"]`, executing both sparse and dense retrieval in parallel within the same Pregel superstep. Both branches converge into `rerank`.
+   - `hyde_bm25`: Triggers concurrent fan-out returning `["bm25", "hyde"]`, executing both sparse and dense retrieval in parallel within the same Pregel superstep. Both branches converge into `context_expansion_by_hierarchy`.
 2. **Critique Reflection Loop (`route_after_critique`)**:
    - `approved`: If `is_critique_passed` is `true` (or `retry_count >= 3`), transitions directly to `__end__` to return the verified response.
    - `rejected`: If critique fails due to ungrounded claims or invalid citations, transitions back to `router` with `critique_feedback` for targeted query reformulation and answer revision.
@@ -139,11 +143,12 @@ flowchart TB
 ```text
 documentation-chatbot/
 ├── dataset/
-│   ├── crawl/                         # Web scraping & RAPTOR small-to-big chunking pipeline
-│   │   ├── 1.crawler.json             # Scraped documentation source articles
-│   │   ├── 2.flattened_chunks.json    # Hierarchical flattened chunks with breadcrumbs
-│   │   ├── crawler_config.json        # Crawling depth, concurrency, and target root URLs
-│   │   └── pipeline.ipynb             # End-to-end Crawl4AI scraping and ingestion workflow
+│   ├── crawl/                         # Web scraping & 4-stage observable ingestion pipeline
+│   │   ├── 1.crawler.py & .json       # Scraped documentation source trees (Crawl4AI)
+│   │   ├── 2.structure_hierarchy.py & .json # Page-level structured hierarchy (parent_id & child_ids)
+│   │   ├── 3.split_chunks.py & .json  # Embeddable chunks (>3500 chars split) with parent/child links
+│   │   ├── 4.ingest_pgvector.py & .json # PGVector collection wipe and batch embedding ingestion
+│   │   └── crawler_config.json        # Crawling depth, chunk threshold, and rate limit configs
 │   └── eval/                          # RAGAS automated benchmarking suite & test datasets
 │       ├── 0.doc.json                 # Reference documentation excerpts
 │       ├── 1.dataset.json             # Ground-truth Q&A evaluation dataset

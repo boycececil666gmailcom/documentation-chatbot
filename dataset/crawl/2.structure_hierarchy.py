@@ -36,6 +36,17 @@ def flatten_hierarchy_tree(raw_trees: list[dict[str, Any]]) -> list[dict[str, An
         layer = min(depth - 1, 2)
         doc_id = str(uuid.uuid5(NAMESPACE, f"doc_{parent_id}_{url}_{title}"))
 
+        # Pre-compute child IDs for real-time bidirectional tree traversal
+        child_ids = [
+            str(
+                uuid.uuid5(
+                    NAMESPACE,
+                    f"doc_{doc_id}_{c.get('url', '').strip()}_{c.get('title', 'Untitled').strip()}",
+                )
+            )
+            for c in sub_docs
+        ]
+
         doc_record = {
             "id": doc_id,
             "title": title,
@@ -43,6 +54,7 @@ def flatten_hierarchy_tree(raw_trees: list[dict[str, Any]]) -> list[dict[str, An
             "content": content,
             "metadata": {
                 "parent_id": parent_id,
+                "child_ids": child_ids,
                 "raptor_layer": layer,
                 "breadcrumb": bc,
                 "char_count": len(content),

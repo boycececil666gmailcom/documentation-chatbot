@@ -1,5 +1,6 @@
 # region Imports
 import json
+from typing import Any
 
 import psycopg
 from langchain_community.retrievers import BM25Retriever
@@ -33,7 +34,7 @@ def get_vector_store() -> PGVector:
 
 
 def get_hierarchy_index() -> tuple[dict[str, dict], dict[str, list[dict]]]:
-    """Lazily initialize and return the RAPTOR chunk hierarchy and children index."""
+    """Lazily initialize and return the RAPTOR chunk hierarchy and children index from langchain_pg_embedding."""
     global _hierarchy_map, _children_map
     if _hierarchy_map is None or _children_map is None:
         conn_str = PGVECTOR_URL.replace("+psycopg", "")
@@ -55,6 +56,11 @@ def get_hierarchy_index() -> tuple[dict[str, dict], dict[str, list[dict]]]:
             meta_dict["document"] = raw_doc
             h_map[chunk_id] = meta_dict
 
+            # Index by doc_id (Part 1 or earliest chunk represents the document)
+            doc_id = meta_dict.get("doc_id")
+            if doc_id and (meta_dict.get("chunk_index", 1) == 1 or doc_id not in h_map):
+                h_map[doc_id] = meta_dict
+
             parent_id = meta_dict.get("parent_id")
             if parent_id:
                 c_map.setdefault(parent_id, []).append(meta_dict)
@@ -62,9 +68,25 @@ def get_hierarchy_index() -> tuple[dict[str, dict], dict[str, list[dict]]]:
         _hierarchy_map = h_map
         _children_map = c_map
         print(
-            f"[VectorDB-get_hierarchy_index] Indexed {len(_hierarchy_map)} RAPTOR chunks across {len(_children_map)} parent branches"
+            f"[VectorDB-get_hierarchy_index] Indexed {len(_hierarchy_map)} RAPTOR nodes across {len(_children_map)} branches"
         )
     return _hierarchy_map, _children_map
+
+
+def fetch_document_by_id(node_id: str | None) -> dict[str, Any] | None:
+    """Real-time fetch of document or chunk record by ID using memory cache from langchain_pg_embedding."""
+    if not node_id:
+        return None
+    h_map, _ = get_hierarchy_index()
+    return h_map.get(str(node_id))
+
+
+def fetch_child_documents(child_ids: list[str]) -> list[dict[str, Any]]:
+    """Real-time fetch of child documents by their IDs."""
+    if not child_ids:
+        return []
+    h_map, _ = get_hierarchy_index()
+    return [h_map[cid] for cid in child_ids if cid in h_map]
 
 
 def get_bm25_retriever() -> BM25Retriever:
@@ -131,6 +153,69 @@ def get_ancestors(parent_id: str | None, max_depth: int = 3) -> list[dict]:
         curr_id = p_meta.get("parent_id")
         depth += 1
     return ancestors
+
+
+def expand_parent_context(docs: list[Document]) -> list[Document]:
+    """Enriches candidate chunks with real-time fetched parent document context and child subtopics before reranking."""
+    if not docs:
+        return []
+    enriched: list[Document] = []
+
+    for doc in docs:
+        meta = dict(doc.metadata)
+        doc_id = meta.get("doc_id")
+        parent_id = meta.get("parent_id")
+
+        # Real-time fetch of parent document and ancestor section by ID
+        parent_doc = fetch_document_by_id(doc_id)
+        ancestor_doc = fetch_document_by_id(parent_id) if parent_id else None
+
+        preamble_parts: list[str] = []
+
+        # Hierarchy Path (Breadcrumb)
+        bc = (
+            (parent_doc.get("breadcrumb") if parent_doc else None)
+            or meta.get("breadcrumb")
+            or meta.get("title", "")
+        )
+        if bc:
+            preamble_parts.append(f"[Path]: {bc}")
+
+        # Parent Document Overview
+        if parent_doc:
+            lead_raw = parent_doc.get("lead_content") or parent_doc.get("document", "")
+            lead = lead_raw[:350].strip()
+            if lead and not doc.page_content.startswith(lead[:60]):
+                preamble_parts.append(f"[Parent Overview]: {lead}")
+
+            # Child Subtopics (if parent document has child nodes)
+            child_ids = parent_doc.get("child_ids", [])
+            if child_ids:
+                children = fetch_child_documents(child_ids[:3])
+                child_titles = [c.get("title", "") for c in children if c.get("title")]
+                if child_titles:
+                    preamble_parts.append(f"[Related Subtopics]: {', '.join(child_titles)}")
+
+        elif ancestor_doc:
+            lead_raw = ancestor_doc.get("lead_content") or ancestor_doc.get("document", "")
+            lead = lead_raw[:350].strip()
+            if lead and not doc.page_content.startswith(lead[:60]):
+                preamble_parts.append(f"[Parent Overview]: {lead}")
+
+        if preamble_parts:
+            enriched_content = f"{chr(10).join(preamble_parts)}\n\n[Section Content]:\n{doc.page_content}"
+        else:
+            enriched_content = doc.page_content
+
+        enriched.append(
+            Document(
+                page_content=enriched_content,
+                metadata=meta,
+                id=doc.id if hasattr(doc, "id") else None,
+            )
+        )
+
+    return enriched
 
 
 def expand_raptor_context(docs: list[Document]) -> list[Document]:

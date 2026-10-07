@@ -84,7 +84,7 @@ async def fetch_single_response(
 
         state = await agent_graph.ainvoke({"query": query})
         answer = state.get("draft_response") or ""
-        docs = state.get("ranked_docs") or state.get("retrieved_docs") or []
+        docs = state.get("ranked_docs") or state.get("expanded_docs") or []
         contexts = [
             str(getattr(d, "page_content", "") or d.metadata.get("big", ""))
             for d in docs
@@ -100,7 +100,7 @@ async def fetch_single_response(
         resp.raise_for_status()
         data = resp.json().get("output", {})
         answer = data.get("draft_response", "")
-        docs = data.get("ranked_docs", []) or data.get("retrieved_docs", [])
+        docs = data.get("ranked_docs", []) or data.get("expanded_docs", [])
         contexts = [d.get("page_content", "") or d.get("metadata", {}).get("big", "") for d in docs]
         return answer, contexts
     finally:
