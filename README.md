@@ -125,17 +125,6 @@ flowchart TB
 | `refuse` | **Domain Boundary Enforcement**<br/>Generates a polite refusal response when the router classifies a query as completely off-topic relative to `CHATBOT_THEME`. | `query` | `draft_response`<br/>`citations: []` |
 | `critique` | **System 2 Reflection & Groundedness Audit**<br/>Audit evaluator (DeepSeek) validating whether claims are factually supported by documentation context and citations are accurate. Sets `is_critique_passed`. | `draft_response`<br/>`ranked_docs`<br/>`query` | `is_critique_passed`<br/>`critique_feedback`<br/>`retry_count` |
 
-### Conditional Routing & Retry Transitions
-
-1. **Router Fan-out (`route_from_router`)**:
-   - `refuse`: Routes directly to `refuse` node for out-of-domain queries.
-   - `bm25`: Routes to `bm25` node for exact identifier / error code lookups.
-   - `hyde`: Routes to `hyde` node for abstract or short queries lacking specific keywords.
-   - `hyde_bm25`: Triggers concurrent fan-out returning `["bm25", "hyde"]`, executing both sparse and dense retrieval in parallel within the same Pregel superstep. Both branches converge into `context_expansion_by_hierarchy`.
-2. **Critique Reflection Loop (`route_after_critique`)**:
-   - `approved`: If `is_critique_passed` is `true` (or `retry_count >= 3`), transitions directly to `__end__` to return the verified response.
-   - `rejected`: If critique fails due to ungrounded claims or invalid citations, transitions back to `router` with `critique_feedback` for targeted query reformulation and answer revision.
-
 ---
 
 ## 4. Repository Structure
