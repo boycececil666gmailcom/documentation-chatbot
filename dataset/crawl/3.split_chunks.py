@@ -18,8 +18,8 @@ with open(CONFIG_PATH, encoding="utf-8") as f:
     config = json.load(f)
 
 chunker_cfg = config.get("chunker", {})
-INPUT_FILE = CURRENT_DIR / chunker_cfg.get("input_path", "2.structured_docs.json")
-OUTPUT_FILE = CURRENT_DIR / chunker_cfg.get("output_path", "3.chunks.json")
+INPUT_FILE = CURRENT_DIR / chunker_cfg.get("input_path", "2.structure_hierarchy.json")
+OUTPUT_FILE = CURRENT_DIR / chunker_cfg.get("output_path", "3.split_chunks.json")
 CHUNK_SIZE = chunker_cfg.get("chunk_size", 3000)
 CHUNK_OVERLAP = chunker_cfg.get("chunk_overlap", 300)
 THRESHOLD = chunker_cfg.get("max_doc_length_threshold", 3500)

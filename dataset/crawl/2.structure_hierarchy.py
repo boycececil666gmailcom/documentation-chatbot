@@ -16,7 +16,7 @@ with open(CONFIG_PATH, encoding="utf-8") as f:
 
 hierarchy_cfg = config.get("hierarchy", {})
 INPUT_FILE = CURRENT_DIR / hierarchy_cfg.get("input_path", "1.crawler.json")
-OUTPUT_FILE = CURRENT_DIR / hierarchy_cfg.get("output_path", "2.structured_docs.json")
+OUTPUT_FILE = CURRENT_DIR / hierarchy_cfg.get("output_path", "2.structure_hierarchy.json")
 
 NAMESPACE = uuid.UUID("6ba7b810-9dad-11d1-80b4-00c04fd430c8")
 

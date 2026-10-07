@@ -27,7 +27,7 @@ with open(CONFIG_PATH, encoding="utf-8") as f:
     config = json.load(f)
 
 ingest_cfg = config.get("ingest", {})
-INPUT_FILE = CURRENT_DIR / ingest_cfg.get("input_path", "3.chunks.json")
+INPUT_FILE = CURRENT_DIR / ingest_cfg.get("input_path", "3.split_chunks.json")
 OUTPUT_FILE = CURRENT_DIR / ingest_cfg.get("output_path", "4.ingest_pgvector.json")
 
 
