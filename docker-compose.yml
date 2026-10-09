@@ -39,7 +39,7 @@ services:
     depends_on:
       - pgvector
 
-  # Local Ollama LLM Service for HyDE (http://localhost:11434)
+  # Local Ollama LLM Service with Autonomous Model Bootstrapping
   ollama:
     image: ollama/ollama:latest
     container_name: documentation-chatbot-ollama
@@ -57,6 +57,21 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu]
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        ollama serve &
+        PID=$$!
+        sleep 2
+        ollama pull ${OLLAMA_MODEL:-qwen2.5:1.5b}
+        wait $$PID
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list | grep -q ${OLLAMA_MODEL:-qwen2.5:1.5b}"]
+      interval: 5s
+      timeout: 10s
+      retries: 25
+      start_period: 5s
 
   # LangGraph Agent API & Dev Server (http://localhost:2024)
   langgraph:
@@ -82,7 +97,7 @@ services:
       pgvector:
         condition: service_healthy
       ollama:
-        condition: service_started
+        condition: service_healthy
 
 volumes:
   pgvector_data:

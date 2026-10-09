@@ -49,7 +49,7 @@ open_browser() {
 # endregion
 
 # region DockerDaemonCheck
-log_step "1" "5" "Verifying and Starting Docker Daemon"
+log_step "1" "4" "Verifying and Starting Docker Daemon"
 
 DOCKER_BIN=$(resolve_docker)
 
@@ -81,7 +81,7 @@ fi
 # endregion
 
 # region ImageVerification
-log_step "2" "5" "Checking Images and Pulling/Building If Missing"
+log_step "2" "4" "Checking Images and Pulling/Building If Missing"
 
 PG_IMAGE="pgvector/pgvector:pg16"
 CB_IMAGE="dbeaver/cloudbeaver:latest"
@@ -108,7 +108,7 @@ fi
 # endregion
 
 # region ComposeStartup
-log_step "3" "5" "Starting Docker Compose Stack and Verifying Health"
+log_step "3" "4" "Starting Docker Compose Stack and Verifying Health"
 
 "$DOCKER_BIN" compose up -d
 
@@ -161,23 +161,8 @@ while [ "$WAIT_SECS" -lt "$MAX_WAIT" ]; do
 done
 # endregion
 
-# region ModelProvisioning
-log_step "4" "5" "Provisioning Ollama Model for Local HyDE"
-
-TARGET_MODEL="${OLLAMA_MODEL:-qwen2.5:1.5b}"
-echo "[${SCRIPT_NAME}] Checking if model '${TARGET_MODEL}' is loaded in Ollama..."
-
-if "$DOCKER_BIN" exec documentation-chatbot-ollama ollama list | grep -q "${TARGET_MODEL}"; then
-    echo "[${SCRIPT_NAME}] Model '${TARGET_MODEL}' is already available in Ollama."
-else
-    echo "[${SCRIPT_NAME}] Pulling model '${TARGET_MODEL}' into Ollama container..."
-    "$DOCKER_BIN" exec documentation-chatbot-ollama ollama pull "${TARGET_MODEL}"
-    echo "[${SCRIPT_NAME}] Model '${TARGET_MODEL}' installed successfully."
-fi
-# endregion
-
 # region LaunchMonitoring
-log_step "5" "5" "Launching Monitoring UIs in Browser"
+log_step "4" "4" "Launching Monitoring UIs in Browser"
 
 STUDIO_URL="https://smith.langchain.com/studio/?baseUrl=http://127.0.0.1:2024"
 CLOUDBEAVER_URL="http://localhost:8978"

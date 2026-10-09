@@ -6,7 +6,13 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
 from .. import vector_db as db
 from ..config import CHATBOT_THEME
-from ..llm_client import call_jev_decisions, hyde_llm, llm, reranker
+from ..llm_client import (
+    call_jev_decisions,
+    hyde_llm,
+    llm,
+    local_slm,
+    reranker,
+)
 from ..models import CritiqueResultSchema, HyDESchema, RAGResponseSchema
 from .state import AgentState
 
@@ -111,14 +117,43 @@ def hyde_node(state: AgentState) -> dict:
 
 
 # region BM25 Node
+def extract_bm25_keywords(query: str) -> str:
+    """Transforms conversational query into dense technical search tokens using local SLM."""
+    # Fast path: short queries (<= 3 words) are already clean search tokens
+    if len(query.split()) <= 3:
+        return query
+
+    system_prompt = (
+        "Extract only key technical terms, identifiers, API names, and core keywords from the user query for sparse keyword search.\n"
+        "Remove conversational filler, questions, and stop words.\n"
+        "Output ONLY space-separated keywords without punctuation or quotes."
+    )
+    messages = [
+        SystemMessage(content=system_prompt),
+        HumanMessage(content=query),
+    ]
+    try:
+        response = local_slm.invoke(messages)
+        raw_text = str(response.content).strip().replace("\n", " ").replace(",", " ")
+        cleaned = " ".join(raw_text.split())
+        if cleaned and len(cleaned) > 2:
+            return cleaned
+    except Exception as exc:
+        print(f"[BM25-extract_keywords] Local SLM extraction notice: {exc}")
+    return query
+
+
 def bm25_node(state: AgentState) -> dict:
-    """Retrieves candidate document chunks using pure BM25 sparse keyword matching."""
-    query = state["query"].strip()
-    print(f"[BM25-bm25_node] Executing BM25 keyword retrieval for: '{query[:60]}...'")
-    docs = db.retrieve_bm25(query=query, top_k=10)
+    """Retrieves candidate document chunks using sanitized BM25 sparse keyword matching."""
+    raw_query = state["query"].strip()
+    sparse_query = extract_bm25_keywords(raw_query)
+    print(
+        f"[BM25-bm25_node] Query: '{raw_query[:50]}' -> Extracted keywords: '{sparse_query}'"
+    )
+    docs = db.retrieve_bm25(query=sparse_query, top_k=10)
     print(f"[BM25-bm25_node] Retrieved {len(docs)} BM25 candidate chunks")
     return {
-        "bm25_query": query,
+        "bm25_query": sparse_query,
         "bm25_docs": docs,
     }
 
@@ -339,26 +374,16 @@ def generate_node(state: AgentState) -> dict:
 
 # region Refusal Node
 def refuse_node(state: AgentState) -> dict:
-    """Generates polite refusal for off-theme queries."""
-    system_prompt = (
-        f"You are a customer service assistant bound to the theme '{CHATBOT_THEME}'.\n"
-        f"Politely explain that you can only assist with questions related to '{CHATBOT_THEME}', "
-        f"and decline to answer this query."
+    """Returns static polite refusal for off-theme queries without LLM invocation."""
+    query = state["query"]
+    print(
+        f"[Refusal-refuse_node] Generating static refusal for off-theme query: '{query[:60]}...'"
     )
-    messages = [
-        SystemMessage(content=system_prompt),
-        HumanMessage(content=state["query"]),
-    ]
-    structured_llm = llm.with_structured_output(RAGResponseSchema)
-    response: RAGResponseSchema = structured_llm.invoke(messages)
-    refusal_text = (
-        response.answer.strip()
-        if response and response.answer
-        else f"I can only assist with questions related to '{CHATBOT_THEME}'."
-    )
-
     return {
-        "draft_response": refusal_text,
+        "draft_response": (
+            f"I am a specialized technical assistant dedicated to {CHATBOT_THEME}. "
+            f"I can only assist with questions directly related to {CHATBOT_THEME} documentation and workflows."
+        ),
         "citations": [],
     }
 
@@ -371,21 +396,22 @@ def critique_node(state: AgentState) -> dict:
     """Evaluates draft answer quality and groundedness using System 2 LLM (DeepSeek)."""
     routing_decision = state.get("routing_decision")
     draft = state.get("draft_response", "")
-    docs = format_docs_context(state.get("ranked_docs", []))
     query = state["query"]
     retry_count = state.get("retry_count", 0)
 
     if routing_decision == "refuse":
         prompt = (
-            f"You are a strict quality control evaluator.\n"
-            f"Verify if the draft response is a polite and clear refusal to answer a query outside the theme: '{CHATBOT_THEME}'.\n"
+            f"You are a strict quality control auditor for '{CHATBOT_THEME}'.\n"
+            f"Verify if refusing the query is appropriate because it is outside the scope of '{CHATBOT_THEME}'.\n"
+            f"If the user query is actually related to '{CHATBOT_THEME}', reject the refusal so the agent can route properly.\n"
             f"User Query: {query}\n"
-            f"Draft Response: {draft}\n\n"
+            f"Draft Refusal: {draft}\n\n"
             "Return valid JSON matching CritiqueResultSchema:\n"
-            "- is_passed: true if polite refusal, false otherwise\n"
-            "- feedback: explanation string if false, otherwise null"
+            "- is_passed: true if query is off-topic and refusal is appropriate, false if the query was on-topic\n"
+            "- feedback: concise explanation if false, otherwise null"
         )
     else:
+        docs = format_docs_context(state.get("ranked_docs", []))
         prompt = (
             f"You are a quality control auditor verifying documentation answers.\n"
             f"User Query: {query}\n\n"

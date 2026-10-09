@@ -45,8 +45,17 @@ llm = ChatOpenAI(
     extra_body=_extra_body if _extra_body else None,
 )
 
-# Dedicated local Ollama SLM client for high-throughput HyDE passage generation
+# High-fidelity API LLM instance for HyDE passage generation (reverted to DeepSeek)
 hyde_llm = ChatOpenAI(
+    model=OPENROUTER_MODEL,
+    api_key=OPENROUTER_API_KEY,
+    base_url=OPENROUTER_BASE_URL,
+    temperature=0.0,
+    extra_body=_extra_body if _extra_body else None,
+)
+
+# Dedicated local Ollama SLM client (preserved for local routing, classification, or SFT evaluation)
+local_slm = ChatOpenAI(
     model=OLLAMA_MODEL,
     api_key="ollama",
     base_url=OLLAMA_BASE_URL,
