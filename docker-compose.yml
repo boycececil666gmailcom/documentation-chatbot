@@ -39,6 +39,25 @@ services:
     depends_on:
       - pgvector
 
+  # Local Ollama LLM Service for HyDE (http://localhost:11434)
+  ollama:
+    image: ollama/ollama:latest
+    container_name: documentation-chatbot-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    environment:
+      OLLAMA_KEEP_ALIVE: "24h"
+    volumes:
+      - ollama_data:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
   # LangGraph Agent API & Dev Server (http://localhost:2024)
   langgraph:
     build:
@@ -53,6 +72,7 @@ services:
       PYTHONPATH: /app
       PGVECTOR_URL: postgresql+psycopg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgrespassword123}@pgvector:5432/${POSTGRES_DB:-documentation_chatbot}
       LOG_LEVEL: WARNING
+      OLLAMA_BASE_URL: http://ollama:11434/v1
     env_file:
       - .env
     volumes:
@@ -61,8 +81,11 @@ services:
     depends_on:
       pgvector:
         condition: service_healthy
+      ollama:
+        condition: service_started
 
 volumes:
   pgvector_data:
   cloudbeaver_data:
+  ollama_data:
 # endregion

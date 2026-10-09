@@ -11,6 +11,8 @@ from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langsmith import traceable
 
 from .config import (
+    OLLAMA_BASE_URL,
+    OLLAMA_MODEL,
     OPENROUTER_API_KEY,
     OPENROUTER_BASE_URL,
     OPENROUTER_DECISIONS_URL,
@@ -43,13 +45,12 @@ llm = ChatOpenAI(
     extra_body=_extra_body if _extra_body else None,
 )
 
-# LLM instance configured with lower temperature for HyDE passage generation
+# Dedicated local Ollama SLM client for high-throughput HyDE passage generation
 hyde_llm = ChatOpenAI(
-    model=OPENROUTER_MODEL,
-    api_key=OPENROUTER_API_KEY,
-    base_url=OPENROUTER_BASE_URL,
+    model=OLLAMA_MODEL,
+    api_key="ollama",
+    base_url=OLLAMA_BASE_URL,
     temperature=0.0,
-    extra_body=_extra_body if _extra_body else None,
 )
 
 # Shared embeddings client for vector store and theme similarity

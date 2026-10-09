@@ -64,17 +64,29 @@ def generate_hypothetical_document(query: str) -> str:
         "Write a concise, realistic 2-3 sentence documentation excerpt that directly answers the user's query.\n"
         "Include relevant domain-specific concepts, APIs, and tool terminology if applicable. Output only the excerpt."
     )
+    messages = [
+        SystemMessage(content=system_prompt),
+        HumanMessage(content=query),
+    ]
     try:
-        messages = [
-            SystemMessage(content=system_prompt),
-            HumanMessage(content=query),
-        ]
         structured_llm = hyde_llm.with_structured_output(HyDESchema)
         res = cast(HyDESchema, structured_llm.invoke(messages))
         if res and res.passage:
             return res.passage.strip()
-    except Exception:
-        pass
+    except Exception as exc:
+        print(
+            f"[HyDE-generate_hypothetical_document] Structured invoke failed ({exc}), falling back to direct invoke..."
+        )
+        try:
+            raw_res = hyde_llm.invoke(messages)
+            if raw_res and raw_res.content:
+                text_content = str(raw_res.content).strip()
+                if text_content:
+                    return text_content
+        except Exception as inner_exc:
+            print(
+                f"[HyDE-generate_hypothetical_document] Direct invoke failed ({inner_exc})"
+            )
     return query
 
 
