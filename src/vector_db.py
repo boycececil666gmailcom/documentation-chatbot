@@ -128,31 +128,7 @@ def get_bm25_retriever() -> BM25Retriever:
 # endregion
 
 
-# region RAPTOR Expansion
-def get_ancestors(parent_id: str | None, max_depth: int = 3) -> list[dict]:
-    """Traverse parent_id up the tree to retrieve ancestor metadata list [parent, grandparent, ...]."""
-    if not parent_id:
-        return []
-    h_map, _ = get_hierarchy_index()
-    ancestors: list[dict] = []
-    curr_id = parent_id
-    depth = 0
-    while curr_id and curr_id in h_map and depth < max_depth:
-        p_meta = h_map[curr_id]
-        p_lead = p_meta.get("document", "")
-        lead_excerpt = p_lead[:300] + "..." if len(p_lead) > 300 else p_lead
-        ancestors.append(
-            {
-                "chunk_id": curr_id,
-                "title": p_meta.get("title", ""),
-                "lead_content": lead_excerpt,
-                "breadcrumb": p_meta.get("breadcrumb", ""),
-                "raptor_layer": p_meta.get("raptor_layer", 0),
-            }
-        )
-        curr_id = p_meta.get("parent_id")
-        depth += 1
-    return ancestors
+# region Hierarchy Context Expansion
 
 
 def expand_parent_context(docs: list[Document]) -> list[Document]:
@@ -217,33 +193,6 @@ def expand_parent_context(docs: list[Document]) -> list[Document]:
 
     return enriched
 
-
-def expand_raptor_context(docs: list[Document]) -> list[Document]:
-    """Enriches Document objects with RAPTOR ancestor lead preambles and hierarchical context."""
-    if not docs:
-        return []
-    h_map, c_map = get_hierarchy_index()
-
-    for doc in docs:
-        meta = doc.metadata
-        parent_id = meta.get("parent_id")
-        chunk_id = meta.get("chunk_id") or getattr(doc, "id", None)
-
-        # 1. Ancestor chain expansion (Leaf / Child -> Parent Overview)
-        if parent_id and "raptor_ancestors" not in meta:
-            meta["raptor_ancestors"] = get_ancestors(parent_id)
-
-        # 2. Children expansion (if current node is a high-level node Layer <= 1)
-        layer = meta.get("raptor_layer", 2)
-        if layer < 2 and chunk_id and "raptor_children_topics" not in meta:
-            children = c_map.get(str(chunk_id), [])
-            if children:
-                meta["raptor_children_topics"] = [
-                    {"title": c.get("title", ""), "breadcrumb": c.get("breadcrumb", "")}
-                    for c in children[:5]
-                ]
-
-    return docs
 
 
 def expand_raptor_candidates(

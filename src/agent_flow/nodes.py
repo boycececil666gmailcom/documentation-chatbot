@@ -170,49 +170,19 @@ def get_chunk_key(doc: Document) -> str:
 
 
 def format_docs_context(docs: list[Document]) -> str:
-    """Formats ranked documents into a structured prompt context block enriched with RAPTOR hierarchy."""
+    """Formats ranked documents into a structured prompt context block."""
     if not docs:
         return "No matching vector documents found."
 
     context_blocks: list[str] = []
     for i, doc in enumerate(docs, 1):
-        meta = doc.metadata
         topic_key = get_chunk_key(doc)
-        relevance_score = meta.get("relevance_score", 0.0)
-        layer = meta.get("raptor_layer", 2)
+        relevance_score = doc.metadata.get("relevance_score", 0.0)
+        layer = doc.metadata.get("raptor_layer", 2)
 
         header = f"--- [Rank {i}] Topic: [{topic_key}] (RAPTOR Layer: {layer}, Relevance Score: {relevance_score:.4f}) ---"
-
-        # RAPTOR Hierarchical Context Expansion (Ancestors & Parent Scope)
-        hierarchy_lines: list[str] = []
-        ancestors = meta.get("raptor_ancestors", [])
-        if ancestors:
-            for anc in reversed(ancestors):
-                anc_layer = anc.get("raptor_layer", 0)
-                anc_title = anc.get("title", "")
-                anc_lead = anc.get("lead_content", "")
-                if anc_lead:
-                    hierarchy_lines.append(
-                        f"- [RAPTOR Level {anc_layer} Overview ({anc_title})]: {anc_lead}"
-                    )
-
-        children_topics = meta.get("raptor_children_topics", [])
-        if children_topics:
-            sub_titles = [c.get("title", "") for c in children_topics if c.get("title")]
-            if sub_titles:
-                hierarchy_lines.append(
-                    f"- [RAPTOR Sub-topics in Branch]: {', '.join(sub_titles)}"
-                )
-
-        block_components = [header]
-        if hierarchy_lines:
-            block_components.append(
-                "[RAPTOR Hierarchical Context]:\n" + "\n".join(hierarchy_lines)
-            )
-
         raw_content = doc.page_content
-        block_components.append(f"[Detailed Source Content]:\n{raw_content}")
-        context_blocks.append("\n".join(block_components))
+        context_blocks.append(f"{header}\n[Detailed Source Content]:\n{raw_content}")
 
     return "\n\n".join(context_blocks)
 
@@ -280,14 +250,11 @@ def rerank_node(state: AgentState) -> dict:
         else []
     )
 
-    # RAPTOR Bottom-Up Context Expansion: Attach ancestor scope and summaries to top ranked docs
-    enriched_ranked_docs = db.expand_raptor_context(ranked_docs)
-
     print(
-        f"[Rerank-rerank_node] Ranked {len(expanded_docs)} parent-enriched candidates -> {len(enriched_ranked_docs)} top ranked docs"
+        f"[Rerank-rerank_node] Ranked {len(expanded_docs)} parent-enriched candidates -> {len(ranked_docs)} top ranked docs"
     )
     return {
-        "ranked_docs": enriched_ranked_docs,
+        "ranked_docs": ranked_docs,
         "search_query": search_query,
     }
 
@@ -312,7 +279,7 @@ def generate_node(state: AgentState) -> dict:
         "3. INLINE CITATIONS: For every factual claim, guideline, or step in your answer, immediately attach an inline citation specifying the exact source topic in brackets (e.g., 'To reduce draw calls, batch static meshes [Performance > Meshes].'). Place citations directly on the relevant sentence or bullet point, NOT as a vague generic dump at the end.\n"
         "4. CITATIONS ARRAY: In the 'citations' field, include only the topic names that you actively cited inline in the answer.\n"
         "5. MISSING INFO: If the context does not contain the answer, state 'Information not available in documentation' and return an empty citations list.\n"
-        "6. HIERARCHICAL CONTEXT: Utilize the [RAPTOR Hierarchical Context] to understand the architectural domain and high-level concepts, while synthesizing specific technical details, APIs, and instructions from [Detailed Source Content]."
+        "6. HIERARCHICAL CONTEXT: Utilize the hierarchical path [Path] and [Parent Overview] in the source content to understand the architectural domain and high-level concepts, while synthesizing specific technical details, APIs, and instructions from the section content."
     )
 
     messages = [
