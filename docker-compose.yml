@@ -64,10 +64,10 @@ services:
         ollama serve &
         PID=$$!
         sleep 2
-        ollama pull ${OLLAMA_MODEL:-qwen2.5:1.5b}
+        ollama pull ${OLLAMA_MODEL:-qwen3.5:4b}
         wait $$PID
     healthcheck:
-      test: ["CMD-SHELL", "ollama list | grep -q ${OLLAMA_MODEL:-qwen2.5:1.5b}"]
+      test: ["CMD-SHELL", "ollama list | grep -q ${OLLAMA_MODEL:-qwen3.5:4b}"]
       interval: 5s
       timeout: 10s
       retries: 25
