@@ -116,12 +116,13 @@ def hyde_node(state: AgentState) -> dict:
 # endregion
 
 
-# region BM25 Node
-def extract_bm25_keywords(query: str) -> str:
-    """Transforms conversational query into dense technical search tokens using local SLM."""
+# region Local SLM Keyword Extraction Node
+def local_slm_keyword_extraction_node(state: AgentState) -> dict:
+    """Extracts dense technical keywords from conversational query using local Ollama SLM."""
+    raw_query = state["query"].strip()
     # Fast path: short queries (<= 3 words) are already clean search tokens
-    if len(query.split()) <= 3:
-        return query
+    if len(raw_query.split()) <= 3:
+        return {"bm25_query": raw_query}
 
     system_prompt = (
         "Extract only key technical terms, identifiers, API names, and core keywords from the user query for sparse keyword search.\n"
@@ -130,28 +131,37 @@ def extract_bm25_keywords(query: str) -> str:
     )
     messages = [
         SystemMessage(content=system_prompt),
-        HumanMessage(content=query),
+        HumanMessage(content=raw_query),
     ]
+    sparse_query = raw_query
     try:
         response = local_slm.invoke(messages)
         raw_text = str(response.content).strip().replace("\n", " ").replace(",", " ")
         cleaned = " ".join(raw_text.split())
         if cleaned and len(cleaned) > 2:
-            return cleaned
+            sparse_query = cleaned
     except Exception as exc:
-        print(f"[BM25-extract_keywords] Local SLM extraction notice: {exc}")
-    return query
+        print(f"[LocalSLM-extract_keywords] Local SLM extraction notice: {exc}")
+
+    print(
+        f"[LocalSLM-local_slm_keyword_extraction_node] Query: '{raw_query[:50]}' -> Extracted keywords: '{sparse_query}'"
+    )
+    return {
+        "bm25_query": sparse_query,
+    }
 
 
+# endregion
+
+
+# region BM25 Node
 def bm25_node(state: AgentState) -> dict:
     """Retrieves candidate document chunks using sanitized BM25 sparse keyword matching."""
-    raw_query = state["query"].strip()
-    sparse_query = extract_bm25_keywords(raw_query)
-    print(
-        f"[BM25-bm25_node] Query: '{raw_query[:50]}' -> Extracted keywords: '{sparse_query}'"
-    )
+    sparse_query = state.get("bm25_query") or state["query"].strip()
     docs = db.retrieve_bm25(query=sparse_query, top_k=10)
-    print(f"[BM25-bm25_node] Retrieved {len(docs)} BM25 candidate chunks")
+    print(
+        f"[BM25-bm25_node] Retrieved {len(docs)} BM25 candidate chunks for query: '{sparse_query}'"
+    )
     return {
         "bm25_query": sparse_query,
         "bm25_docs": docs,

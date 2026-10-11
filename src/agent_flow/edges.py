@@ -6,16 +6,16 @@ from .state import AgentState
 
 # region Edges
 def route_from_router(state: AgentState) -> str | list[str]:
-    """Routes state from router: directly to 'refuse', 'bm25', 'hyde', or concurrent ['bm25', 'hyde']."""
+    """Routes state from router: directly to 'refuse', 'local_slm_keyword_extraction', 'hyde', or concurrent ['local_slm_keyword_extraction', 'hyde']."""
     decision = state.get("routing_decision", "hyde_bm25")
     if decision == "refuse":
         return "refuse"
     if decision == "bm25":
-        return "bm25"
+        return "local_slm_keyword_extraction"
     if decision == "hyde":
         return "hyde"
-    # Concurrent Fan-out: triggers both bm25 and hyde in the same Pregel Superstep
-    return ["bm25", "hyde"]
+    # Concurrent Fan-out: triggers both local_slm_keyword_extraction and hyde in the same Pregel Superstep
+    return ["local_slm_keyword_extraction", "hyde"]
 
 
 def route_after_critique(state: AgentState) -> str:

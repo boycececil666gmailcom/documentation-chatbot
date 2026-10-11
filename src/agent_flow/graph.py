@@ -8,6 +8,7 @@ from .nodes import (
     critique_node,
     generate_node,
     hyde_node,
+    local_slm_keyword_extraction_node,
     refuse_node,
     rerank_node,
     router_node,
@@ -22,6 +23,9 @@ workflow = StateGraph(AgentState, input=InputState)
 
 # Add Nodes
 workflow.add_node("router", router_node)
+workflow.add_node(
+    "local_slm_keyword_extraction", local_slm_keyword_extraction_node
+)
 workflow.add_node("bm25", bm25_node)
 workflow.add_node("hyde", hyde_node)
 workflow.add_node(
@@ -38,8 +42,11 @@ workflow.set_entry_point("router")
 workflow.add_conditional_edges(
     "router",
     route_from_router,
-    ["refuse", "bm25", "hyde"],
+    ["refuse", "local_slm_keyword_extraction", "hyde"],
 )
+
+# Local SLM keyword extraction connects sequentially into BM25 retriever
+workflow.add_edge("local_slm_keyword_extraction", "bm25")
 
 # Parallel retrieval branches converge into context_expansion_by_hierarchy before reranking
 workflow.add_edge("bm25", "context_expansion_by_hierarchy")

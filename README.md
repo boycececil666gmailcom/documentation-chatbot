@@ -77,9 +77,10 @@ flowchart TB
     Start(["__start__"]) --> Router["router<br/>(TypeSafe Jev Intent Routing)"]
 
     Router -.->|"routing_decision: hyde"| Hyde["hyde<br/>(Domain HyDE & Dense Search)"]
-    Router -.->|"routing_decision: bm25"| BM25["bm25<br/>(Sparse Keyword Match)"]
+    Router -.->|"routing_decision: bm25"| LocalSLM["local_slm_keyword_extraction<br/>(Local Ollama SLM Extraction)"]
     Router -.->|"routing_decision: refuse"| Refuse["refuse<br/>(Domain Boundary Refusal)"]
 
+    LocalSLM --> BM25["bm25<br/>(Sparse Keyword Match)"]
     Hyde --> ContextExpansion["context_expansion_by_hierarchy<br/>(Context Expansion by Hierarchy)"]
     BM25 --> ContextExpansion
 
@@ -93,6 +94,7 @@ flowchart TB
 
     classDef startEnd fill:#E2E8F0,stroke:#64748B,stroke-width:2px,color:#0F172A;
     classDef routerNode fill:#EDE9FE,stroke:#8B5CF6,stroke-width:2px,color:#4C1D95;
+    classDef slmNode fill:#FDE68A,stroke:#D97706,stroke-width:2px,color:#78350F;
     classDef hydeNode fill:#ECFCCB,stroke:#84CC16,stroke-width:2px,color:#365314;
     classDef bm25Node fill:#EDE9FE,stroke:#8B5CF6,stroke-width:2px,color:#4C1D95;
     classDef refuseNode fill:#CFFAFE,stroke:#06B6D4,stroke-width:2px,color:#164E63;
@@ -103,6 +105,7 @@ flowchart TB
 
     class Start,End startEnd;
     class Router routerNode;
+    class LocalSLM slmNode;
     class Hyde hydeNode;
     class BM25 bm25Node;
     class Refuse refuseNode;
@@ -117,8 +120,9 @@ flowchart TB
 | Node | Execution Role & Technology | Input State Attributes | Output State Updates |
 | :--- | :--- | :--- | :--- |
 | `router` | **Intent Classification & Routing**<br/>Invokes TypeSafe Jev Decisions API (`typesafe/jev-1.13`) on OpenRouter to evaluate question intent and select optimal retrieval strategy (`refuse`, `bm25`, `hyde`, `hyde_bm25`). | `query` | `routing_decision`<br/>`bm25_docs: []`<br/>`hyde_docs: []` |
+| `local_slm_keyword_extraction` | **Local SLM Keyword Extraction**<br/>Uses dedicated local Ollama SLM (`qwen2.5:1.5b`) to distill conversational queries into clean, dense technical search keywords for sparse matching. | `query` | `bm25_query` |
 | `hyde` | **Hypothetical Document Expansion & Dense Search**<br/>Generates domain-injected 2-3 sentence hypothetical documentation excerpt using `hyde_llm`, then performs vector similarity search against PGVector (`raptor_chunks`). | `query` | `hypothetical_doc`<br/>`hyde_docs` |
-| `bm25` | **Sparse Keyword Retrieval**<br/>Executes exact keyword matching against in-memory `BM25Retriever` constructed from PostgreSQL document chunks to reliably locate API names and identifiers. | `query` | `bm25_query`<br/>`bm25_docs` |
+| `bm25` | **Sparse Keyword Retrieval**<br/>Executes exact keyword matching against in-memory `BM25Retriever` constructed from PostgreSQL document chunks to reliably locate API names and identifiers. | `bm25_query` | `bm25_query`<br/>`bm25_docs` |
 | `context_expansion_by_hierarchy` | **Context Expansion by Hierarchy**<br/>Merges sparse and dense candidates, deduplicates them, and executes real-time resolution of parent document overviews and related subtopics via `parent_id` and `child_ids` before FlashRank reranking. | `bm25_docs`<br/>`hyde_docs` | `expanded_docs` |
 | `rerank` | **Neural Reranking**<br/>Computes semantic relevance scores of hierarchy-enriched candidate chunks against the query using FlashRank cross-encoder and outputs top ranked documents. | `expanded_docs`<br/>`query` | `ranked_docs`<br/>`search_query` |
 | `generate` | **Rank-Prioritized Grounded Synthesis**<br/>Synthesizes answers strictly grounded in ranked context chunks and macro-level RAPTOR parent summaries with inline citations `[Topic Name]`. Validates citations against actual retrieved topic keys. | `ranked_docs`<br/>`query`<br/>`critique_feedback` | `draft_response`<br/>`citations` |
