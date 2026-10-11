@@ -1,0 +1,4 @@
+2026-10-11 22:46:29 [DatasetSynth-eval] Extracted 32 samples from eval dataset.
+2026-10-11 22:46:29 [DatasetSynth-hierarchy] Synthesized 3577 samples from hierarchy nodes.
+2026-10-11 22:46:29 [DatasetSynth-main] Exported 2651 train samples to C:\Users\boyce\OneDrive\Desktop\documentation-chatbot\qlora_slm\data\train.jsonl
+2026-10-11 22:46:29 [DatasetSynth-main] Exported 468 val samples to C:\Users\boyce\OneDrive\Desktop\documentation-chatbot\qlora_slm\data\val.jsonl
