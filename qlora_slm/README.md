@@ -1,7 +1,7 @@
 # QLoRA Technical Keyword Distillation SLM
 
 ## 1. Overview
-This module houses the end-to-end QLoRA (4-bit quantized Low-Rank Adaptation) fine-tuning pipeline for the Local SLM (`qwen3.5:4b` / `Qwen/Qwen2.5-3B-Instruct`).
+This module houses the end-to-end QLoRA (4-bit quantized Low-Rank Adaptation) fine-tuning pipeline for the Local SLM (`kanzi-slm-extractor` / `Qwen/Qwen2.5-3B-Instruct`).
 The dedicated downstream task is **Extractive Keyword Distillation for BM25 Sparse Search**:
 - **Input**: Conversational/complex user query (e.g., "Kanziで3Dノードのプロパティを変更するC++ APIコードを教えてください")
 - **Task**: Strip syntax noise, questions, and conversational fillers without hallucinating terms.
@@ -15,8 +15,8 @@ The dedicated downstream task is **Extractive Keyword Distillation for BM25 Spar
 | :--- | :--- | :--- |
 | **Base Model (4-bit NF4)** | ~2.2 - 2.5 GB | `bitsandbytes` 4-bit NF4 double quantization |
 | **LoRA Trainable Parameters** | ~0.3 GB | Rank $r=16$, $\alpha=32$ across all linear projections |
-| **Activation & Optimizer** | ~2.5 - 3.0 GB | `paged_adamw_8bit` + Gradient Checkpointing + Batch Size 4 |
-| **Total Peak Training VRAM** | **~5.5 - 5.8 GB** | Fully contained within **8GB GPU memory** |
+| **Activation & Optimizer** | ~4.5 GB | `paged_adamw_8bit` + Gradient Checkpointing + Batch Size 4 |
+| **Total Peak Training VRAM** | **~7.1 GB** | Fully contained within **8GB GPU memory** (RTX 4060 Laptop) |
 
 ---
 
@@ -25,16 +25,19 @@ The dedicated downstream task is **Extractive Keyword Distillation for BM25 Spar
 ```text
 qlora_slm/
 ├── config.py                 # Central hyperparameter & path configurations
-├── 1.synth_dataset.py        # Dataset synthesizer (Train: 2,657 / Val: 469 samples)
-├── 2.train_qlora.py          # 4-bit NF4 QLoRA training engine with SFTTrainer
+├── 1.synth_dataset.py        # Dataset synthesizer (Train: 2,651 / Val: 468 samples)
+├── 2.train_qlora.py          # 4-bit NF4 QLoRA training engine with transformers.Trainer
 ├── 3.eval_and_benchmark.py   # Benchmark measuring Recall, Precision, and Token Latency
-├── 4.export_and_merge.py     # LoRA adapter merging & Ollama Modelfile generation
+├── 4.export_and_merge.py     # LoRA adapter merging (FP16) & Modelfile generation
+├── Modelfile                 # Version-controlled Ollama registration template
 ├── data/
 │   ├── train.jsonl           # ChatML formatted training data
 │   └── val.jsonl             # ChatML formatted validation data
 ├── outputs/
+│   ├── kanzi_slm.gguf        # Quantized Q8_0 GGUF binary (3.28 GB)
+│   ├── Modelfile.gguf        # Ollama container configuration
 │   ├── qlora_adapter/        # Trained LoRA checkpoints and adapter config
-│   └── merged_model/         # Merged full model and Ollama Modelfile
+│   └── merged_model/         # Merged full FP16 model (6.17 GB)
 └── logs/                     # Training & benchmark runtime logs
 ```
 
@@ -49,7 +52,7 @@ uv run python qlora_slm/1.synth_dataset.py
 ```
 
 ### Step 2: Run 4-bit QLoRA Training
-Trains adapter weights while freezing 4-bit base model parameters:
+Trains adapter weights while freezing 4-bit base model parameters (Triton-safe for Windows):
 ```bash
 uv run python qlora_slm/2.train_qlora.py
 ```
@@ -61,8 +64,8 @@ uv run python qlora_slm/3.eval_and_benchmark.py
 ```
 
 ### Step 4: Merge Adapter & Register to Ollama
-Merges LoRA adapter into FP16 model and generates `Modelfile`:
+Merges LoRA adapter into FP16 model, converts to GGUF, and registers with Ollama container:
 ```bash
 uv run python qlora_slm/4.export_and_merge.py
-ollama create kanzi-slm-extractor -f qlora_slm/outputs/merged_model/Modelfile
+docker exec -i documentation-chatbot-ollama ollama create kanzi-slm-extractor -f /outputs/Modelfile.gguf
 ```

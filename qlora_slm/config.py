@@ -2,12 +2,17 @@
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 # Paths
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BASE_DIR.parent
 DATA_DIR = BASE_DIR / "data"
 OUTPUT_DIR = BASE_DIR / "outputs"
 LOGS_DIR = BASE_DIR / "logs"
+
+# Load environment variables from project root .env
+load_dotenv(PROJECT_ROOT / ".env")
 
 # Ensure runtime directories exist
 DATA_DIR.mkdir(parents=True, exist_ok=True)

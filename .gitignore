@@ -9,17 +9,21 @@ __pycache__/
 *.pyo
 *.pyd
 
-# Environment variables (secret keys, model configs)
+# Environment variables & secrets
 .env
 *.tfvars
+k8s/secrets.yaml
 
-# Terraform files
+# Terraform state & cache
+.terraform/
 *.tfstate
 *.tfstate.*
-.terraform/
+.terraform.lock.hcl
 tfplan
+infra/TF/hashicorp/
+*.exe
 
-# IDE / Editor files
+# IDE & Editor files
 .vscode/
 .idea/
 .project
@@ -30,22 +34,28 @@ tfplan
 .coverage
 htmlcov/
 
-# Kubernetes secrets
-k8s/secrets.yaml
-
-# Terraform state & cache
-.terraform/
-*.tfstate
-*.tfstate.backup
-.terraform.lock.hcl
-*.tfvars
-infra/TF/hashicorp/
-*.exe
-
 # LangGraph dev checkpoint caches
 .langgraph_api/
 *.pckl
 
+# OS generated files
+.DS_Store
+Thumbs.db
+
 # Large dataset files (>100MB rejected by GitHub)
 knowledge_base/kanzi_rag_chunks.json
 
+# QLoRA SLM model outputs, adapters, and large binaries (>100MB)
+qlora_slm/outputs/*
+!qlora_slm/outputs/.gitkeep
+qlora_slm/logs/
+qlora_slm/llama_cpp/
+qlora_slm/convert_hf_to_gguf.py
+
+# Machine Learning binary model formats
+*.safetensors
+*.gguf
+*.bin
+*.pt
+*.pth
+*.onnx

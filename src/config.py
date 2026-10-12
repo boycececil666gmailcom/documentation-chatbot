@@ -31,9 +31,9 @@ OPENROUTER_PROVIDER_SORT = os.getenv("OPENROUTER_PROVIDER_SORT", "throughput")
 _ignore_env = os.getenv("OPENROUTER_PROVIDER_IGNORE", "wafer")
 OPENROUTER_PROVIDER_IGNORE = [p.strip() for p in _ignore_env.split(",") if p.strip()]
 
-# Ollama HyDE Settings
+# Ollama SLM & Keyword Extraction Settings
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen3.5:4b")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "kanzi-slm-extractor")
 
 # PGVector Database Settings
 PGVECTOR_URL = os.getenv(

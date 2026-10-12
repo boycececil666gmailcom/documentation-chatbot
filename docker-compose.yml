@@ -50,6 +50,7 @@ services:
       OLLAMA_KEEP_ALIVE: "24h"
     volumes:
       - ollama_data:/root/.ollama
+      - ./qlora_slm/outputs:/outputs:ro
     deploy:
       resources:
         reservations:
@@ -64,10 +65,16 @@ services:
         ollama serve &
         PID=$$!
         sleep 2
-        ollama pull ${OLLAMA_MODEL:-qwen3.5:4b}
+        if [ -f /outputs/Modelfile.gguf ] && [ -f /outputs/kanzi_slm.gguf ]; then
+          ollama create ${OLLAMA_MODEL:-kanzi-slm-extractor} -f /outputs/Modelfile.gguf
+        elif [ -f /outputs/Modelfile ]; then
+          ollama create ${OLLAMA_MODEL:-kanzi-slm-extractor} -f /outputs/Modelfile
+        else
+          ollama pull ${OLLAMA_MODEL:-kanzi-slm-extractor} || true
+        fi
         wait $$PID
     healthcheck:
-      test: ["CMD-SHELL", "ollama list | grep -q ${OLLAMA_MODEL:-qwen3.5:4b}"]
+      test: ["CMD-SHELL", "ollama list | grep -q ${OLLAMA_MODEL:-kanzi-slm-extractor}"]
       interval: 5s
       timeout: 10s
       retries: 25

@@ -1,0 +1,10 @@
+# Ollama Modelfile for GGUF Fine-Tuned Model
+FROM /outputs/kanzi_slm.gguf
+
+PARAMETER temperature 0.0
+PARAMETER top_p 0.95
+PARAMETER num_predict 32
+PARAMETER stop "<|im_end|>"
+PARAMETER stop "<|endoftext|>"
+
+SYSTEM "Extract only key technical terms, identifiers, API names, and core keywords from the user query for sparse keyword search. Remove conversational filler, questions, and stop words. Output ONLY space-separated keywords without punctuation or quotes."

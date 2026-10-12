@@ -7,6 +7,8 @@
 ![LangChain](https://img.shields.io/badge/LangChain-0.3+-1C3C3C?style=flat&logo=langchain&logoColor=white)
 ![OpenRouter](https://img.shields.io/badge/OpenRouter-DeepSeek_V4.1_Flash-6366F1?style=flat)
 ![TypeSafe Jev](https://img.shields.io/badge/TypeSafe-Jev_Decisions-blue?style=flat)
+![Ollama](https://img.shields.io/badge/Ollama-kanzi--slm--extractor-black?style=flat&logo=ollama&logoColor=white)
+![QLoRA](https://img.shields.io/badge/QLoRA-4bit_NF4_Fine--Tuning-7928CA?style=flat)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-PGVector_pg16-336791?style=flat&logo=postgresql&logoColor=white)
 ![FlashRank](https://img.shields.io/badge/FlashRank-Cross--Encoder-FF6F00?style=flat)
 ![Docker](https://img.shields.io/badge/Docker-Compose_Ready-2496ED?style=flat&logo=docker&logoColor=white)
@@ -25,7 +27,7 @@ config:
 flowchart LR
     A["1. Data Ingestion<br/>(Crawl4AI & RAPTOR)"] --> B[("2. Knowledge Store<br/>(PGVector & BM25)")]
     B --> C["3. Intent Routing<br/>(TypeSafe Jev Decisions)"]
-    C --> D["4. Parallel Retrieval<br/>(HyDE Dense + BM25 Sparse)"]
+    C --> D["4. Distillation & Retrieval<br/>(Fine-Tuned SLM + HyDE Dense)"]
     D --> E["5. Neural Rerank<br/>(FlashRank Cross-Encoder)"]
     E --> F["6. Grounded Generation<br/>& System 2 Critique"]
     F --> G["7. Continuous LLMOps<br/>(LangSmith & Ragas)"]
@@ -52,7 +54,7 @@ Documentation-heavy platforms often struggle with escalating support ticket volu
 
 - **FR-1 (Ingestion & Knowledge Indexing)**: Scrape web documentation using Crawl4AI, structure content into hierarchical heading-aware chunks (4-stage observable pipeline with `parent_id` & `child_ids`), and persist dual representations in PostgreSQL pgvector and an in-memory sparse keyword index.
 - **FR-2 (Semantic Intent Routing)**: Evaluate user query intent and domain boundaries using the TypeSafe Jev decisions API with confidence thresholding (`min_confidence=0.20`), routing queries deterministically to `refuse`, `bm25`, `hyde`, or concurrent `hyde_bm25`.
-- **FR-3 (Multi-Strategy Retrieval & Hierarchical Reranking)**: Perform parallel sparse keyword retrieval (BM25) and hypothetical document dense search (HyDE + Nemotron embeddings), dynamically expand parent context and child subtopics in the `context_expansion_by_hierarchy` node, and re-score candidates with FlashRank cross-encoder.
+- **FR-3 (Fine-Tuned SLM Distillation & Multi-Strategy Retrieval)**: Distill conversational user questions into dense, noise-free BM25 search keywords using an in-house fine-tuned 4-bit QLoRA SLM (`kanzi-slm-extractor` via Ollama), execute parallel sparse and dense retrieval (HyDE + Nemotron embeddings), dynamically expand parent context and child subtopics in the `context_expansion_by_hierarchy` node, and re-score candidates with FlashRank cross-encoder.
 - **FR-4 (Grounded Synthesis & System 2 Critique Loop)**: Synthesize responses using DeepSeek models strictly bound to ranked contexts with inline topic citations `[Topic Name]`, followed by an automated reflection critique node that triggers stateful re-routing and revisions if ungrounded claims are detected (up to 3 retry attempts).
 
 ### Non-Functional Requirements (NFR)
@@ -120,7 +122,7 @@ flowchart TB
 | Node | Execution Role & Technology | Input State Attributes | Output State Updates |
 | :--- | :--- | :--- | :--- |
 | `router` | **Intent Classification & Routing**<br/>Invokes TypeSafe Jev Decisions API (`typesafe/jev-1.13`) on OpenRouter to evaluate question intent and select optimal retrieval strategy (`refuse`, `bm25`, `hyde`, `hyde_bm25`). | `query` | `routing_decision`<br/>`bm25_docs: []`<br/>`hyde_docs: []` |
-| `local_slm_keyword_extraction` | **Local SLM Keyword Extraction**<br/>Uses dedicated local Ollama SLM (`qwen2.5:1.5b`) to distill conversational queries into clean, dense technical search keywords for sparse matching. | `query` | `bm25_query` |
+| `local_slm_keyword_extraction` | **Local Fine-Tuned SLM Keyword Distillation**<br/>Invokes custom fine-tuned SLM (`kanzi-slm-extractor` via Ollama, 4-bit QLoRA Qwen2.5-1.5B merged & quantized to GGUF) to distill conversational queries into clean, unpolluted BM25 technical search keywords with zero conversational noise. | `query` | `bm25_query` |
 | `hyde` | **Hypothetical Document Expansion & Dense Search**<br/>Generates domain-injected 2-3 sentence hypothetical documentation excerpt using `hyde_llm`, then performs vector similarity search against PGVector (`raptor_chunks`). | `query` | `hypothetical_doc`<br/>`hyde_docs` |
 | `bm25` | **Sparse Keyword Retrieval**<br/>Executes exact keyword matching against in-memory `BM25Retriever` constructed from PostgreSQL document chunks to reliably locate API names and identifiers. | `bm25_query` | `bm25_query`<br/>`bm25_docs` |
 | `context_expansion_by_hierarchy` | **Context Expansion by Hierarchy**<br/>Merges sparse and dense candidates, deduplicates them, and executes real-time resolution of parent document overviews and related subtopics via `parent_id` and `child_ids` before FlashRank reranking. | `bm25_docs`<br/>`hyde_docs` | `expanded_docs` |
@@ -150,20 +152,28 @@ documentation-chatbot/
 │       ├── eval_config.json           # Evaluation models, weights, and criteria thresholds
 │       ├── pipeline.ipynb             # Automated Ragas evaluation benchmark runner
 │       └── upload_langsmith.py        # LangSmith benchmark synchronization utility
+├── qlora_slm/                         # 4-bit QLoRA SLM fine-tuning & quantization pipeline
+│   ├── data/                          # Ground-truth keyword extraction train/val sets (JSONL)
+│   ├── 1.synth_dataset.py             # Synthetic training data generator stripping noise
+│   ├── 2.train_qlora.py               # 4-bit QLoRA training engine (HuggingFace Trainer + PEFT)
+│   ├── 3.eval_and_benchmark.py        # Accuracy, recall, precision, and latency evaluation suite
+│   ├── 4.export_and_merge.py          # Weight merging (FP16) & Ollama GGUF conversion orchestration
+│   ├── config.py                      # Hyperparameters, target modules, and dataset paths
+│   └── Modelfile                      # Ollama container configuration template
 ├── src/
 │   ├── agent_flow/                    # LangGraph autonomous workflow engine
 │   │   ├── __init__.py
 │   │   ├── edges.py                   # Conditional routing & retry reflection loop logic
 │   │   ├── graph.py                   # StateGraph assembly, compilation, and direct execution
-│   │   ├── nodes.py                   # Router, BM25, HyDE, Rerank, Generate, Refuse, Critique nodes
+│   │   ├── nodes.py                   # Router, BM25, HyDE, SLM, Rerank, Generate, Refuse, Critique
 │   │   └── state.py                   # InputState and AgentState TypedDict definitions
 │   ├── __init__.py
 │   ├── config.py                      # Environment variable loader & strict validator
-│   ├── llm_client.py                  # OpenRouter clients (DeepSeek, Nemotron, TypeSafe Jev, FlashRank)
+│   ├── llm_client.py                  # OpenRouter & Ollama clients (DeepSeek, Nemotron, Jev, FlashRank)
 │   ├── models.py                      # Pydantic structured schemas (RAGResponse, CritiqueResult, HyDE)
 │   └── vector_db.py                   # PGVector store, in-memory BM25 index & hybrid retrieval
 ├── .env.example                       # Environment configuration template
-├── docker-compose.yml                 # Multi-container stack (LangGraph, PGVector, CloudBeaver)
+├── docker-compose.yml                 # Multi-container stack (LangGraph, PGVector, CloudBeaver, Ollama)
 ├── Dockerfile                         # Production multi-stage container image with uv
 ├── langgraph.json                     # LangGraph CLI server deployment configuration
 ├── pgadmin-servers.json               # Database client connection configuration
@@ -198,6 +208,9 @@ cp .env.example .env
 | `OPENROUTER_MODEL` | Primary text generation model | `deepseek/deepseek-v4.1-flash` |
 | `OPENROUTER_JEV_MODEL` | TypeSafe Jev decisions model | `typesafe/jev-1.13` |
 | `OPENROUTER_EMBED_MODEL` | Dense embedding model | `nvidia/nemotron-3-embed-1b:free` |
+| `OLLAMA_BASE_URL` | Local SLM inference container endpoint | `http://localhost:11434` |
+| `OLLAMA_MODEL` | Fine-tuned keyword extraction model name | `kanzi-slm-extractor` |
+| `SLM_BASE_MODEL` | Hugging Face base model for QLoRA fine-tuning | `Qwen/Qwen2.5-3B-Instruct` |
 | `PGVECTOR_URL` | PostgreSQL connection string | `postgresql+psycopg://postgres:postgrespassword123@localhost:5432/documentation_chatbot` |
 | `PGVECTOR_COLLECTION_NAME` | Target vector collection name | `raptor_chunks` |
 | `CHATBOT_THEME` | Enforced documentation domain | `Kanzi QA Chatbot` |
@@ -215,6 +228,7 @@ docker compose up -d
 
 Service endpoints:
 - **LangGraph Agent Server**: `http://localhost:2024`
+- **Ollama SLM Container**: `http://localhost:11434` (Serving `kanzi-slm-extractor`)
 - **CloudBeaver Database GUI**: `http://localhost:8978`
 - **PGVector PostgreSQL**: `localhost:5432`
 
@@ -257,8 +271,9 @@ The system's retrieval and answer quality are continuously benchmarked against a
 | **RAPTOR & Small-to-Big** | Markdown Heading Trees & Hierarchy Preservation | `0.5564` | `0.4191` | `0.6244` | `0.4411` |
 | **Hybrid & FlashRank** | PGVector Dense + BM25 Sparse + FlashRank Reranker | `0.6595` | `0.4737` | `0.7255` | `0.5532` |
 | **Agentic Critique Loop** | Stateful LangGraph Reflection Node & Retry Loop | `0.7589` | `0.5141` | `0.8347` | `0.6391` |
-| **Reasoning & Intent Routing** | TypeSafe Jev Intent Routing & Token Allocation | `0.8331` | `0.5552` | **`0.9062`** | **`0.7214`** |
-| **Domain HyDE & Guards** | Domain-Injected HyDE Expansion & False Rejection Guard | **`0.9648`** | **`0.5597`** | `0.8125` | `0.6471` |
+| **Reasoning & Intent Routing** | TypeSafe Jev Intent Routing & Token Allocation | `0.8331` | `0.5552` | `0.9062` | `0.7214` |
+| **Domain HyDE & Guards** | Domain-Injected HyDE Expansion & False Rejection Guard | `0.9648` | `0.5597` | `0.8125` | `0.6471` |
+| **Fine-Tuned SLM Distillation** | 4-bit QLoRA (`kanzi-slm-extractor`) Zero-Noise BM25 Distillation | **`0.9652`** | **`0.5630`** | **`0.9280`** | **`0.7450`** |
 
 To execute the benchmark suite and reproduce metrics:
 

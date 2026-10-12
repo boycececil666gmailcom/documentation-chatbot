@@ -14,10 +14,11 @@ from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
     BitsAndBytesConfig,
+    DataCollatorForSeq2Seq,
+    Trainer,
     TrainerCallback,
     TrainingArguments,
 )
-from trl import SFTTrainer
 
 from config import (
     BASE_MODEL_NAME,
@@ -25,7 +26,6 @@ from config import (
     DATA_DIR,
     GRAD_ACCUMULATION_STEPS,
     LEARNING_RATE,
-    LOGS_DIR,
     LORA_ALPHA,
     LORA_DROPOUT,
     LORA_R,
@@ -33,7 +33,6 @@ from config import (
     NUM_EPOCHS,
     OUTPUT_ADAPTER_DIR,
     TARGET_MODULES,
-    WARMUP_RATIO,
     WEIGHT_DECAY,
     get_logger,
 )
@@ -74,7 +73,7 @@ def train():
     bnb_config = BitsAndBytesConfig(
         load_in_4bit=True,
         bnb_4bit_quant_type="nf4",
-        bnb_4bit_compute_dtype=torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16,
+        bnb_4bit_compute_dtype=torch.float16,
         bnb_4bit_use_double_quant=True,
     )
 
@@ -113,14 +112,22 @@ def train():
         },
     )
 
-    def formatting_prompts_func(example):
-        output_texts = []
-        for msgs in example["messages"]:
-            text = tokenizer.apply_chat_template(
-                msgs, tokenize=False, add_generation_prompt=False
-            )
-            output_texts.append(text)
-        return output_texts
+    def preprocess_function(example):
+        msgs = example["messages"]
+        prompt_text = tokenizer.apply_chat_template(msgs[:2], tokenize=False, add_generation_prompt=True)
+        full_text = tokenizer.apply_chat_template(msgs, tokenize=False, add_generation_prompt=False)
+
+        prompt_ids = tokenizer(prompt_text, add_special_tokens=False)["input_ids"]
+        full_ids = tokenizer(full_text, add_special_tokens=False, max_length=MAX_SEQ_LENGTH, truncation=True)["input_ids"]
+
+        labels = list(full_ids)
+        for i in range(min(len(prompt_ids), len(labels))):
+            labels[i] = -100
+
+        return {"input_ids": full_ids, "labels": labels}
+
+    tokenized_train = dataset["train"].map(preprocess_function, remove_columns=dataset["train"].column_names)
+    tokenized_val = dataset["validation"].map(preprocess_function, remove_columns=dataset["validation"].column_names)
 
     # 5. Training Arguments
     training_args = TrainingArguments(
@@ -130,28 +137,26 @@ def train():
         gradient_accumulation_steps=GRAD_ACCUMULATION_STEPS,
         learning_rate=LEARNING_RATE,
         num_train_epochs=NUM_EPOCHS,
-        warmup_ratio=WARMUP_RATIO,
+        warmup_steps=20,
         weight_decay=WEIGHT_DECAY,
         lr_scheduler_type="cosine",
-        logging_dir=str(LOGS_DIR / "runs"),
+        optim="paged_adamw_8bit",
         logging_steps=10,
         eval_strategy="epoch",
         save_strategy="epoch",
-        fp16=not torch.cuda.is_bf16_supported() and torch.cuda.is_available(),
-        bf16=torch.cuda.is_bf16_supported() if torch.cuda.is_available() else False,
+        fp16=True,
         gradient_checkpointing=True,
         report_to="none",
     )
 
-    # 6. SFTTrainer Execution
-    trainer = SFTTrainer(
+    data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer, pad_to_multiple_of=8)
+
+    # 6. Trainer Execution
+    trainer = Trainer(
         model=model,
-        train_dataset=dataset["train"],
-        eval_dataset=dataset["validation"],
-        peft_config=lora_config,
-        formatting_func=formatting_prompts_func,
-        max_seq_length=MAX_SEQ_LENGTH,
-        tokenizer=tokenizer,
+        train_dataset=tokenized_train,
+        eval_dataset=tokenized_val,
+        data_collator=data_collator,
         args=training_args,
         callbacks=[TrainingLogCallback()],
     )
