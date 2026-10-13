@@ -11,8 +11,8 @@ from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langsmith import traceable
 
 from .config import (
-    OLLAMA_BASE_URL,
-    OLLAMA_MODEL,
+    LOCAL_SLM_BASE_URL,
+    LOCAL_SLM_MODEL,
     OPENROUTER_API_KEY,
     OPENROUTER_BASE_URL,
     OPENROUTER_DECISIONS_URL,
@@ -54,11 +54,11 @@ hyde_llm = ChatOpenAI(
     extra_body=_extra_body if _extra_body else None,
 )
 
-# Dedicated local Ollama SLM client (preserved for local routing, classification, or SFT evaluation)
+# Dedicated local SLM client (vLLM for keyword distillation)
 local_slm = ChatOpenAI(
-    model=OLLAMA_MODEL,
-    api_key="ollama",
-    base_url=OLLAMA_BASE_URL,
+    model=LOCAL_SLM_MODEL,
+    api_key="none",
+    base_url=LOCAL_SLM_BASE_URL,
     temperature=0.0,
 )
 
@@ -71,8 +71,22 @@ embeddings = OpenAIEmbeddings(
     model_kwargs={"encoding_format": "float"},
 )
 
-# Shared Cross-Encoder reranker instance
-reranker = FlashrankRerank(client=Ranker(), top_n=5)
+# Shared Cross-Encoder reranker instance (lazily initialized to prevent import latency)
+class _LazyReranker:
+    def __init__(self, top_n: int = 5) -> None:
+        self._top_n = top_n
+        self._instance: FlashrankRerank | None = None
+
+    def _get_instance(self) -> FlashrankRerank:
+        if self._instance is None:
+            self._instance = FlashrankRerank(client=Ranker(), top_n=self._top_n)
+        return self._instance
+
+    def compress_documents(self, documents: Any, query: str, **kwargs: Any) -> Any:
+        return self._get_instance().compress_documents(documents, query, **kwargs)
+
+
+reranker = _LazyReranker(top_n=5)
 # endregion
 
 

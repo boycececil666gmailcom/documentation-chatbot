@@ -85,17 +85,17 @@ log_step "2" "4" "Checking Images and Pulling/Building If Missing"
 
 PG_IMAGE="pgvector/pgvector:pg16"
 CB_IMAGE="dbeaver/cloudbeaver:latest"
-OL_IMAGE="ollama/ollama:latest"
+VLLM_IMAGE="vllm/vllm-openai:latest"
 LG_IMAGE="documentation-chatbot-langgraph:latest"
 
 # Pull remote third-party images if not present locally
 if ! "$DOCKER_BIN" image inspect "${PG_IMAGE}" >/dev/null 2>&1 || \
    ! "$DOCKER_BIN" image inspect "${CB_IMAGE}" >/dev/null 2>&1 || \
-   ! "$DOCKER_BIN" image inspect "${OL_IMAGE}" >/dev/null 2>&1; then
+   ! "$DOCKER_BIN" image inspect "${VLLM_IMAGE}" >/dev/null 2>&1; then
     echo "[${SCRIPT_NAME}] One or more base images missing from local cache. Pulling..."
     "$DOCKER_BIN" compose pull
 else
-    echo "[${SCRIPT_NAME}] Remote base images (${PG_IMAGE}, ${CB_IMAGE}, ${OL_IMAGE}) are cached locally."
+    echo "[${SCRIPT_NAME}] Remote base images (${PG_IMAGE}, ${CB_IMAGE}, ${VLLM_IMAGE}) are cached locally."
 fi
 
 # Build local application container if not present
@@ -117,37 +117,54 @@ echo "[${SCRIPT_NAME}] Waiting for services to become responsive..."
 # Wait for pgvector container health status
 WAIT_SECS=0
 MAX_WAIT=45
+PG_READY=false
 while [ "$WAIT_SECS" -lt "$MAX_WAIT" ]; do
     HEALTH_STATUS=$("$DOCKER_BIN" inspect --format='{{json .State.Health.Status}}' documentation-chatbot-pgvector 2>/dev/null || echo "\"starting\"")
     if [ "$HEALTH_STATUS" == "\"healthy\"" ]; then
         echo "[${SCRIPT_NAME}] PostgreSQL pgvector container is healthy."
+        PG_READY=true
         break
     fi
     sleep 2
     WAIT_SECS=$((WAIT_SECS + 2))
 done
+if [ "$PG_READY" != "true" ]; then
+    echo "[${SCRIPT_NAME}] Error: PostgreSQL pgvector failed to become healthy within ${MAX_WAIT}s."
+    exit 1
+fi
 
-# Wait for Ollama service endpoint
+# Wait for vLLM service endpoint
 WAIT_SECS=0
-while [ "$WAIT_SECS" -lt "$MAX_WAIT" ]; do
-    if curl -s -f -o /dev/null "http://localhost:11434" 2>/dev/null; then
-        echo "[${SCRIPT_NAME}] Ollama container is responsive on port 11434."
+MAX_VLLM_WAIT=90
+VLLM_READY=false
+while [ "$WAIT_SECS" -lt "$MAX_VLLM_WAIT" ]; do
+    if curl -s -f -o /dev/null "http://localhost:8000/health" 2>/dev/null; then
+        echo "[${SCRIPT_NAME}] vLLM inference server is responsive on port 8000."
+        VLLM_READY=true
         break
     fi
-    sleep 2
-    WAIT_SECS=$((WAIT_SECS + 2))
+    sleep 3
+    WAIT_SECS=$((WAIT_SECS + 3))
 done
+if [ "$VLLM_READY" != "true" ]; then
+    echo "[${SCRIPT_NAME}] Warning: vLLM was not responsive within ${MAX_VLLM_WAIT}s. Model weights may still be loading."
+fi
 
 # Wait for LangGraph dev endpoint
 WAIT_SECS=0
+LG_READY=false
 while [ "$WAIT_SECS" -lt "$MAX_WAIT" ]; do
     if curl -s -f -o /dev/null "http://localhost:2024/ok" 2>/dev/null; then
         echo "[${SCRIPT_NAME}] LangGraph Agent Server is responsive on port 2024."
+        LG_READY=true
         break
     fi
     sleep 2
     WAIT_SECS=$((WAIT_SECS + 2))
 done
+if [ "$LG_READY" != "true" ]; then
+    echo "[${SCRIPT_NAME}] Warning: LangGraph server on port 2024 is still initializing."
+fi
 
 # Wait for CloudBeaver web endpoint
 WAIT_SECS=0
@@ -175,5 +192,5 @@ sleep 1
 echo "[${SCRIPT_NAME}] Opening CloudBeaver Web GUI: ${CLOUDBEAVER_URL}"
 open_browser "${CLOUDBEAVER_URL}"
 
-echo -e "\n\033[1;92m[${SCRIPT_NAME}] Boot sequence completed successfully.\033[0m\n"
+echo -e "\n\033[1;92m[${SCRIPT_NAME}] Boot sequence completed successfully with vLLM engine.\033[0m\n"
 # endregion

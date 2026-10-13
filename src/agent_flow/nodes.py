@@ -56,6 +56,8 @@ def router_node(state: AgentState) -> dict:
         "routing_decision": decision,
         "bm25_docs": [],
         "hyde_docs": [],
+        "expanded_docs": [],
+        "ranked_docs": [],
     }
 
 
@@ -118,7 +120,7 @@ def hyde_node(state: AgentState) -> dict:
 
 # region Local SLM Keyword Extraction Node
 def local_slm_keyword_extraction_node(state: AgentState) -> dict:
-    """Extracts dense technical keywords from conversational query using local Ollama SLM."""
+    """Extracts dense technical keywords from conversational query using local vLLM SLM."""
     raw_query = state["query"].strip()
     # Fast path: short queries (<= 3 words) are already clean search tokens
     if len(raw_query.split()) <= 3:
