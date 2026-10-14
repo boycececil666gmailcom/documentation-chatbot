@@ -181,7 +181,11 @@ done
 # region LaunchMonitoring
 log_step "4" "4" "Launching Monitoring UIs in Browser"
 
-STUDIO_URL="https://smith.langchain.com/studio/?baseUrl=http://127.0.0.1:2024"
+# Detect dynamic tunnel URL if present in logs, else fallback to local
+STUDIO_URL=$("$DOCKER_BIN" logs documentation-chatbot-langgraph 2>&1 | grep -o 'https://smith\.langchain\.com/studio/?baseUrl=https://[a-zA-Z0-9.-]*\.trycloudflare\.com' | tail -n 1 || true)
+if [ -z "${STUDIO_URL}" ]; then
+    STUDIO_URL="https://smith.langchain.com/studio/?baseUrl=http://127.0.0.1:2024"
+fi
 CLOUDBEAVER_URL="http://localhost:8978"
 
 echo "[${SCRIPT_NAME}] Opening LangSmith Studio UI: ${STUDIO_URL}"

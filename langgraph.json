@@ -3,7 +3,24 @@
     "."
   ],
   "graphs": {
-    "agent": "src.agent_flow.graph:agent_graph"
+    "agent": "src.agent_flow.graph:agent_graph",
+    "enterprise-rag-engine": "src.agent_flow.graph:agent_graph"
   },
-  "env": ".env"
+  "env": ".env",
+  "http": {
+    "cors": {
+      "allow_origins": [
+        "https://smith.langchain.com",
+        "https://eu.smith.langchain.com"
+      ],
+      "allow_methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      "allow_headers": ["*"],
+      "allow_credentials": true,
+      "expose_headers": [
+        "x-pagination-total",
+        "x-pagination-next",
+        "content-location"
+      ]
+    }
+  }
 }

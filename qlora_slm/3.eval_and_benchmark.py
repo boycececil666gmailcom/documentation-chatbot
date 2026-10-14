@@ -1,4 +1,4 @@
-# region Evaluation and Benchmarking
+#region Benchmark
 import json
 import re
 import sys
@@ -21,7 +21,7 @@ from config import (
     get_logger,
 )
 
-logger = get_logger("EvalBenchmark", "eval_benchmark.log")
+logger = get_logger("EvalBenchmark", "3.eval_and_benchmark.log")
 
 
 def calculate_keyword_metrics(predicted: str, target: str) -> tuple[float, float]:

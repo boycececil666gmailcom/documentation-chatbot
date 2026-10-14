@@ -1,4 +1,4 @@
-# region Export and Model Merge
+#region Merge
 import os
 import sys
 from pathlib import Path
@@ -19,7 +19,7 @@ from config import (
     get_logger,
 )
 
-logger = get_logger("ExportMerge", "export_merge.log")
+logger = get_logger("ExportMerge", "4.export_and_merge.log")
 
 
 def merge_and_export():

@@ -1,4 +1,4 @@
-# region QLoRA Training Engine
+#region Imports
 import os
 import sys
 from pathlib import Path
@@ -8,13 +8,15 @@ if str(CURRENT_DIR) not in sys.path:
     sys.path.insert(0, str(CURRENT_DIR))
 
 import torch
-from datasets import load_dataset
+from datasets import Dataset, load_dataset
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
     BitsAndBytesConfig,
     DataCollatorForSeq2Seq,
+    PreTrainedModel,
+    PreTrainedTokenizerBase,
     Trainer,
     TrainerCallback,
     TrainingArguments,
@@ -36,8 +38,10 @@ from config import (
     WEIGHT_DECAY,
     get_logger,
 )
+#endregion
 
-logger = get_logger("QLoRA-Train", "train_qlora.log")
+#region Scaffolding
+logger = get_logger("QLoRA-Train", "2.train_qlora.log")
 
 
 class TrainingLogCallback(TrainerCallback):
@@ -54,84 +58,10 @@ class TrainingLogCallback(TrainerCallback):
             )
 
 
-def train():
-    """Executes 4-bit QLoRA fine-tuning for technical keyword extraction."""
-    train_file = DATA_DIR / "train.jsonl"
-    val_file = DATA_DIR / "val.jsonl"
-
-    if not train_file.exists():
-        raise FileNotFoundError(
-            f"Training dataset not found at {train_file}. Run 1.synth_dataset.py first."
-        )
-
-    logger.info(f"[QLoRA-train] Target base model: {BASE_MODEL_NAME}")
-    logger.info(f"[QLoRA-train] Device available: CUDA={torch.cuda.is_available()}")
-    if torch.cuda.is_available():
-        logger.info(f"[QLoRA-train] GPU device: {torch.cuda.get_device_name(0)}")
-
-    # 1. 4-bit Quantization Configuration (BitsAndBytes)
-    bnb_config = BitsAndBytesConfig(
-        load_in_4bit=True,
-        bnb_4bit_quant_type="nf4",
-        bnb_4bit_compute_dtype=torch.float16,
-        bnb_4bit_use_double_quant=True,
-    )
-
-    # 2. Tokenizer & Model Initialization
-    tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL_NAME, trust_remote_code=True)
-    if tokenizer.pad_token is None:
-        tokenizer.pad_token = tokenizer.eos_token
-    tokenizer.padding_side = "right"
-
-    model = AutoModelForCausalLM.from_pretrained(
-        BASE_MODEL_NAME,
-        quantization_config=bnb_config,
-        device_map="auto",
-        trust_remote_code=True,
-    )
-    model = prepare_model_for_kbit_training(model)
-
-    # 3. LoRA Configuration
-    lora_config = LoraConfig(
-        r=LORA_R,
-        lora_alpha=LORA_ALPHA,
-        target_modules=TARGET_MODULES,
-        lora_dropout=LORA_DROPOUT,
-        bias="none",
-        task_type="CAUSAL_LM",
-    )
-    model = get_peft_model(model, lora_config)
-    model.print_trainable_parameters()
-
-    # 4. Dataset Loading & Preprocessing
-    dataset = load_dataset(
-        "json",
-        data_files={
-            "train": str(train_file),
-            "validation": str(val_file),
-        },
-    )
-
-    def preprocess_function(example):
-        msgs = example["messages"]
-        prompt_text = tokenizer.apply_chat_template(msgs[:2], tokenize=False, add_generation_prompt=True)
-        full_text = tokenizer.apply_chat_template(msgs, tokenize=False, add_generation_prompt=False)
-
-        prompt_ids = tokenizer(prompt_text, add_special_tokens=False)["input_ids"]
-        full_ids = tokenizer(full_text, add_special_tokens=False, max_length=MAX_SEQ_LENGTH, truncation=True)["input_ids"]
-
-        labels = list(full_ids)
-        for i in range(min(len(prompt_ids), len(labels))):
-            labels[i] = -100
-
-        return {"input_ids": full_ids, "labels": labels}
-
-    tokenized_train = dataset["train"].map(preprocess_function, remove_columns=dataset["train"].column_names)
-    tokenized_val = dataset["validation"].map(preprocess_function, remove_columns=dataset["validation"].column_names)
-
-    # 5. Training Arguments
-    training_args = TrainingArguments(
-        output_dir=str(OUTPUT_ADAPTER_DIR),
+def create_training_args(output_dir: Path) -> TrainingArguments:
+    """Encapsulates training argument scaffolding and optimization policies."""
+    return TrainingArguments(
+        output_dir=str(output_dir),
         per_device_train_batch_size=BATCH_SIZE,
         per_device_eval_batch_size=BATCH_SIZE,
         gradient_accumulation_steps=GRAD_ACCUMULATION_STEPS,
@@ -148,29 +78,130 @@ def train():
         gradient_checkpointing=True,
         report_to="none",
     )
+#endregion
 
-    data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer, pad_to_multiple_of=8)
+#region Model
+def setup_qlora_model(model_name: str) -> tuple[PreTrainedModel, PreTrainedTokenizerBase]:
+    """Configures 4-bit NF4 quantization and attaches trainable LoRA adapters."""
+    bnb_config = BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_quant_type="nf4",
+        bnb_4bit_compute_dtype=torch.float16,
+        bnb_4bit_use_double_quant=True,
+    )
 
-    # 6. Trainer Execution
+    tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+    tokenizer.padding_side = "right"
+
+    base_model = AutoModelForCausalLM.from_pretrained(
+        model_name,
+        quantization_config=bnb_config,
+        device_map="auto",
+        trust_remote_code=True,
+    )
+    kbit_model = prepare_model_for_kbit_training(base_model)
+
+    lora_config = LoraConfig(
+        r=LORA_R,
+        lora_alpha=LORA_ALPHA,
+        target_modules=TARGET_MODULES,
+        lora_dropout=LORA_DROPOUT,
+        bias="none",
+        task_type="CAUSAL_LM",
+    )
+    peft_model = get_peft_model(kbit_model, lora_config)
+    peft_model.print_trainable_parameters()
+
+    return peft_model, tokenizer
+#endregion
+
+#region Dataset
+def prepare_datasets(tokenizer: PreTrainedTokenizerBase) -> tuple[Dataset, Dataset]:
+    """Loads and tokenizes dataset with prompt token masking (-100 labels)."""
+    train_file = DATA_DIR / "train.jsonl"
+    val_file = DATA_DIR / "val.jsonl"
+
+    if not train_file.exists():
+        raise FileNotFoundError(
+            f"Training dataset not found at {train_file}. Run 1.synth_dataset.py first."
+        )
+
+    dataset = load_dataset(
+        "json",
+        data_files={
+            "train": str(train_file),
+            "validation": str(val_file),
+        },
+    )
+
+    def mask_prompt_labels(example: dict) -> dict:
+        messages = example["messages"]
+        prompt_text = tokenizer.apply_chat_template(messages[:2], tokenize=False, add_generation_prompt=True)
+        full_text = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=False)
+
+        prompt_ids = tokenizer(prompt_text, add_special_tokens=False)["input_ids"]
+        full_ids = tokenizer(
+            full_text,
+            add_special_tokens=False,
+            max_length=MAX_SEQ_LENGTH,
+            truncation=True,
+        )["input_ids"]
+
+        # Mask prompt token loss so backprop penalizes only extracted keyword tokens
+        labels = list(full_ids)
+        for idx in range(min(len(prompt_ids), len(labels))):
+            labels[idx] = -100
+
+        return {"input_ids": full_ids, "labels": labels}
+
+    tokenized_train = dataset["train"].map(
+        mask_prompt_labels,
+        remove_columns=dataset["train"].column_names,
+    )
+    tokenized_val = dataset["validation"].map(
+        mask_prompt_labels,
+        remove_columns=dataset["validation"].column_names,
+    )
+
+    return tokenized_train, tokenized_val
+#endregion
+
+#region Core
+def train() -> None:
+    """Executes end-to-end 4-bit QLoRA training workflow."""
+    logger.info(
+        f"[QLoRA-train] Starting training for {BASE_MODEL_NAME} "
+        f"(CUDA={torch.cuda.is_available()})"
+    )
+
+    # 1. Model & Tokenizer Setup
+    model, tokenizer = setup_qlora_model(BASE_MODEL_NAME)
+
+    # 2. Dataset Tokenization & Prompt Masking
+    tokenized_train, tokenized_val = prepare_datasets(tokenizer)
+
+    # 3. Trainer Initialization
     trainer = Trainer(
         model=model,
         train_dataset=tokenized_train,
         eval_dataset=tokenized_val,
-        data_collator=data_collator,
-        args=training_args,
+        data_collator=DataCollatorForSeq2Seq(tokenizer=tokenizer, pad_to_multiple_of=8),
+        args=create_training_args(OUTPUT_ADAPTER_DIR),
         callbacks=[TrainingLogCallback()],
     )
 
-    logger.info("[QLoRA-train] Starting model training...")
+    # 4. Training Run & Checkpoint Serialization
     trainer.train()
 
-    # 7. Save Adapter & Tokenizer
     OUTPUT_ADAPTER_DIR.mkdir(parents=True, exist_ok=True)
     trainer.model.save_pretrained(str(OUTPUT_ADAPTER_DIR))
     tokenizer.save_pretrained(str(OUTPUT_ADAPTER_DIR))
-    logger.info(f"[QLoRA-train] Fine-tuned LoRA adapter successfully saved to: {OUTPUT_ADAPTER_DIR}")
+    logger.info(f"[QLoRA-train] Fine-tuned LoRA adapter saved to: {OUTPUT_ADAPTER_DIR}")
+#endregion
 
-
+#region Main
 if __name__ == "__main__":
     train()
-# endregion
+#endregion

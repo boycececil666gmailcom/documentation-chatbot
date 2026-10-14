@@ -1,4 +1,4 @@
-# region Dataset Synthesizer
+#region Synthesizer
 import json
 import random
 import re
@@ -11,7 +11,7 @@ if str(CURRENT_DIR) not in sys.path:
 
 from config import DATA_DIR, PROJECT_ROOT, SYSTEM_PROMPT, get_logger
 
-logger = get_logger("DatasetSynth", "synth_dataset.log")
+logger = get_logger("DatasetSynth", "1.synth_dataset.log")
 
 STOP_WORDS = {
     "a", "about", "above", "after", "again", "against", "all", "am", "an", "and",
