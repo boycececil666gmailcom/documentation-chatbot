@@ -83,25 +83,46 @@ fi
 # region ImageVerification
 log_step "2" "4" "Checking Images and Pulling/Building If Missing"
 
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "agentic-rag")
+echo "[${SCRIPT_NAME}] Detected Git branch: ${CURRENT_BRANCH}"
+
+if [ "${CURRENT_BRANCH}" = "agentic-rag" ]; then
+    COMPOSE_FILE="docker-compose.yml"
+    STACK_PREFIX="documentation-chatbot-agentic"
+    LG_CONTAINER="documentation-chatbot-agentic-langgraph"
+    LG_PORT="2025"
+    PG_CONTAINER="documentation-chatbot-agentic-pgvector"
+    VLLM_PORT="8001"
+    CB_PORT="8979"
+else
+    COMPOSE_FILE="docker-compose.yml"
+    STACK_PREFIX="documentation-chatbot"
+    LG_CONTAINER="documentation-chatbot-langgraph"
+    LG_PORT="2024"
+    PG_CONTAINER="documentation-chatbot-pgvector"
+    VLLM_PORT="8000"
+    CB_PORT="8978"
+fi
+
 PG_IMAGE="pgvector/pgvector:pg16"
 CB_IMAGE="dbeaver/cloudbeaver:latest"
 VLLM_IMAGE="vllm/vllm-openai:latest"
-LG_IMAGE="documentation-chatbot-langgraph:latest"
+LG_IMAGE="${STACK_PREFIX}-langgraph:latest"
 
 # Pull remote third-party images if not present locally
 if ! "$DOCKER_BIN" image inspect "${PG_IMAGE}" >/dev/null 2>&1 || \
    ! "$DOCKER_BIN" image inspect "${CB_IMAGE}" >/dev/null 2>&1 || \
    ! "$DOCKER_BIN" image inspect "${VLLM_IMAGE}" >/dev/null 2>&1; then
     echo "[${SCRIPT_NAME}] One or more base images missing from local cache. Pulling..."
-    "$DOCKER_BIN" compose pull
+    "$DOCKER_BIN" compose -f "${COMPOSE_FILE}" pull
 else
     echo "[${SCRIPT_NAME}] Remote base images (${PG_IMAGE}, ${CB_IMAGE}, ${VLLM_IMAGE}) are cached locally."
 fi
 
 # Build local application container if not present
 if ! "$DOCKER_BIN" image inspect "${LG_IMAGE}" >/dev/null 2>&1; then
-    echo "[${SCRIPT_NAME}] LangGraph application image missing. Building container..."
-    "$DOCKER_BIN" compose build
+    echo "[${SCRIPT_NAME}] LangGraph application image (${LG_IMAGE}) missing. Building container..."
+    "$DOCKER_BIN" compose -f "${COMPOSE_FILE}" build
 else
     echo "[${SCRIPT_NAME}] Application image (${LG_IMAGE}) is already cached locally."
 fi
@@ -110,18 +131,18 @@ fi
 # region ComposeStartup
 log_step "3" "4" "Starting Docker Compose Stack and Verifying Health"
 
-"$DOCKER_BIN" compose up -d
+"$DOCKER_BIN" compose -f "${COMPOSE_FILE}" up -d
 
-echo "[${SCRIPT_NAME}] Waiting for services to become responsive..."
+echo "[${SCRIPT_NAME}] Waiting for services in stack [${STACK_PREFIX}] to become responsive..."
 
 # Wait for pgvector container health status
 WAIT_SECS=0
 MAX_WAIT=45
 PG_READY=false
 while [ "$WAIT_SECS" -lt "$MAX_WAIT" ]; do
-    HEALTH_STATUS=$("$DOCKER_BIN" inspect --format='{{json .State.Health.Status}}' documentation-chatbot-pgvector 2>/dev/null || echo "\"starting\"")
+    HEALTH_STATUS=$("$DOCKER_BIN" inspect --format='{{json .State.Health.Status}}' "${PG_CONTAINER}" 2>/dev/null || echo "\"starting\"")
     if [ "$HEALTH_STATUS" == "\"healthy\"" ]; then
-        echo "[${SCRIPT_NAME}] PostgreSQL pgvector container is healthy."
+        echo "[${SCRIPT_NAME}] PostgreSQL pgvector container (${PG_CONTAINER}) is healthy."
         PG_READY=true
         break
     fi
@@ -138,8 +159,8 @@ WAIT_SECS=0
 MAX_VLLM_WAIT=90
 VLLM_READY=false
 while [ "$WAIT_SECS" -lt "$MAX_VLLM_WAIT" ]; do
-    if curl -s -f -o /dev/null "http://localhost:8000/health" 2>/dev/null; then
-        echo "[${SCRIPT_NAME}] vLLM inference server is responsive on port 8000."
+    if curl -s -f -o /dev/null "http://localhost:${VLLM_PORT}/health" 2>/dev/null; then
+        echo "[${SCRIPT_NAME}] vLLM inference server is responsive on port ${VLLM_PORT}."
         VLLM_READY=true
         break
     fi
@@ -154,8 +175,8 @@ fi
 WAIT_SECS=0
 LG_READY=false
 while [ "$WAIT_SECS" -lt "$MAX_WAIT" ]; do
-    if curl -s -f -o /dev/null "http://localhost:2024/ok" 2>/dev/null; then
-        echo "[${SCRIPT_NAME}] LangGraph Agent Server is responsive on port 2024."
+    if curl -s -f -o /dev/null "http://localhost:${LG_PORT}/ok" 2>/dev/null; then
+        echo "[${SCRIPT_NAME}] LangGraph Agent Server is responsive on port ${LG_PORT}."
         LG_READY=true
         break
     fi
@@ -163,14 +184,14 @@ while [ "$WAIT_SECS" -lt "$MAX_WAIT" ]; do
     WAIT_SECS=$((WAIT_SECS + 2))
 done
 if [ "$LG_READY" != "true" ]; then
-    echo "[${SCRIPT_NAME}] Warning: LangGraph server on port 2024 is still initializing."
+    echo "[${SCRIPT_NAME}] Warning: LangGraph server on port ${LG_PORT} is still initializing."
 fi
 
 # Wait for CloudBeaver web endpoint
 WAIT_SECS=0
 while [ "$WAIT_SECS" -lt "$MAX_WAIT" ]; do
-    if curl -s -f -o /dev/null "http://localhost:8978" 2>/dev/null; then
-        echo "[${SCRIPT_NAME}] CloudBeaver Web GUI is responsive on port 8978."
+    if curl -s -f -o /dev/null "http://localhost:${CB_PORT}" 2>/dev/null; then
+        echo "[${SCRIPT_NAME}] CloudBeaver Web GUI is responsive on port ${CB_PORT}."
         break
     fi
     sleep 2
@@ -182,11 +203,11 @@ done
 log_step "4" "4" "Launching Monitoring UIs in Browser"
 
 # Detect dynamic tunnel URL if present in logs, else fallback to local
-STUDIO_URL=$("$DOCKER_BIN" logs documentation-chatbot-langgraph 2>&1 | grep -o 'https://smith\.langchain\.com/studio/?baseUrl=https://[a-zA-Z0-9.-]*\.trycloudflare\.com' | tail -n 1 || true)
+STUDIO_URL=$("$DOCKER_BIN" logs "${LG_CONTAINER}" 2>&1 | grep -o 'https://smith\.langchain\.com/studio/?baseUrl=https://[a-zA-Z0-9.-]*\.trycloudflare\.com' | tail -n 1 || true)
 if [ -z "${STUDIO_URL}" ]; then
-    STUDIO_URL="https://smith.langchain.com/studio/?baseUrl=http://127.0.0.1:2024"
+    STUDIO_URL="https://smith.langchain.com/studio/?baseUrl=http://127.0.0.1:${LG_PORT}"
 fi
-CLOUDBEAVER_URL="http://localhost:8978"
+CLOUDBEAVER_URL="http://localhost:${CB_PORT}"
 
 echo "[${SCRIPT_NAME}] Opening LangSmith Studio UI: ${STUDIO_URL}"
 open_browser "${STUDIO_URL}"

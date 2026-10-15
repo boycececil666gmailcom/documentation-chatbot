@@ -60,3 +60,4 @@ qlora_slm/convert_hf_to_gguf.py
 *.pt
 *.pth
 *.onnx
+*.sql

@@ -1,33 +1,33 @@
 # region Compose Configuration
-name: documentation-chatbot
+name: documentation-chatbot-agentic
 
 services:
   pgvector:
     image: pgvector/pgvector:pg16
-    container_name: documentation-chatbot-pgvector
+    container_name: documentation-chatbot-agentic-pgvector
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      - "5433:5432"
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-documentation_chatbot}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgrespassword123}
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - pgvector_data:/var/lib/postgresql/data
+      - agentic_pgvector_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d documentation_chatbot"]
       interval: 5s
       timeout: 5s
       retries: 5
 
-  # Official DBeaver Web GUI (http://localhost:8978)
+  # Official DBeaver Web GUI (http://localhost:8979)
   cloudbeaver:
     image: dbeaver/cloudbeaver:latest
-    container_name: documentation-chatbot-cloudbeaver
+    container_name: documentation-chatbot-agentic-cloudbeaver
     restart: unless-stopped
     ports:
-      - "8978:8978"
+      - "8979:8978"
     environment:
       CLOUDBEAVER_APP_ANONYMOUS_ACCESS_ENABLED: "true"
       CLOUDBEAVER_APP_ANONYMOUS_USER_ROLE: "admin"
@@ -35,17 +35,17 @@ services:
       CLOUDBEAVER_APP_GRANT_CONNECTIONS_ACCESS_TO_ANONYMOUS_TEAM: "true"
       CLOUDBEAVER_APP_SUPPORTS_CUSTOM_CONNECTIONS: "true"
     volumes:
-      - cloudbeaver_data:/opt/cloudbeaver/workspace
+      - agentic_cloudbeaver_data:/opt/cloudbeaver/workspace
     depends_on:
       - pgvector
 
   # Local vLLM Service (High-throughput PagedAttention engine for merged HF weights)
   vllm:
     image: vllm/vllm-openai:latest
-    container_name: documentation-chatbot-vllm
+    container_name: documentation-chatbot-agentic-vllm
     restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "8001:8000"
     ipc: host
     deploy:
       resources:
@@ -70,22 +70,23 @@ services:
       retries: 25
       start_period: 30s
 
-  # LangGraph Agent API & Dev Server (http://localhost:2024)
+  # Agentic RAG LangGraph API & Dev Server (http://localhost:2025)
   langgraph:
     build:
       context: .
       dockerfile: Dockerfile
-    image: documentation-chatbot-langgraph:latest
-    container_name: documentation-chatbot-langgraph
+    image: documentation-chatbot-agentic-langgraph:latest
+    container_name: documentation-chatbot-agentic-langgraph
     restart: unless-stopped
     ports:
-      - "2024:2024"
+      - "2025:2024"
     command: ["langgraph", "dev", "--host", "0.0.0.0", "--port", "2024", "--no-browser", "--tunnel", "--server-log-level", "WARNING"]
     environment:
       PYTHONPATH: /app
       PGVECTOR_URL: postgresql+psycopg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgrespassword123}@pgvector:5432/${POSTGRES_DB:-documentation_chatbot}
       LOG_LEVEL: WARNING
       LOCAL_SLM_BASE_URL: ${CONTAINER_SLM_URL:-http://vllm:8000/v1}
+      LANGSMITH_PROJECT: ${LANGSMITH_PROJECT:-Enterprise-RAG-Agentic}
     env_file:
       - .env
     volumes:
@@ -99,6 +100,6 @@ services:
         condition: service_started
 
 volumes:
-  pgvector_data:
-  cloudbeaver_data:
+  agentic_pgvector_data:
+  agentic_cloudbeaver_data:
 # endregion
