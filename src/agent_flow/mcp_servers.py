@@ -263,10 +263,74 @@ class ExternalAPIServer:
 # endregion
 
 
+# region Knowledge
+class KnowledgeStoreServer:
+    """MCP Server exposing hybrid PGVector dense retrieval, BM25 keyword matching, and FlashRank neural reranking."""
+
+    @staticmethod
+    def hybrid_search(query: str, top_k: int = 10) -> list[dict[str, Any]]:
+        """Executes unified hybrid retrieval: fetches dense vector chunks and sparse BM25 matches, enriches with parent hierarchy, and neural reranks with FlashRank."""
+        from ..llm_client import reranker
+        from ..vector_db import (
+            expand_parent_context,
+            expand_raptor_candidates,
+            get_bm25_retriever,
+            retrieve_collapsed_tree,
+        )
+
+        dense_docs = []
+        try:
+            dense_docs = retrieve_collapsed_tree(query=query, top_k=top_k)
+        except Exception as exc:
+            print(f"[KnowledgeStoreServer] Dense search notice: {exc}")
+
+        sparse_docs = []
+        try:
+            bm25_retriever = get_bm25_retriever()
+            sparse_docs = bm25_retriever.invoke(query)
+        except Exception as exc:
+            print(f"[KnowledgeStoreServer] BM25 search notice: {exc}")
+
+        # Merge and deduplicate candidates across dense and sparse retrieval
+        seen: set[str] = set()
+        candidates = []
+        for doc in dense_docs + sparse_docs:
+            doc_id = str(doc.metadata.get("chunk_id") or doc.metadata.get("doc_id") or doc.page_content[:60])
+            if doc_id not in seen:
+                seen.add(doc_id)
+                candidates.append(doc)
+
+        if not candidates:
+            return []
+
+        # Hierarchy expansion (RAPTOR child links & parent document lead overview)
+        expanded = expand_raptor_candidates(candidates)
+        enriched = expand_parent_context(expanded)
+
+        # FlashRank Cross-Encoder reranking
+        ranked_docs = reranker.compress_documents(enriched, query)
+
+        return [
+            {
+                "id": str(d.metadata.get("chunk_id") or d.metadata.get("doc_id") or "chunk"),
+                "title": d.metadata.get("title") or d.metadata.get("breadcrumb") or "Documentation Passage",
+                "breadcrumb": d.metadata.get("breadcrumb", ""),
+                "content": d.page_content,
+                "url": d.metadata.get("url", ""),
+            }
+            for d in ranked_docs
+        ]
+
+
+# endregion
+
+
 # region Core
 def call_mcp_tool(server_name: str, tool_name: str, **kwargs: Any) -> Any:
     """Primary declarative MCP dispatcher delegating calls to registered servers."""
-    if server_name == "local_files":
+    if server_name == "knowledge_store":
+        server = KnowledgeStoreServer
+    elif server_name == "local_files":
         server = LocalFilesServer
     elif server_name == "database":
         server = DatabaseServer

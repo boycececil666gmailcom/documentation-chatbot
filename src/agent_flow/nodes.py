@@ -13,7 +13,12 @@ from ..models import (
     RAGResponseSchema,
     SubagentResultSchema,
 )
-from .mcp_servers import DatabaseServer, LocalFilesServer, SearchAPIServer
+from .mcp_servers import (
+    DatabaseServer,
+    KnowledgeStoreServer,
+    LocalFilesServer,
+    SearchAPIServer,
+)
 from .memory import LongTermMemoryManager, ShortTermMemoryManager
 from .state import AgentState, SubagentResult
 
@@ -160,20 +165,29 @@ def agent_local_files_node(state: AgentState) -> dict:
 
     # MCP Tool Calls
     search_query = f"{instruction} {query}".strip()
-    search_results = LocalFilesServer.search_local_documents(search_query, max_results=5)
     sources: list[str] = []
     excerpts: list[str] = []
 
-    for item in search_results:
-        sources.append(str(item.get("breadcrumb") or item.get("title")))
-        doc_detail = LocalFilesServer.read_document_section(item["id"])
-        if doc_detail:
-            excerpts.append(
-                f"### {doc_detail.get('title')} ({doc_detail.get('breadcrumb')})\n"
-                f"{doc_detail.get('content', '')[:1200]}"
-            )
-        else:
-            excerpts.append(f"### {item.get('title')}\n{item.get('excerpt', '')}")
+    # Priority 1: High-fidelity Hybrid Retrieval (PGVector + BM25 + FlashRank Reranker)
+    hybrid_matches = KnowledgeStoreServer.hybrid_search(search_query, top_k=6)
+    if hybrid_matches:
+        for m in hybrid_matches:
+            bc = m.get("breadcrumb") or m.get("title") or "Documentation Passage"
+            sources.append(bc)
+            excerpts.append(f"### {m.get('title')} [{bc}]\n{m.get('content', '')[:1200]}")
+    else:
+        # Priority 2: Fallback to local structured JSON file scanner
+        search_results = LocalFilesServer.search_local_documents(search_query, max_results=5)
+        for item in search_results:
+            sources.append(str(item.get("breadcrumb") or item.get("title")))
+            doc_detail = LocalFilesServer.read_document_section(item["id"])
+            if doc_detail:
+                excerpts.append(
+                    f"### {doc_detail.get('title')} ({doc_detail.get('breadcrumb')})\n"
+                    f"{doc_detail.get('content', '')[:1200]}"
+                )
+            else:
+                excerpts.append(f"### {item.get('title')}\n{item.get('excerpt', '')}")
 
     raw_evidence = "\n\n".join(excerpts) if excerpts else "No matching local documentation sections found."
 
