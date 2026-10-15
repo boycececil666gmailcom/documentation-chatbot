@@ -91,11 +91,12 @@ services:
     volumes:
       - ./src:/app/src
       - ./langgraph.json:/app/langgraph.json
+      - ./dataset:/app/dataset:ro
     depends_on:
       pgvector:
         condition: service_healthy
       vllm:
-        condition: service_healthy
+        condition: service_started
 
 volumes:
   pgvector_data:

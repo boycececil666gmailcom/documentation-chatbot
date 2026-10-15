@@ -1,81 +1,123 @@
 # region Imports
+import asyncio
+import sys
+from pathlib import Path
+
 from langgraph.graph import END, StateGraph
 
-from .edges import route_after_critique, route_from_router
-from .nodes import (
-    bm25_node,
-    context_expansion_by_hierarchy_node,
-    critique_node,
-    generate_node,
-    hyde_node,
-    local_slm_keyword_extraction_node,
-    refuse_node,
-    rerank_node,
-    router_node,
-)
-from .state import AgentState, InputState
+if __package__ is None or __package__ == "":
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+    from src.agent_flow.edges import route_after_critique, route_to_subagents
+    from src.agent_flow.nodes import (
+        agent_database_node,
+        agent_local_files_node,
+        agent_web_search_node,
+        critique_node,
+        memory_node,
+        orchestrator_node,
+        planning_node,
+        synthesize_node,
+    )
+    from src.agent_flow.state import AgentState, InputState
+else:
+    from .edges import route_after_critique, route_to_subagents
+    from .nodes import (
+        agent_database_node,
+        agent_local_files_node,
+        agent_web_search_node,
+        critique_node,
+        memory_node,
+        orchestrator_node,
+        planning_node,
+        synthesize_node,
+    )
+    from .state import AgentState, InputState
 
 # endregion
 
 
-# region Graph Definition
-workflow = StateGraph(AgentState, input=InputState)
+# region Graph
+workflow = StateGraph(AgentState, input_schema=InputState)
 
-# Add Nodes
-workflow.add_node("router", router_node)
-workflow.add_node(
-    "local_slm_keyword_extraction", local_slm_keyword_extraction_node
-)
-workflow.add_node("bm25", bm25_node)
-workflow.add_node("hyde", hyde_node)
-workflow.add_node(
-    "context_expansion_by_hierarchy", context_expansion_by_hierarchy_node
-)
-workflow.add_node("rerank", rerank_node)
-workflow.add_node("generate", generate_node)
-workflow.add_node("refuse", refuse_node)
+# Memory & Planning
+workflow.add_node("memory", memory_node)
+workflow.add_node("planning", planning_node)
+workflow.add_node("orchestrator", orchestrator_node)
+
+# Specialized Worker Subagents (Agent 1, Agent 2, Agent 3)
+workflow.add_node("agent_local_files", agent_local_files_node)
+workflow.add_node("agent_database", agent_database_node)
+workflow.add_node("agent_web_search", agent_web_search_node)
+
+# Synthesis & System 2 Quality Verification
+workflow.add_node("synthesize", synthesize_node)
 workflow.add_node("critique", critique_node)
 
-# Set Entry Point and Conditional Transitions
-workflow.set_entry_point("router")
+# Orchestration Transitions
+workflow.set_entry_point("memory")
+workflow.add_edge("memory", "planning")
+workflow.add_edge("planning", "orchestrator")
 
+# Dynamic Fan-Out from Orchestrator to Specialized Subagents
 workflow.add_conditional_edges(
-    "router",
-    route_from_router,
-    ["refuse", "local_slm_keyword_extraction", "hyde"],
+    "orchestrator",
+    route_to_subagents,
+    ["agent_local_files", "agent_database", "agent_web_search"],
 )
 
-# Local SLM keyword extraction connects sequentially into BM25 retriever
-workflow.add_edge("local_slm_keyword_extraction", "bm25")
+# Fan-In: All active subagents converge into the Synthesis Node
+workflow.add_edge("agent_local_files", "synthesize")
+workflow.add_edge("agent_database", "synthesize")
+workflow.add_edge("agent_web_search", "synthesize")
 
-# Parallel retrieval branches converge into context_expansion_by_hierarchy before reranking
-workflow.add_edge("bm25", "context_expansion_by_hierarchy")
-workflow.add_edge("hyde", "context_expansion_by_hierarchy")
-workflow.add_edge("context_expansion_by_hierarchy", "rerank")
-workflow.add_edge("rerank", "generate")
-workflow.add_edge("generate", "critique")
-workflow.add_edge("refuse", "critique")
+# Synthesis flows into Critique
+workflow.add_edge("synthesize", "critique")
 
+# Reflection Loop: Approved -> Complete, Rejected -> Loop back to Orchestrator
 workflow.add_conditional_edges(
     "critique",
     route_after_critique,
-    {"approved": END, "rejected": "router"},
+    {"approved": END, "rejected": "orchestrator"},
 )
 
-agent_graph = workflow.compile(name="KanziDocumentationAgent")
+agent_graph = workflow.compile(
+    name="AgenticRAGOrchestrator",
+)
 # endregion
 
 
-# region Direct Runner
-if __name__ == "__main__":
-    import asyncio
+# region Main
+async def _run_cli_test() -> None:
+    import sys
 
-    test_input = {
-        "query": "What is Kanzi fundamentals?",
+    if sys.stdout.encoding.lower() != "utf-8":
+        try:
+            sys.stdout.reconfigure(encoding="utf-8")
+        except Exception:
+            pass
+
+    test_query = "What is Kanzi UI and how are 3D nodes structured?"
+    config = {"configurable": {"thread_id": "session_test_001"}}
+    input_payload: InputState = {
+        "query": test_query,
+        "user_id": "engineer_user",
     }
-    print("[Agent-Graph] Executing workflow directly...")
-    result = asyncio.run(agent_graph.ainvoke(test_input))
-    print("\n[Agent-Graph] === RESULT ===")
-    print(f"Response:\n{result.get('draft_response', '')}")
-    print(f"Citations: {result.get('citations', [])}")
+    print(f"\n[AgenticRAG-Main] Initiating test run with query: '{test_query}'", flush=True)
+    result = await agent_graph.ainvoke(input_payload, config=config)
+
+    print("\n[AgenticRAG-Main] === INTENT ANALYSIS ===", flush=True)
+    print(result.get("intent_analysis"), flush=True)
+
+    print("\n[AgenticRAG-Main] === SUBAGENTS ENGAGED ===", flush=True)
+    print(result.get("subagents_required"), flush=True)
+
+    print("\n[AgenticRAG-Main] === SYNTHESIZED RESPONSE ===", flush=True)
+    print(result.get("draft_response"), flush=True)
+
+    print("\n[AgenticRAG-Main] === CITATIONS ===", flush=True)
+    print(result.get("citations"), flush=True)
+
+
+if __name__ == "__main__":
+    asyncio.run(_run_cli_test())
 # endregion

@@ -44,6 +44,7 @@ Thumbs.db
 
 # Large dataset files (>100MB rejected by GitHub)
 knowledge_base/kanzi_rag_chunks.json
+dataset/long_term_memory.json
 
 # QLoRA SLM model outputs, adapters, and large binaries (>100MB)
 qlora_slm/outputs/*
