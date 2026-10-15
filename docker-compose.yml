@@ -63,9 +63,10 @@ services:
       --gpu-memory-utilization 0.70
       --max-model-len 512
       --enforce-eager
+      --disable-access-log-for-endpoints /health
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
-      interval: 10s
+      interval: 30s
       timeout: 5s
       retries: 25
       start_period: 30s
@@ -86,7 +87,7 @@ services:
       PGVECTOR_URL: postgresql+psycopg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgrespassword123}@pgvector:5432/${POSTGRES_DB:-documentation_chatbot}
       LOG_LEVEL: WARNING
       LOCAL_SLM_BASE_URL: ${CONTAINER_SLM_URL:-http://vllm:8000/v1}
-      LANGSMITH_PROJECT: ${LANGSMITH_PROJECT:-Enterprise-RAG-Agentic}
+      LANGSMITH_PROJECT: ${LANGSMITH_PROJECT:-documentation-chatbot-agentic}
     env_file:
       - .env
     volumes:
