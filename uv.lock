@@ -2104,7 +2104,7 @@ wheels = [
 
 [[package]]
 name = "langgraph-api"
-version = "0.15.1"
+version = "0.16.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -2143,9 +2143,9 @@ dependencies = [
     { name = "websockets" },
     { name = "zstandard" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/dc/7a/234991138592ce3143f124f1c656d8b191556ae38aa8a1222dcaee64b266/langgraph_api-0.15.1.tar.gz", hash = "sha256:2a435197949388ea18a55de92d1b404c6cd518b31d24ab5f00d566737cfda5dd", size = 825578, upload-time = "2026-09-25T17:47:18.863Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/cf/c9/e4deaa81d1ac8df2227a0d875200a094143214fbfbb8d9ffa2cf08c66ade/langgraph_api-0.16.0.tar.gz", hash = "sha256:47275055a44ef69554b7a029b3dc82ca3d25c9482ce59874c0cfae480122536e", size = 872247, upload-time = "2026-10-10T00:16:39.258Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ef/a8/b80341369c961e919d90eb67bd13cd142499ef190e5c37cf993e1e20677c/langgraph_api-0.15.1-py3-none-any.whl", hash = "sha256:d2ae79d92940ffd68c8ecfe714168d883c885c7f55a6017b530ad05d7cc06194", size = 637446, upload-time = "2026-09-25T17:47:17.616Z" },
+    { url = "https://files.pythonhosted.org/packages/fb/20/f211551c4ddfb960778d237551f2b9dc764152b02d1ef7eb94274cdb0d2f/langgraph_api-0.16.0-py3-none-any.whl", hash = "sha256:d19830eed8b835c52836dc78b123fbf9d4b775fb0f45d039a7e3ecfc8062f15f", size = 650104, upload-time = "2026-10-10T00:16:37.144Z" },
 ]
 
 [[package]]
@@ -2198,7 +2198,7 @@ wheels = [
 
 [[package]]
 name = "langgraph-runtime-inmem"
-version = "0.35.1"
+version = "0.36.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "blockbuster" },
@@ -2209,9 +2209,9 @@ dependencies = [
     { name = "starlette" },
     { name = "structlog" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/7e/03/ac70f8ddd547f72813bf97a02c1a4fa1b70d06a25240a0634da2aaa0acfa/langgraph_runtime_inmem-0.35.1.tar.gz", hash = "sha256:ec6023a6a9e6d1ab08db06dfb7ee48de23c5fc1987f31229f123fe262a7468db", size = 133741, upload-time = "2026-09-25T17:46:00.202Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/75/b2/920a9226741aa240b5365097182bd915f32c9b3f35b2f696be07e6fd1a7a/langgraph_runtime_inmem-0.36.0.tar.gz", hash = "sha256:46f7313ba7f8dd759e68b435e449fa3f6a9c6589589b9507381aadb6bdec1a03", size = 135047, upload-time = "2026-10-10T00:14:35.086Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8c/b5/3580f1ae3347821bf2f05865609ac2406148cef0c33b8a67832b773fb253/langgraph_runtime_inmem-0.35.1-py3-none-any.whl", hash = "sha256:a5a7ccfeb20b8d241bf55adf7992062c9b8af9e451ad197bd7a876666a1837ee", size = 52988, upload-time = "2026-09-25T17:45:58.894Z" },
+    { url = "https://files.pythonhosted.org/packages/40/26/5ed050eb7a8b25927ca4ab663d212e3ec79e93e9fa9bb47a8372eb8c472b/langgraph_runtime_inmem-0.36.0-py3-none-any.whl", hash = "sha256:2fcf3ce0caecd3b020e5c4c45024f5e826f22a3793d781e85e72516dc2b0282c", size = 54346, upload-time = "2026-10-10T00:14:33.835Z" },
 ]
 
 [[package]]
@@ -2232,7 +2232,7 @@ wheels = [
 
 [[package]]
 name = "langsmith"
-version = "0.14.1"
+version = "0.14.8"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -2250,9 +2250,9 @@ dependencies = [
     { name = "xxhash" },
     { name = "zstandard" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/96/23/ba753811d6d768f4d98d0336ba49c2b3021afeeaa59a8f63ab83bf83efe7/langsmith-0.14.1.tar.gz", hash = "sha256:0b5cd2473420c9c5acef33a9bafe6c812a7cf96741e9a5af465b1d93bf77f7ae", size = 4966485, upload-time = "2026-09-25T17:38:08.216Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/35/3a/d34ed0164451df7c2effd79ef119c90db7ec7a315731b391d3a57874829d/langsmith-0.14.8.tar.gz", hash = "sha256:667d0e69efb64b3ed3a9e1686e5246e4f9f46aacfba8c644d41e7e74bcd4eb37", size = 5002526, upload-time = "2026-10-13T00:42:26.107Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/04/d6/1771421302dd230d3e52f29546b187cda824cff1443031067b69d46207ee/langsmith-0.14.1-py3-none-any.whl", hash = "sha256:dcfd8a25ba72d8663024bd87df02e372e470f43e18f4a726f37fbacc772c0193", size = 812092, upload-time = "2026-09-25T17:38:05.704Z" },
+    { url = "https://files.pythonhosted.org/packages/67/a8/5bfbcf7704f48331372ec36212a1e0e6bcb83eb967829d760fbdbf386616/langsmith-0.14.8-py3-none-any.whl", hash = "sha256:bda7ec3d74bc5af3244c90920e924efcf99a700638860bf87d0231bfdb4f4ce4", size = 862391, upload-time = "2026-10-13T00:42:23.53Z" },
 ]
 
 [package.optional-dependencies]
