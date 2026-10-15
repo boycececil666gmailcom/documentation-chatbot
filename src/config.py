@@ -46,6 +46,9 @@ PGVECTOR_URL = os.getenv(
 )
 PGVECTOR_COLLECTION_NAME = os.getenv("PGVECTOR_COLLECTION_NAME", "raptor_chunks")
 
+# Reranker Settings
+RERANKER_TOP_N = int(os.getenv("RERANKER_TOP_N", "10"))
+
 
 # Chatbot Theme Settings
 CHATBOT_THEME = require_env("CHATBOT_THEME")

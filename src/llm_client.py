@@ -22,6 +22,7 @@ from .config import (
     OPENROUTER_PROVIDER_IGNORE,
     OPENROUTER_PROVIDER_SORT,
     OPENROUTER_TEMPERATURE,
+    RERANKER_TOP_N,
 )
 
 # endregion
@@ -73,7 +74,7 @@ embeddings = OpenAIEmbeddings(
 
 # Shared Cross-Encoder reranker instance (lazily initialized to prevent import latency)
 class _LazyReranker:
-    def __init__(self, top_n: int = 5) -> None:
+    def __init__(self, top_n: int = RERANKER_TOP_N) -> None:
         self._top_n = top_n
         self._instance: FlashrankRerank | None = None
 
@@ -86,7 +87,7 @@ class _LazyReranker:
         return self._get_instance().compress_documents(documents, query, **kwargs)
 
 
-reranker = _LazyReranker(top_n=5)
+reranker = _LazyReranker(top_n=RERANKER_TOP_N)
 # endregion
 
 
