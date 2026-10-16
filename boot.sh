@@ -83,10 +83,16 @@ fi
 # region ImageVerification
 log_step "2" "4" "Checking Images and Pulling/Building If Missing"
 
+STACK_PREFIX="documentation-chatbot-adaptive"
+PG_CONTAINER="${STACK_PREFIX}-pgvector"
+CB_CONTAINER="${STACK_PREFIX}-cloudbeaver"
+VLLM_CONTAINER="${STACK_PREFIX}-vllm"
+LG_CONTAINER="${STACK_PREFIX}-langgraph"
+
 PG_IMAGE="pgvector/pgvector:pg16"
 CB_IMAGE="dbeaver/cloudbeaver:latest"
 VLLM_IMAGE="vllm/vllm-openai:latest"
-LG_IMAGE="documentation-chatbot-langgraph:latest"
+LG_IMAGE="${LG_CONTAINER}:latest"
 
 # Pull remote third-party images if not present locally
 if ! "$DOCKER_BIN" image inspect "${PG_IMAGE}" >/dev/null 2>&1 || \
@@ -100,7 +106,7 @@ fi
 
 # Build local application container if not present
 if ! "$DOCKER_BIN" image inspect "${LG_IMAGE}" >/dev/null 2>&1; then
-    echo "[${SCRIPT_NAME}] LangGraph application image missing. Building container..."
+    echo "[${SCRIPT_NAME}] LangGraph application image (${LG_IMAGE}) missing. Building container..."
     "$DOCKER_BIN" compose build
 else
     echo "[${SCRIPT_NAME}] Application image (${LG_IMAGE}) is already cached locally."
@@ -112,16 +118,16 @@ log_step "3" "4" "Starting Docker Compose Stack and Verifying Health"
 
 "$DOCKER_BIN" compose up -d
 
-echo "[${SCRIPT_NAME}] Waiting for services to become responsive..."
+echo "[${SCRIPT_NAME}] Waiting for services in stack [${STACK_PREFIX}] to become responsive..."
 
 # Wait for pgvector container health status
 WAIT_SECS=0
 MAX_WAIT=45
 PG_READY=false
 while [ "$WAIT_SECS" -lt "$MAX_WAIT" ]; do
-    HEALTH_STATUS=$("$DOCKER_BIN" inspect --format='{{json .State.Health.Status}}' documentation-chatbot-pgvector 2>/dev/null || echo "\"starting\"")
+    HEALTH_STATUS=$("$DOCKER_BIN" inspect --format='{{json .State.Health.Status}}' "${PG_CONTAINER}" 2>/dev/null || echo "\"starting\"")
     if [ "$HEALTH_STATUS" == "\"healthy\"" ]; then
-        echo "[${SCRIPT_NAME}] PostgreSQL pgvector container is healthy."
+        echo "[${SCRIPT_NAME}] PostgreSQL pgvector container (${PG_CONTAINER}) is healthy."
         PG_READY=true
         break
     fi
@@ -182,7 +188,7 @@ done
 log_step "4" "4" "Launching Monitoring UIs in Browser"
 
 # Detect dynamic tunnel URL if present in logs, else fallback to local
-STUDIO_URL=$("$DOCKER_BIN" logs documentation-chatbot-langgraph 2>&1 | grep -o 'https://smith\.langchain\.com/studio/?baseUrl=https://[a-zA-Z0-9.-]*\.trycloudflare\.com' | tail -n 1 || true)
+STUDIO_URL=$("$DOCKER_BIN" logs "${LG_CONTAINER}" 2>&1 | grep -o 'https://smith\.langchain\.com/studio/?baseUrl=https://[a-zA-Z0-9.-]*\.trycloudflare\.com' | tail -n 1 || true)
 if [ -z "${STUDIO_URL}" ]; then
     STUDIO_URL="https://smith.langchain.com/studio/?baseUrl=http://127.0.0.1:2024"
 fi

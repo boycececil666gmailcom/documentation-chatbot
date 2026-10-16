@@ -1,10 +1,10 @@
 # region Compose Configuration
-name: documentation-chatbot
+name: documentation-chatbot-adaptive
 
 services:
   pgvector:
     image: pgvector/pgvector:pg16
-    container_name: documentation-chatbot-pgvector
+    container_name: documentation-chatbot-adaptive-pgvector
     restart: unless-stopped
     ports:
       - "5432:5432"
@@ -14,7 +14,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgrespassword123}
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - pgvector_data:/var/lib/postgresql/data
+      - adaptive_pgvector_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d documentation_chatbot"]
       interval: 5s
@@ -24,7 +24,7 @@ services:
   # Official DBeaver Web GUI (http://localhost:8978)
   cloudbeaver:
     image: dbeaver/cloudbeaver:latest
-    container_name: documentation-chatbot-cloudbeaver
+    container_name: documentation-chatbot-adaptive-cloudbeaver
     restart: unless-stopped
     ports:
       - "8978:8978"
@@ -35,14 +35,14 @@ services:
       CLOUDBEAVER_APP_GRANT_CONNECTIONS_ACCESS_TO_ANONYMOUS_TEAM: "true"
       CLOUDBEAVER_APP_SUPPORTS_CUSTOM_CONNECTIONS: "true"
     volumes:
-      - cloudbeaver_data:/opt/cloudbeaver/workspace
+      - adaptive_cloudbeaver_data:/opt/cloudbeaver/workspace
     depends_on:
       - pgvector
 
   # Local vLLM Service (High-throughput PagedAttention engine for merged HF weights)
   vllm:
     image: vllm/vllm-openai:latest
-    container_name: documentation-chatbot-vllm
+    container_name: documentation-chatbot-adaptive-vllm
     restart: unless-stopped
     ports:
       - "8000:8000"
@@ -76,8 +76,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: documentation-chatbot-langgraph:latest
-    container_name: documentation-chatbot-langgraph
+    image: documentation-chatbot-adaptive-langgraph:latest
+    container_name: documentation-chatbot-adaptive-langgraph
     restart: unless-stopped
     ports:
       - "2024:2024"
@@ -100,6 +100,10 @@ services:
         condition: service_healthy
 
 volumes:
-  pgvector_data:
-  cloudbeaver_data:
+  adaptive_pgvector_data:
+    name: documentation-chatbot_pgvector_data
+    external: true
+  adaptive_cloudbeaver_data:
+    name: documentation-chatbot_cloudbeaver_data
+    external: true
 # endregion
