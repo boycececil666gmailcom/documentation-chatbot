@@ -8,23 +8,13 @@ import httpx
 import psycopg
 
 from ..config import PGVECTOR_URL
+from ..models import MCPServerResponse as MCPServerResponse
 
 # endregion
 
 
 # region Types
-class MCPServerResponse:
-    """Standardized response envelope from MCP tool calls."""
-
-    def __init__(self, success: bool, data: Any, message: str = "") -> None:
-        self.success = success
-        self.data = data
-        self.message = message
-
-    def to_dict(self) -> dict[str, Any]:
-        return {"success": self.success, "data": self.data, "message": self.message}
-
-
+# Response envelope and contracts referenced from src.models
 # endregion
 
 

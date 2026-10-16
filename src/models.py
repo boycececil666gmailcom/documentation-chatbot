@@ -1,5 +1,5 @@
 # region Imports
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -7,6 +7,18 @@ from pydantic import BaseModel, Field
 
 
 # region Types
+class MCPServerResponse:
+    """Standardized response envelope from MCP tool calls."""
+
+    def __init__(self, success: bool, data: Any, message: str = "") -> None:
+        self.success = success
+        self.data = data
+        self.message = message
+
+    def to_dict(self) -> dict[str, Any]:
+        return {"success": self.success, "data": self.data, "message": self.message}
+
+
 class RAGResponseSchema(BaseModel):
     """Deterministic output schema for RAG QA synthesis."""
 
