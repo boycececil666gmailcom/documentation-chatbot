@@ -22,7 +22,7 @@
   "evaluation": {
     "output_dir": ".",
     "output_prefix": "2.run_eval_",
-    "max_workers": 2,
+    "max_workers": 8,
     "timeout": 240,
     "max_retries": 5
   },
@@ -37,7 +37,7 @@
   },
   "journal": {
     "journal_path": "JOURNAL.md",
-    "milestone_title": "[LangGraph Agent] Native Graph Benchmark Run"
+    "milestone_title": "[Adaptive RAG] Synchronized Multi-Pathway & QLoRA SLM Benchmark"
   },
   "langsmith": {
     "dataset_path": "1.dataset.json",
