@@ -1,7 +1,6 @@
 # region Imports
-import json
 import re
-from typing import cast
+from typing import Any, cast
 
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
@@ -13,7 +12,6 @@ from ..models import (
     RAGResponseSchema,
     SubagentResultSchema,
 )
-from .memory import LongTermMemoryManager, ShortTermMemoryManager
 from .state import AgentState, SubagentResult
 from .tools import (
     get_database_schema,
@@ -62,23 +60,21 @@ def _format_context_from_subagents(state: AgentState) -> str:
     return "\n\n".join(blocks) if blocks else "No subagent findings collected."
 
 
-# endregion
-
-
-# region Memory
-def memory_node(state: AgentState) -> dict:
-    """Loads long-term user profile and extracts recent conversation history from short-term memory."""
-    user_id = state.get("user_id") or "default_user"
-    messages = state.get("messages") or []
-
-    lt_memory = LongTermMemoryManager.load_user_memory(user_id)
-    query = state.get("query") or (messages[-1].content if messages else "")
-
-    return {
-        "user_id": user_id,
-        "query": str(query),
-        "long_term_memory": lt_memory,
-    }
+def _extract_recent_history(messages: list[Any], max_turns: int = 4) -> str:
+    """Formats the last N conversation turns into structured context."""
+    if not messages:
+        return "No previous conversation turns."
+    recent = messages[-max_turns:]
+    formatted_turns: list[str] = []
+    for msg in recent:
+        role = (
+            "User"
+            if isinstance(msg, HumanMessage)
+            else ("Assistant" if isinstance(msg, AIMessage) else "System")
+        )
+        content_preview = str(msg.content)[:200].replace("\n", " ")
+        formatted_turns.append(f"{role}: {content_preview}")
+    return "\n".join(formatted_turns)
 
 
 # endregion
@@ -86,38 +82,42 @@ def memory_node(state: AgentState) -> dict:
 
 # region Planning
 def planning_node(state: AgentState) -> dict:
-    """Analyzes user query and memory context to generate a structured multi-step execution plan."""
-    query = state["query"]
-    lt_memory = state.get("long_term_memory", {})
-    st_history = ShortTermMemoryManager.extract_recent_history(state.get("messages", []))
+    """Analyzes user query and conversation context to generate a structured multi-step execution plan."""
+    messages = state.get("messages") or []
+    query = state.get("query") or (str(messages[-1].content) if messages else "")
+    st_history = _extract_recent_history(messages)
 
     system_prompt = (
         f"You are the Lead Planning Agent for '{CHATBOT_THEME}'.\n"
-        "Analyze the user inquiry, short-term conversational context, and long-term user profile.\n"
+        "Analyze the user inquiry and conversational context.\n"
         "Devise a concrete investigation plan delegating tasks to specialized subagents:\n"
         "- 'agent_local_files': In-depth inspection of local documentation files, APIs, and guides.\n"
         "- 'agent_database': Relational database inspection, metadata queries, and chunk relations.\n"
         "- 'agent_web_search': External search for live documentation, community practices, or external APIs.\n\n"
-        f"Conversational Context:\n{st_history}\n\n"
-        f"User Profile & Preferences:\n{json.dumps(lt_memory, ensure_ascii=False)}"
+        f"Conversational Context:\n{st_history}"
     )
 
     try:
         structured_llm = llm.with_structured_output(PlanSchema)
         plan = cast(
             PlanSchema,
-            structured_llm.invoke([
-                SystemMessage(content=system_prompt),
-                HumanMessage(content=f"Plan investigation for query: '{query}'"),
-            ]),
+            structured_llm.invoke(
+                [
+                    SystemMessage(content=system_prompt),
+                    HumanMessage(content=f"Plan investigation for query: '{query}'"),
+                ]
+            ),
         )
         return {
+            "query": query,
             "intent_analysis": plan.intent_analysis,
             "plan_steps": plan.steps,
             "subagents_required": plan.subagents_required,
         }
     except Exception as exc:
-        print(f"[Planning-planning_node] Structured plan failed ({exc}), using default multi-agent plan...")
+        print(
+            f"[Planning-planning_node] Structured plan failed ({exc}), using default multi-agent plan..."
+        )
         from ..models import PlanStep
 
         default_steps = [
@@ -133,6 +133,7 @@ def planning_node(state: AgentState) -> dict:
             ),
         ]
         return {
+            "query": query,
             "intent_analysis": f"Investigation for: {query}",
             "plan_steps": default_steps,
             "subagents_required": ["agent_local_files", "agent_web_search"],
@@ -208,12 +209,17 @@ def agent_database_node(state: AgentState) -> dict:
     sources: list[str] = ["PostgreSQL: langchain_pg_embedding"]
 
     try:
-        schema_info = get_database_schema.invoke({"table_name": "langchain_pg_embedding"})
+        schema_info = get_database_schema.invoke(
+            {"table_name": "langchain_pg_embedding"}
+        )
         findings_list.append(schema_info)
 
         raw_tokens = [
-            t for t in re.findall(r"\w+", f"{instruction} {query}")
-            if len(t) >= 2 and t.lower() not in {"search", "kanzi", "database", "query", "what", "how", "the", "and"}
+            t
+            for t in re.findall(r"\w+", f"{instruction} {query}")
+            if len(t) >= 2
+            and t.lower()
+            not in {"search", "kanzi", "database", "query", "what", "how", "the", "and"}
         ]
         search_term = raw_tokens[0] if raw_tokens else "node"
         clean_term = search_term.replace("'", "''")
@@ -230,7 +236,11 @@ def agent_database_node(state: AgentState) -> dict:
     except Exception as exc:
         findings_list.append(f"Database query note: {exc}")
 
-    findings_text = "\n\n".join(findings_list) if findings_list else "Database inspected with no relevant records."
+    findings_text = (
+        "\n\n".join(findings_list)
+        if findings_list
+        else "Database inspected with no relevant records."
+    )
     result_payload: SubagentResult = {
         "agent_name": "Agent 2 (Relational Database)",
         "findings": findings_text,
@@ -266,10 +276,9 @@ def agent_web_search_node(state: AgentState) -> dict:
 
 # region Synthesis
 def synthesize_node(state: AgentState) -> dict:
-    """Synthesizes the grounded final answer using aggregated evidence and user profile preferences."""
+    """Synthesizes the grounded final answer using aggregated evidence from subagents."""
     query = state["query"]
     context = _format_context_from_subagents(state)
-    lt_memory = state.get("long_term_memory", {})
     feedback = state.get("critique_feedback")
 
     system_prompt = (
@@ -279,10 +288,11 @@ def synthesize_node(state: AgentState) -> dict:
         "1. STRICT FIDELITY: Rely strictly on the aggregated evidence provided by the subagents.\n"
         "2. INLINE CITATIONS: Immediately attach an inline citation [Topic / Source Name] to every factual claim, API reference, or guideline.\n"
         "3. CITATIONS ARRAY: Populate the 'citations' array with the distinct topics/sources referenced inline.\n"
-        f"4. USER PROFILE PREFERENCES: Incorporate user depth and preferences: {json.dumps(lt_memory.get('preferences', {}))}\n"
     )
     if feedback:
-        system_prompt += f"\n5. PREVIOUS CRITIQUE FEEDBACK (Address and rectify): {feedback}\n"
+        system_prompt += (
+            f"\n4. PREVIOUS CRITIQUE FEEDBACK (Address and rectify): {feedback}\n"
+        )
 
     user_prompt = f"User Query: {query}\n\nAggregated Subagent Evidence:\n{context}"
 
@@ -290,28 +300,25 @@ def synthesize_node(state: AgentState) -> dict:
         structured_llm = llm.with_structured_output(RAGResponseSchema)
         rag_res = cast(
             RAGResponseSchema,
-            structured_llm.invoke([
-                SystemMessage(content=system_prompt),
-                HumanMessage(content=user_prompt),
-            ]),
+            structured_llm.invoke(
+                [
+                    SystemMessage(content=system_prompt),
+                    HumanMessage(content=user_prompt),
+                ]
+            ),
         )
         answer = rag_res.answer
         citations = rag_res.citations
     except Exception as exc:
         print(f"[Synthesis-synthesize_node] Structured output fallback ({exc})")
-        raw_res = llm.invoke([
-            SystemMessage(content=system_prompt),
-            HumanMessage(content=user_prompt),
-        ])
+        raw_res = llm.invoke(
+            [
+                SystemMessage(content=system_prompt),
+                HumanMessage(content=user_prompt),
+            ]
+        )
         answer = str(raw_res.content)
         citations = []
-
-    # Record verified summary fact in long-term memory
-    user_id = state.get("user_id") or "default_user"
-    LongTermMemoryManager.record_fact(
-        user_id,
-        f"Inquiry on '{query[:50]}': answered with {len(citations)} citations.",
-    )
 
     return {
         "aggregated_context": context,
@@ -358,7 +365,9 @@ def critique_node(state: AgentState) -> dict:
         is_passed = True
         feedback = None
 
-    print(f"[Critique-critique_node] System 2 critique: is_passed={is_passed}, feedback={feedback}")
+    print(
+        f"[Critique-critique_node] System 2 critique: is_passed={is_passed}, feedback={feedback}"
+    )
 
     return {
         "is_critique_passed": is_passed,

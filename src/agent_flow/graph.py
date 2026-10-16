@@ -1,37 +1,19 @@
 # region Imports
 import asyncio
-import sys
-from pathlib import Path
 
 from langgraph.graph import END, StateGraph
 
-if __package__ is None or __package__ == "":
-    sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
-    from src.agent_flow.edges import route_after_critique, route_to_subagents
-    from src.agent_flow.nodes import (
-        agent_database_node,
-        agent_local_files_node,
-        agent_web_search_node,
-        critique_node,
-        memory_node,
-        orchestrator_node,
-        planning_node,
-        synthesize_node,
-    )
-    from src.agent_flow.state import AgentState, InputState
-else:
-    from .edges import route_after_critique, route_to_subagents
-    from .nodes import (
-        agent_database_node,
-        agent_local_files_node,
-        agent_web_search_node,
-        critique_node,
-        memory_node,
-        orchestrator_node,
-        planning_node,
-        synthesize_node,
-    )
-    from .state import AgentState, InputState
+from .edges import route_after_critique, route_to_subagents
+from .nodes import (
+    agent_database_node,
+    agent_local_files_node,
+    agent_web_search_node,
+    critique_node,
+    orchestrator_node,
+    planning_node,
+    synthesize_node,
+)
+from .state import AgentState, InputState
 
 # endregion
 
@@ -39,8 +21,7 @@ else:
 # region Graph
 workflow = StateGraph(AgentState, input_schema=InputState)
 
-# Memory & Planning
-workflow.add_node("memory", memory_node)
+# Planning & Orchestration
 workflow.add_node("planning", planning_node)
 workflow.add_node("orchestrator", orchestrator_node)
 
@@ -53,9 +34,8 @@ workflow.add_node("agent_web_search", agent_web_search_node)
 workflow.add_node("synthesize", synthesize_node)
 workflow.add_node("critique", critique_node)
 
-# Orchestration Transitions
-workflow.set_entry_point("memory")
-workflow.add_edge("memory", "planning")
+# Orchestration Transitions: Entry Point is direct Planning
+workflow.set_entry_point("planning")
 workflow.add_edge("planning", "orchestrator")
 
 # Dynamic Fan-Out from Orchestrator to Specialized Subagents
@@ -100,9 +80,11 @@ async def _run_cli_test() -> None:
     config = {"configurable": {"thread_id": "session_test_001"}}
     input_payload: InputState = {
         "query": test_query,
-        "user_id": "engineer_user",
     }
-    print(f"\n[AgenticRAG-Main] Initiating test run with query: '{test_query}'", flush=True)
+    print(
+        f"\n[AgenticRAG-Main] Initiating test run with query: '{test_query}'",
+        flush=True,
+    )
     result = await agent_graph.ainvoke(input_payload, config=config)
 
     print("\n[AgenticRAG-Main] === INTENT ANALYSIS ===", flush=True)

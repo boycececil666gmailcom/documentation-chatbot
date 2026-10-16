@@ -1,5 +1,5 @@
 # region Imports
-from typing import Annotated, Any, NotRequired, TypedDict
+from typing import Annotated, NotRequired, TypedDict
 
 from langchain_core.messages import BaseMessage
 from langgraph.graph.message import add_messages
@@ -14,7 +14,7 @@ class InputState(TypedDict):
     """User input payload schema required for workflow execution."""
 
     query: str
-    user_id: NotRequired[str]
+    messages: NotRequired[list[BaseMessage]]
 
 
 class SubagentResult(TypedDict):
@@ -28,13 +28,9 @@ class SubagentResult(TypedDict):
 class AgentState(TypedDict):
     """Internal state schema passed across LangGraph nodes in the Agentic RAG pipeline."""
 
-    # Short-Term Memory: Conversational message buffer
+    # Conversational message buffer (managed natively by LangGraph checkpoints)
     messages: Annotated[list[BaseMessage], add_messages]
     query: str
-    user_id: NotRequired[str]
-
-    # Long-Term Memory: Profile, past insights, and domain knowledge
-    long_term_memory: NotRequired[dict[str, Any]]
 
     # Planning: Structured decomposition
     intent_analysis: NotRequired[str]

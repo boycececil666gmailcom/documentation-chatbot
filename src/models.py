@@ -1,5 +1,5 @@
 # region Imports
-from typing import Any, Literal
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -7,66 +7,12 @@ from pydantic import BaseModel, Field
 
 
 # region Types
-class MCPServerResponse:
-    """Standardized response envelope from MCP tool calls."""
-
-    def __init__(self, success: bool, data: Any, message: str = "") -> None:
-        self.success = success
-        self.data = data
-        self.message = message
-
-    def to_dict(self) -> dict[str, Any]:
-        return {"success": self.success, "data": self.data, "message": self.message}
-
-
-class RAGResponseSchema(BaseModel):
-    """Deterministic output schema for RAG QA synthesis."""
-
-    answer: str = Field(
-        description="Strictly grounded answer text synthesized from retrieved document context"
-    )
-    citations: list[str] = Field(
-        default_factory=list,
-        description="List of referenced topic titles or breadcrumbs cited from retrieved context",
-    )
-
-
-class CritiqueResultSchema(BaseModel):
-    """Deterministic output schema for critique node evaluation."""
-
-    is_passed: bool = Field(
-        description="True if response passes critique evaluation, False otherwise"
-    )
-    feedback: str | None = Field(
-        default=None, description="Detailed explanation if is_passed is False"
-    )
-
-
-class HyDESchema(BaseModel):
-    """Deterministic output schema for HyDE hypothetical document generation."""
-
-    passage: str = Field(
-        description="Short, plausible documentation excerpt answering user query"
-    )
-
-
-class ClassifierSchema(BaseModel):
-    """Deterministic output schema for domain query classification."""
-
-    category: Literal["pass", "refuse"] = Field(
-        description="Category 'pass' if on-topic, 'refuse' if off-topic"
-    )
-    reason: str | None = Field(
-        default=None, description="Reason for refusal if off-topic"
-    )
-
-
 class PlanStep(BaseModel):
     """Individual step within the orchestrator execution plan."""
 
     step_number: int = Field(description="Step index in sequence")
-    subagent: Literal["agent_local_files", "agent_database", "agent_web_search"] = Field(
-        description="Specialized subagent responsible for executing this step"
+    subagent: Literal["agent_local_files", "agent_database", "agent_web_search"] = (
+        Field(description="Specialized subagent responsible for executing this step")
     )
     instruction: str = Field(
         description="Specific task instruction or search query for the subagent"
@@ -79,12 +25,10 @@ class PlanSchema(BaseModel):
     intent_analysis: str = Field(
         description="Analysis of user query intent and information requirements"
     )
-    steps: list[PlanStep] = Field(
-        description="Ordered sequence of investigation steps"
-    )
-    subagents_required: list[Literal["agent_local_files", "agent_database", "agent_web_search"]] = Field(
-        description="Unique list of subagents required to resolve the inquiry"
-    )
+    steps: list[PlanStep] = Field(description="Ordered sequence of investigation steps")
+    subagents_required: list[
+        Literal["agent_local_files", "agent_database", "agent_web_search"]
+    ] = Field(description="Unique list of subagents required to resolve the inquiry")
 
 
 class SubagentResultSchema(BaseModel):
@@ -97,6 +41,29 @@ class SubagentResultSchema(BaseModel):
     sources: list[str] = Field(
         default_factory=list,
         description="Source document IDs, table names, URLs, or topics referenced",
+    )
+
+
+class RAGResponseSchema(BaseModel):
+    """Deterministic output schema for grounded response synthesis."""
+
+    answer: str = Field(
+        description="Strictly grounded answer text synthesized from retrieved document context"
+    )
+    citations: list[str] = Field(
+        default_factory=list,
+        description="List of referenced topic titles or breadcrumbs cited from retrieved context",
+    )
+
+
+class CritiqueResultSchema(BaseModel):
+    """Deterministic output schema for System 2 critique evaluation."""
+
+    is_passed: bool = Field(
+        description="True if response passes critique evaluation, False otherwise"
+    )
+    feedback: str | None = Field(
+        default=None, description="Detailed explanation if is_passed is False"
     )
 
 

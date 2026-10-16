@@ -13,7 +13,7 @@ from .llm_client import embeddings
 # endregion
 
 
-# region Vector & BM25 Stores
+# region Storage
 _vector_store: PGVector | None = None
 _bm25_retriever: BM25Retriever | None = None
 _hierarchy_map: dict[str, dict] | None = None
@@ -110,7 +110,9 @@ def get_bm25_retriever() -> BM25Retriever:
             # Enrich BM25 searchable text with RAPTOR breadcrumb hierarchy and original text
             breadcrumb = meta_dict.get("breadcrumb", "")
             raw_content = str(row[1] or "")
-            searchable_text = f"Topic: {breadcrumb}\n\n{raw_content}" if breadcrumb else raw_content
+            searchable_text = (
+                f"Topic: {breadcrumb}\n\n{raw_content}" if breadcrumb else raw_content
+            )
 
             docs.append(
                 Document(
@@ -128,7 +130,7 @@ def get_bm25_retriever() -> BM25Retriever:
 # endregion
 
 
-# region Hierarchy Context Expansion
+# region Hierarchy
 
 
 def expand_parent_context(docs: list[Document]) -> list[Document]:
@@ -170,10 +172,14 @@ def expand_parent_context(docs: list[Document]) -> list[Document]:
                 children = fetch_child_documents(child_ids[:3])
                 child_titles = [c.get("title", "") for c in children if c.get("title")]
                 if child_titles:
-                    preamble_parts.append(f"[Related Subtopics]: {', '.join(child_titles)}")
+                    preamble_parts.append(
+                        f"[Related Subtopics]: {', '.join(child_titles)}"
+                    )
 
         elif ancestor_doc:
-            lead_raw = ancestor_doc.get("lead_content") or ancestor_doc.get("document", "")
+            lead_raw = ancestor_doc.get("lead_content") or ancestor_doc.get(
+                "document", ""
+            )
             lead = lead_raw[:350].strip()
             if lead and not doc.page_content.startswith(lead[:60]):
                 preamble_parts.append(f"[Parent Overview]: {lead}")
@@ -192,7 +198,6 @@ def expand_parent_context(docs: list[Document]) -> list[Document]:
         )
 
     return enriched
-
 
 
 def expand_raptor_candidates(
@@ -229,7 +234,7 @@ def expand_raptor_candidates(
 # endregion
 
 
-# region Retrieval Strategies
+# region Retrieval
 def retrieve_collapsed_tree(
     query: str,
     top_k: int = 10,

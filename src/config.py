@@ -1,8 +1,12 @@
-# region Config
+# region Imports
 import os
 
 from dotenv import load_dotenv
 
+# endregion
+
+
+# region Scaffolding
 load_dotenv()
 
 
@@ -15,14 +19,14 @@ def require_env(key: str) -> str:
     return val
 
 
+# endregion
+
+
+# region Config
 # OpenRouter Settings
 OPENROUTER_API_KEY = require_env("OPENROUTER_API_KEY")
 OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
-OPENROUTER_DECISIONS_URL = os.getenv(
-    "OPENROUTER_DECISIONS_URL", "https://openrouter.ai/api/alpha/decisions"
-)
 OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "deepseek/deepseek-v4.1-flash")
-OPENROUTER_JEV_MODEL = os.getenv("OPENROUTER_JEV_MODEL", "typesafe/jev-1.13")
 OPENROUTER_EMBED_MODEL = os.getenv(
     "OPENROUTER_EMBED_MODEL", "nvidia/nemotron-3-embed-1b:free"
 )
@@ -30,14 +34,6 @@ OPENROUTER_TEMPERATURE = float(os.getenv("OPENROUTER_TEMPERATURE", "0.2"))
 OPENROUTER_PROVIDER_SORT = os.getenv("OPENROUTER_PROVIDER_SORT", "throughput")
 _ignore_env = os.getenv("OPENROUTER_PROVIDER_IGNORE", "wafer")
 OPENROUTER_PROVIDER_IGNORE = [p.strip() for p in _ignore_env.split(",") if p.strip()]
-
-# Local SLM & Keyword Extraction Settings (vLLM)
-LOCAL_SLM_BASE_URL = os.getenv("LOCAL_SLM_BASE_URL") or os.getenv(
-    "OLLAMA_BASE_URL", "http://localhost:8000/v1"
-)
-LOCAL_SLM_MODEL = os.getenv("LOCAL_SLM_MODEL") or os.getenv(
-    "OLLAMA_MODEL", "kanzi-slm-extractor"
-)
 
 # PGVector Database Settings
 PGVECTOR_URL = os.getenv(
@@ -49,11 +45,10 @@ PGVECTOR_COLLECTION_NAME = os.getenv("PGVECTOR_COLLECTION_NAME", "raptor_chunks"
 # Reranker Settings
 RERANKER_TOP_N = int(os.getenv("RERANKER_TOP_N", "10"))
 
-
 # Chatbot Theme Settings
 CHATBOT_THEME = require_env("CHATBOT_THEME")
 
-# LangSmith Settings
+# LangSmith Observability Settings
 LANGSMITH_TRACING = require_env("LANGSMITH_TRACING").lower() == "true"
 LANGSMITH_API_KEY = os.getenv("LANGSMITH_API_KEY") or os.getenv("LANGCHAIN_API_KEY")
 LANGSMITH_PROJECT = require_env("LANGSMITH_PROJECT")

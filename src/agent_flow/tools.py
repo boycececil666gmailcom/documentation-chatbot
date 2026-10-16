@@ -25,14 +25,23 @@ def _check_readonly_sql(sql_query: str) -> str:
         raise ValueError("Security violation: Only SELECT queries are permitted.")
 
     forbidden_keywords = [
-        "DROP", "DELETE", "UPDATE", "INSERT", "ALTER",
-        "CREATE", "TRUNCATE", "GRANT", "REVOKE",
+        "DROP",
+        "DELETE",
+        "UPDATE",
+        "INSERT",
+        "ALTER",
+        "CREATE",
+        "TRUNCATE",
+        "GRANT",
+        "REVOKE",
     ]
     for forbidden in forbidden_keywords:
         if re.search(rf"\b{forbidden}\b", upper_sql):
             raise ValueError(f"Security violation: Keyword '{forbidden}' is forbidden.")
 
     return clean_sql
+
+
 # endregion
 
 
@@ -64,7 +73,11 @@ def search_documentation(query: str) -> str:
     seen: set[str] = set()
     candidates = []
     for doc in dense_docs + sparse_docs:
-        doc_id = str(doc.metadata.get("chunk_id") or doc.metadata.get("doc_id") or doc.page_content[:60])
+        doc_id = str(
+            doc.metadata.get("chunk_id")
+            or doc.metadata.get("doc_id")
+            or doc.page_content[:60]
+        )
         if doc_id not in seen:
             seen.add(doc_id)
             candidates.append(doc)
@@ -78,12 +91,20 @@ def search_documentation(query: str) -> str:
 
     sections: list[str] = []
     for d in ranked_docs[:6]:
-        title = d.metadata.get("title") or d.metadata.get("breadcrumb") or "Documentation Passage"
+        title = (
+            d.metadata.get("title")
+            or d.metadata.get("breadcrumb")
+            or "Documentation Passage"
+        )
         breadcrumb = d.metadata.get("breadcrumb", "")
         content = d.page_content[:1200]
         sections.append(f"### {title} [{breadcrumb}]\n{content}")
 
-    return "\n\n".join(sections) if sections else "No matching local documentation sections found."
+    return (
+        "\n\n".join(sections)
+        if sections
+        else "No matching local documentation sections found."
+    )
 
 
 @tool
@@ -145,6 +166,8 @@ def search_web(query: str) -> str:
             return "\n\n".join(entries)
     except Exception as exc:
         return f"Web search service unavailable ({exc}). Fallback URL: https://docs.kanzi.com"
+
+
 # endregion
 
 
@@ -155,4 +178,6 @@ ALL_TOOLS = [search_documentation, query_database, get_database_schema, search_w
 def get_all_tools() -> list[Any]:
     """Returns the primary registered tool suite for LLM agent binding."""
     return ALL_TOOLS
+
+
 # endregion
