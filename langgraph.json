@@ -3,8 +3,7 @@
     "."
   ],
   "graphs": {
-    "agent": "src.agent_flow.graph:agent_graph",
-    "enterprise-rag-engine": "src.agent_flow.graph:agent_graph"
+    "agent": "src.agent_flow.graph:agent_graph"
   },
   "env": ".env",
   "http": {
