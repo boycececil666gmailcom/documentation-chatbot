@@ -13,14 +13,14 @@ from ..models import (
     RAGResponseSchema,
     SubagentResultSchema,
 )
-from .mcp_servers import (
-    DatabaseServer,
-    KnowledgeStoreServer,
-    LocalFilesServer,
-    SearchAPIServer,
-)
 from .memory import LongTermMemoryManager, ShortTermMemoryManager
 from .state import AgentState, SubagentResult
+from .tools import (
+    get_database_schema,
+    query_database,
+    search_documentation,
+    search_web,
+)
 
 # endregion
 
@@ -153,7 +153,7 @@ def orchestrator_node(state: AgentState) -> dict:
 
 # region Subagents
 def agent_local_files_node(state: AgentState) -> dict:
-    """Agent 1: Specializes in querying and reading local documentation files via MCP tools."""
+    """Agent 1: Specializes in querying local documentation via standard search_documentation tool."""
     query = state["query"]
     plan_steps = state.get("plan_steps", [])
 
@@ -163,33 +163,8 @@ def agent_local_files_node(state: AgentState) -> dict:
             instruction = step.instruction
             break
 
-    # MCP Tool Calls
     search_query = f"{instruction} {query}".strip()
-    sources: list[str] = []
-    excerpts: list[str] = []
-
-    # Priority 1: High-fidelity Hybrid Retrieval (PGVector + BM25 + FlashRank Reranker)
-    hybrid_matches = KnowledgeStoreServer.hybrid_search(search_query, top_k=6)
-    if hybrid_matches:
-        for m in hybrid_matches:
-            bc = m.get("breadcrumb") or m.get("title") or "Documentation Passage"
-            sources.append(bc)
-            excerpts.append(f"### {m.get('title')} [{bc}]\n{m.get('content', '')[:1200]}")
-    else:
-        # Priority 2: Fallback to local structured JSON file scanner
-        search_results = LocalFilesServer.search_local_documents(search_query, max_results=5)
-        for item in search_results:
-            sources.append(str(item.get("breadcrumb") or item.get("title")))
-            doc_detail = LocalFilesServer.read_document_section(item["id"])
-            if doc_detail:
-                excerpts.append(
-                    f"### {doc_detail.get('title')} ({doc_detail.get('breadcrumb')})\n"
-                    f"{doc_detail.get('content', '')[:1200]}"
-                )
-            else:
-                excerpts.append(f"### {item.get('title')}\n{item.get('excerpt', '')}")
-
-    raw_evidence = "\n\n".join(excerpts) if excerpts else "No matching local documentation sections found."
+    raw_evidence = search_documentation.invoke({"query": search_query})
 
     summary_prompt = (
         f"You are Agent 1 (Local Documentation Specialist) for '{CHATBOT_THEME}'.\n"
@@ -205,21 +180,21 @@ def agent_local_files_node(state: AgentState) -> dict:
             structured_llm.invoke([HumanMessage(content=summary_prompt)]),
         )
         findings = res.findings
-        all_sources = list(set(sources + res.sources))
+        sources = res.sources or ["Local Documentation"]
     except Exception:
         findings = raw_evidence[:1500]
-        all_sources = sources
+        sources = ["Local Documentation"]
 
     result_payload: SubagentResult = {
         "agent_name": "Agent 1 (Local Files & Documentation)",
         "findings": findings,
-        "sources": all_sources,
+        "sources": sources,
     }
     return {"agent_local_files_result": result_payload}
 
 
 def agent_database_node(state: AgentState) -> dict:
-    """Agent 2: Specializes in querying PostgreSQL tables, schemas, and metadata via MCP tools."""
+    """Agent 2: Specializes in querying PostgreSQL tables, schemas, and metadata via standard tools."""
     query = state["query"]
     plan_steps = state.get("plan_steps", [])
 
@@ -230,43 +205,28 @@ def agent_database_node(state: AgentState) -> dict:
             break
 
     findings_list: list[str] = [f"Assigned database task: {instruction}"]
-    sources: list[str] = []
+    sources: list[str] = ["PostgreSQL: langchain_pg_embedding"]
 
     try:
-        # MCP Tool Call: Inspect database schema
-        schema_info = DatabaseServer.get_table_schema("langchain_pg_embedding")
-        if schema_info:
-            cols = [col["column"] for col in schema_info]
-            findings_list.append(f"Database Table 'langchain_pg_embedding' available columns: {', '.join(cols)}")
-            sources.append("PostgreSQL: langchain_pg_embedding")
+        schema_info = get_database_schema.invoke({"table_name": "langchain_pg_embedding"})
+        findings_list.append(schema_info)
 
-        # MCP Tool Call: Structured query for document records matching key terms
-        raw_tokens = [t for t in re.findall(r"\w+", f"{instruction} {query}") if len(t) >= 2 and t.lower() not in {"search", "kanzi", "database", "query", "what", "how", "the", "and"}]
+        raw_tokens = [
+            t for t in re.findall(r"\w+", f"{instruction} {query}")
+            if len(t) >= 2 and t.lower() not in {"search", "kanzi", "database", "query", "what", "how", "the", "and"}
+        ]
         search_term = raw_tokens[0] if raw_tokens else "node"
         clean_term = search_term.replace("'", "''")
 
-        rows = DatabaseServer.execute_query(
+        sql = (
             f"SELECT id, cmetadata->>'title' as title, cmetadata->>'breadcrumb' as breadcrumb, "
             f"substring(document from 1 for 350) as snippet "
             f"FROM langchain_pg_embedding "
             f"WHERE document ILIKE '%{clean_term}%' OR cmetadata->>'title' ILIKE '%{clean_term}%' "
             f"LIMIT 4;"
         )
-        if not rows:
-            rows = DatabaseServer.execute_query(
-                "SELECT id, cmetadata->>'title' as title, cmetadata->>'breadcrumb' as breadcrumb, "
-                "substring(document from 1 for 350) as snippet "
-                "FROM langchain_pg_embedding LIMIT 4;"
-            )
-
-        if rows:
-            findings_list.append("Relational Database Records Found:")
-            for r in rows:
-                t = r.get("title") or "PostgreSQL Record"
-                bc = r.get("breadcrumb") or t
-                snip = r.get("snippet", "").strip()
-                findings_list.append(f"- {t} [{bc}]: {snip[:200]}...")
-                sources.append(f"DB: {bc}")
+        sql_rows = query_database.invoke({"sql_query": sql})
+        findings_list.append(f"Records:\n{sql_rows}")
     except Exception as exc:
         findings_list.append(f"Database query note: {exc}")
 
@@ -274,13 +234,13 @@ def agent_database_node(state: AgentState) -> dict:
     result_payload: SubagentResult = {
         "agent_name": "Agent 2 (Relational Database)",
         "findings": findings_text,
-        "sources": sources or ["PostgreSQL Documentation Store"],
+        "sources": sources,
     }
     return {"agent_database_result": result_payload}
 
 
 def agent_web_search_node(state: AgentState) -> dict:
-    """Agent 3: Specializes in querying live web search APIs and external documentation via MCP tools."""
+    """Agent 3: Specializes in querying live web search APIs via standard search_web tool."""
     query = state["query"]
     plan_steps = state.get("plan_steps", [])
 
@@ -290,26 +250,13 @@ def agent_web_search_node(state: AgentState) -> dict:
             instruction = step.instruction
             break
 
-    # MCP Tool Call: Web search
     search_query = f"{CHATBOT_THEME} {instruction}"
-    web_results = SearchAPIServer.search_web(search_query, max_results=3)
+    raw_web = search_web.invoke({"query": search_query})
 
-    sources: list[str] = []
-    summaries: list[str] = []
-
-    for r in web_results:
-        url = r.get("url", "")
-        title = r.get("title", "")
-        snippet = r.get("snippet", "")
-        if url:
-            sources.append(url)
-        summaries.append(f"Title: {title}\nURL: {url}\nSnippet: {snippet}")
-
-    raw_web = "\n\n".join(summaries) if summaries else "No external web search results found."
     result_payload: SubagentResult = {
         "agent_name": "Agent 3 (Web Search & External APIs)",
         "findings": raw_web,
-        "sources": sources,
+        "sources": ["Live Web Search (DDGS)"],
     }
     return {"agent_web_search_result": result_payload}
 
