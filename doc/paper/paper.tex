@@ -24,18 +24,10 @@
 % region TitleAndAuthors
 \title{Architectural Blueprint for Zero-Hallucination Technical Documentation RAG: Coupling 4-Bit QLoRA SLM Distillation, Hierarchical Context Expansion, and Stateful System 2 Self-Critique}
 
-\author{Lead System Architect}
-\email{architect@autonomous-systems.org}
+\author{Tyrion Bao}
+\email{boycececil666@gmail.com}
 \affiliation{%
-  \institution{AI Systems Engineering Group}
-  \city{Tokyo}
-  \country{Japan}
-}
-
-\author{Core Engine Contributor}
-\email{engineer@autonomous-systems.org}
-\affiliation{%
-  \institution{Applied Machine Learning Laboratory}
+  \institution{Independent Researcher}
   \city{Tokyo}
   \country{Japan}
 }
@@ -96,11 +88,11 @@ To resolve these challenges, we present a modular, production-grade technical do
 % endregion
 
 % region Section2
-\section{Hierarchical Ingestion and Knowledge Store}
+\section{Hierarchical Knowledge Ingestion and Dual Representation}
 Developer documentation features complex structural relationships: high-level conceptual overviews, class definitions, method signatures, parameter tables, and concrete C++ implementation snippets. Standard flat chunkers split these elements arbitrarily, destroying their structural semantics.
 
-\subsection{Four-Stage Ingestion Pipeline}
-We implement a four-stage observable ingestion pipeline:
+\subsection{Multi-Stage Ingestion Pipeline}
+We implement an observable four-stage ingestion pipeline:
 \begin{enumerate}
     \item \textbf{Web Documentation Extraction}: High-fidelity DOM scraping via Crawl4AI, converting technical HTML pages into clean, structured Markdown while preserving code indentation, headers, and relative link anchors.
     \item \textbf{Structural Hierarchy Parsing}: Markdown AST inspection that segments documentation into semantic sections keyed by document URI, breadcrumb path, and heading depth ($H_1 \to H_4$).
@@ -108,7 +100,7 @@ We implement a four-stage observable ingestion pipeline:
     \item \textbf{RAPTOR Multi-Layer Summarization}: Following RAPTOR~\cite{raptor}, leaf nodes are hierarchically clustered via Gaussian Mixture Models (GMM) and summarized into higher-level abstraction layers.
 \end{enumerate}
 
-\subsection{Dual Knowledge Representation}
+\subsection{Dual Knowledge Representation: Dense and Sparse Indexing}
 The processed corpus is persisted across two synchronized stores:
 \begin{itemize}
     \item \textbf{Dense Vector Store}: Stored in PostgreSQL with the \texttt{pgvector} extension, indexed using cosine distance over 1536-dimensional dense embeddings (\texttt{text-embedding-3-small} / \texttt{nvidia/NV-Embed-v2}).
@@ -122,7 +114,7 @@ A primary limitation identified in competition RAG systems~\cite{kdd_winning} is
 
 To solve this, we dedicate a specialized local Small Language Model (SLM), fine-tuned strictly for \textbf{Extractive Technical Keyword Distillation}.
 
-\subsection{Hardware Budget and Quantization Constraints}
+\subsection{Consumer Hardware Budget and 4-Bit NF4 Quantization}
 Production deployments often require local execution without reliance on recurring external API billing. We bound training and inference to a strict consumer hardware budget: an \textbf{NVIDIA RTX 4060 Laptop GPU with 8\,GB VRAM}.
 
 To train within this ceiling, we leverage 4-bit NormalFloat (NF4) double quantization via \texttt{bitsandbytes}~\cite{qlora}, \texttt{paged\_adamw\_8bit}, and gradient checkpointing:
@@ -138,19 +130,19 @@ W = W_0 + \Delta W = W_0 + \frac{\alpha}{r} B A
 \end{equation}
 where $B \in \mathbb{R}^{d \times r}$ and $A \in \mathbb{R}^{r \times k}$.
 
-\begin{lstlisting}[caption={SLM Keyword Distillation Prompt},label={lst:slm_prompt}]
+\begin{lstlisting}[caption={SLM Keyword Distillation Prompt Template},label={lst:slm_prompt}]
 Extract only key technical terms, identifiers, API names, and core keywords
 from the user query for sparse keyword search.
 Remove conversational filler, questions, and stop words.
 Output ONLY space-separated keywords without punctuation or quotes.
 \end{lstlisting}
 
-\subsection{Merge, Quantization, and Edge Serving}
+\subsection{Weight Merging, GGUF Quantization, and Local Serving}
 Post-training, the adapter weights are merged into the base FP16 weights, converted to GGUF format via \texttt{llama.cpp}, and quantized to \texttt{Q8\_0} (3.28\,GB binary). The resulting model (\texttt{kanzi-slm-extractor}) is registered within a local Ollama container, yielding an inference latency of under 180\,ms per query.
 % endregion
 
 % region Section4
-\section{Multi-Pathway Intent Routing \& Neural Reranking}
+\section{Multi-Pathway Intent Routing and Neural Reranking}
 
 \subsection{TypeSafe Jev Intent Routing}
 Rather than routing queries through a heavyweight LLM prompt, we deploy a TypeSafe Jev decision layer with calibrated confidence thresholding ($\tau = 0.20$):
@@ -161,7 +153,7 @@ Rather than routing queries through a heavyweight LLM prompt, we deploy a TypeSa
     \item \texttt{hyde\_bm25}: Multi-aspect technical questions triggering parallel fan-out across both sparse and dense pipelines in the same Pregel superstep.
 \end{itemize}
 
-\subsection{Domain-Injected HyDE}
+\subsection{Domain-Injected Hypothetical Document Embeddings}
 For abstract developer questions (e.g., \emph{``How do I improve render performance?''}), dense vector retrievers often match generic performance articles rather than concrete engine documentation. We inject domain identity into the HyDE generator to draft a synthetic 2--3 sentence documentation passage containing expected technical terminology before computing dense vector embeddings.
 
 \subsection{Hierarchy-Aware Context Expansion}
@@ -171,14 +163,14 @@ Once candidate chunks are retrieved from BM25 and vector stores, they pass throu
     \item \textbf{Bottom-Up Parent Overview Enrichment}: If a leaf chunk is retrieved, its parent document title, breadcrumb hierarchy, and lead overview paragraph are prepended to provide the LLM with architectural context.
 \end{enumerate}
 
-\subsection{Neural Reranking via FlashRank Cross-Encoder}
+\subsection{Neural Cross-Encoder Reranking via FlashRank}
 Initial retrieval yields up to 20 candidate chunks. To eliminate false positives, candidates are evaluated against the synthesized search query ($q_{\text{BM25}} \land q_{\text{HyDE}}$) using the FlashRank cross-encoder (\texttt{ms-marco-TinyBERT-L-2-v2}). Only the top $k=5$ highest-scoring chunks are retained and structured with explicit relevance rank headers.
 % endregion
 
 % region Section5
-\section{Grounded Answer Synthesis \& Agentic System 2 Self-Critique}
+\section{Grounded Answer Synthesis and Stateful System 2 Self-Critique}
 
-\subsection{Rank-Priority Grounded Synthesis Prompt}
+\subsection{Rank-Prioritized Synthesis Prompt and Citation Constraints}
 The generator prompt strictly forbids speculative extrapolation:
 \begin{enumerate}
     \item \textbf{Rank Priority}: Chunks are explicitly labeled \texttt{[Rank 1]}, \texttt{[Rank 2]}, etc. The model is instructed that Rank 1 represents the primary ground truth, and lower-ranked chunks cannot override higher-ranked facts.
@@ -186,7 +178,7 @@ The generator prompt strictly forbids speculative extrapolation:
     \item \textbf{Strict Citation Validation}: A post-generation parsing barrier cross-checks generated citation tags against the set of verified topics present in the retrieved chunks, discarding fabricated citation keys.
 \end{enumerate}
 
-\subsection{System 2 Self-Critique Reflection Node}
+\subsection{System 2 Reflection Loop and Automated Error Correction}
 To guarantee that ungrounded answers are never returned, the draft response and retrieved context are passed to an independent System 2 LLM auditor (DeepSeek-V3 / DeepSeek-R1). The auditor validates two invariant properties:
 \begin{itemize}
     \item \textbf{Groundedness Invariant}: Is every sentence directly substantiated by the retrieved text?
@@ -197,29 +189,31 @@ If the response fails validation, the state machine records structured \texttt{c
 % endregion
 
 % region Section6
-\section{Experimental Evaluation \& Benchmark Evolution}
+\section{Empirical Evaluation and Benchmark Evolution}
+
+\subsection{Evaluation Setup and Core RAGAS Metrics}
 We evaluate the system using the industry-standard RAGAS benchmark framework~\cite{ragas} across an authoritative test split of 32 diverse technical documentation questions. Evaluation is tracked across four core metrics: Faithfulness, Answer Relevancy, Context Precision, and Context Recall.
 
 \begin{table*}[t]
 \centering
-\caption{Benchmark Evolution Across 5 Architectural Milestones}
+\caption{RAGAS Benchmark Evolution Across Milestones}
 \label{tab:evolution}
 \small
 \begin{tabular}{llcccc}
 \toprule
-\textbf{Date} & \textbf{Architectural Milestone} & \textbf{Faithfulness} & \textbf{Answer Relevancy} & \textbf{Context Precision} & \textbf{Context Recall} \\
+\textbf{Date} & \textbf{Architecture} & \textbf{Faithfulness} & \textbf{Answer Relevancy} & \textbf{Context Precision} & \textbf{Context Recall} \\
 \midrule
-2026-07-20 & Baseline (Naive Dense top-3) & 0.4267 & 0.3392 & 0.4937 & 0.3508 \\
-2026-07-28 & RAPTOR + Small-to-Big & 0.5564 & 0.4191 & 0.6244 & 0.4411 \\
-2026-08-05 & Hybrid BM25 + FlashRank & 0.6595 & 0.4737 & 0.7255 & 0.5532 \\
-2026-08-12 & LangGraph Agentic Critique & 0.7589 & 0.5141 & 0.8347 & 0.6391 \\
-2026-08-19 & Reasoning + Implicit Intent & 0.8331 & 0.5552 & \textbf{0.9062} & \textbf{0.7214} \\
-2026-08-19 & Final (Domain HyDE + SLM) & \textbf{0.9648} & \textbf{0.5597} & 0.8125 & 0.6471 \\
+2026-07-20 & M1: Naive Dense (top-3) & 0.4267 & 0.3392 & 0.4937 & 0.3508 \\
+2026-07-28 & M2: RAPTOR + Small-to-Big & 0.5564 & 0.4191 & 0.6244 & 0.4411 \\
+2026-08-05 & M3: Hybrid BM25 + FlashRank & 0.6595 & 0.4737 & 0.7255 & 0.5532 \\
+2026-08-12 & M4: LangGraph Self-Critique & 0.7589 & 0.5141 & 0.8347 & 0.6391 \\
+2026-08-19 & M5: Reasoning + Intent Routing & 0.8331 & 0.5552 & \textbf{0.9062} & \textbf{0.7214} \\
+2026-08-19 & M6: Final (Domain HyDE + SLM) & \textbf{0.9648} & \textbf{0.5597} & 0.8125 & 0.6471 \\
 \bottomrule
 \end{tabular}
 \end{table*}
 
-\subsection{Ablation and Architectural Impact}
+\subsection{Milestone Progression and Ablation Analysis}
 \begin{itemize}
     \item \textbf{RAPTOR and Small-to-Big Splitting}: Replacing blind 500-character windows with heading-aware small-to-big chunks resolved context boundary severance, improving Faithfulness by $+13.0\%$ absolute and Context Precision by $+13.1\%$.
     \item \textbf{Hybrid Retrieval \& Cross-Encoder Reranking}: Pairing PGVector with BM25 and FlashRank re-scoring filtered tangential vector false positives, boosting Context Precision from $0.6244$ to $0.7255$.
@@ -227,7 +221,7 @@ We evaluate the system using the industry-standard RAGAS benchmark framework~\ci
     \item \textbf{4-Bit SLM Keyword Distillation \& Domain HyDE}: Synthesizing clean search tokens via the local QLoRA model eliminated query noise, while domain-injected HyDE provided dense retrieval anchors for abstract questions. Faithfulness reached \textbf{0.9648}, with over \textbf{75\% of all test queries achieving a perfect 1.0 zero-hallucination score}.
 \end{itemize}
 
-\subsection{Latency and Operational Profiling}
+\subsection{Latency Profiling and Inference Efficiency}
 Under end-to-end load testing on the target hardware setup:
 \begin{itemize}
     \item \textbf{Local SLM Keyword Extraction}: 140--180\,ms (Ollama Q8\_0 GPU-accelerated).
@@ -239,7 +233,7 @@ Under end-to-end load testing on the target hardware setup:
 % endregion
 
 % region Section7
-\section{Conclusion and Future Work}
+\section{Conclusion and Future Directions}
 We have presented a production-grade documentation RAG system coupling 4-bit QLoRA keyword distillation, hierarchical context expansion, and stateful System 2 self-critique. Modeled after the Meta KDD Cup 2024 winning solution, our findings confirm that specialized compact edge models combined with deterministic verification layers significantly outperform prompted generalists in domain-specific technical QA. Future work will investigate cross-lingual API parameter matching and speculative decoding between the edge SLM and the primary synthesis engine.
 % endregion
 
@@ -250,9 +244,7 @@ We have presented a production-grade documentation RAG system coupling 4-bit QLo
 
 % region Appendix
 \appendix
-\section{System Hyperparameters \& Prompts}
-
-\subsection{4-Bit QLoRA Fine-Tuning Hyperparameters}
+\section{QLoRA Fine-Tuning Hyperparameters}
 Modeled after Tab.~1 of Xia et al.~\cite{kdd_winning}:
 
 \begin{table}[h]
@@ -281,8 +273,18 @@ Peak Training VRAM & $\sim 7.1$\,GB (RTX 4060 Laptop 8GB) \\
 \end{tabular}
 \end{table}
 
-\subsection{System 2 Quality Auditor Prompt}
-\begin{lstlisting}[caption={System 2 Audit Prompt},label={lst:audit}]
+\section{System Specifications and Prompt Templates}
+
+\begin{lstlisting}[caption={TypeSafe Jev Intent Routing Specification},label={lst:jev}]
+Allowed Domain: 'Kanzi Technical Documentation & Automotive UI API'
+Criteria:
+- 'refuse': Off-topic query completely outside domain
+- 'bm25': Specific identifiers, exact APIs, or error codes
+- 'hyde_bm25': General technical question or workflow
+- 'hyde': Abstract, short, or ambiguous query
+\end{lstlisting}
+
+\begin{lstlisting}[caption={System 2 Quality Audit Prompt},label={lst:audit}]
 You are a quality control auditor verifying documentation answers.
 User Query: {query}
 Retrieved Documentation Context: {docs}
