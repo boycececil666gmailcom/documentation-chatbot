@@ -5,7 +5,6 @@ FROM python:3.12-slim
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 COPY --from=ghcr.io/astral-sh/uv:latest /uvx /bin/uvx
 
-
 WORKDIR /app
 
 # Enable byte-code compilation and install dependencies into system environment
@@ -16,6 +15,10 @@ ENV LOG_LEVEL=WARNING
 
 COPY pyproject.toml uv.lock /app/
 RUN uv sync --frozen --no-install-project --no-dev
+
+# Patch langgraph-api for Private Network Access (PNA) CORS support from LangSmith Studio (HTTPS -> localhost)
+RUN python -c "p='/usr/local/lib/python3.12/site-packages/langgraph_api/config/schemas.py'; c=open(p).read(); open(p, 'w').write(c.replace('class CorsConfig(TypedDict, total=False):', 'class CorsConfig(TypedDict, total=False):\n    allow_private_network: bool'))" && \
+    python -c "p='/usr/local/lib/python3.12/site-packages/langgraph_api/server.py'; c=open(p).read(); open(p, 'w').write(c.replace('allow_headers=[\"*\"],', 'allow_headers=[\"*\"],\n                allow_private_network=True,'))"
 
 # Copy application files
 COPY src/ /app/src/

@@ -1,182 +1,443 @@
 [
   {
-    "id": "080b847b-804b-5014-89af-43426e0ce41c",
-    "content": "# Kanzi fundamentals¶\nView this page as Markdown.\nInstall Kanzi Documentation MCP server to VS Code.\n Connect to Claude\nHere you can learn about the fundamental Kanzi concepts, which can help you understand why Kanzi works the way it works.\n\nPresentation\n\nLayouts\n\nResource management\n\nProperty system\n\nLogic programming\n\nAnimation system\n\nKanzi graphics\n## See also¶\nFor an overview of Kanzi Studio, see Tutorial: Getting started with Kanzi Studio.\nTo learn how to use Kanzi, see Tutorials.\nTo learn how to use specific features in Kanzi, see Working with ….",
+    "id": "f13f939e-3022-54eb-bc39-3050acda7436",
+    "content": "# Best practices\n \nCopy this page as Markdown for LLMs.\nView as Markdown\nView this page as Markdown.\nAsk Claude\nAsk Claude about this topic.\nAsk ChatGPT\nAsk ChatGPT about this topic.\nConnect to VS Code\nInstall Kanzi Documentation MCP server to VS Code.\nConnect to Claude\nDownload and run the Claude mcpb.\nWhen creating applications for embedded and mobile devices, even seemingly small details can have significant impact on the performance of your Kanzi application on target devices. Kanzi graphics pipeline is optimized to allow 60 frames per second for 3D instrument clusters and human-machine interfaces. Use the best practices covered in this section of documentation to create optimal Kanzi applications for your target hardware.\nEven though Kanzi provides many ways that enable you to create applications that consume less memory, CPU and GPU capacity, and device battery, how you create your application has a large impact on its efficiency.\n## Thread safety\nKanzi is thread-agnostic and does not guarantee thread safety. To make your Kanzi application code thread-safe:\n  * Do not call Kanzi functions from custom threads unless the API documentation specifies that you can call the function from any thread.\n  * Synchronize between threads all access to shared data.\n\n## Pay attention to the log messages\nKanzi prints warnings and errors to the Kanzi Studio Log window and the Kanzi debug console to help you find the problems and bottlenecks in your Kanzi application. Pay careful attention to these messages. To ensure that your Kanzi application works correctly and performs optimally on your target platform, resolve all the issues shown in the warnings and errors. Even seemingly unimportant warnings can have a significant impact on the loading times and performance of your Kanzi application. For example, see [Adjusting the data size](https://docs.kanzi.com/4.1.0/en/best-practices/images-and-textures/adjusting-the-data-size.html).",
     "metadata": {
-      "title": "Kanzi fundamentals(https://docs.kanzi.com/4.1.0/en/kanzi-fundamentals/kanzi-fundamentals.html#k-fundamentals \"Link to this heading\")",
-      "breadcrumb": "Kanzi fundamentals(https://docs.kanzi.com/4.1.0/en/kanzi-fundamentals/kanzi-fundamentals.html#k-fundamentals \"Link to this heading\")",
-      "level": 0
+      "title": "Best practices (Part 1/3)",
+      "breadcrumb": "Best practices",
+      "level": 0,
+      "raptor_layer": 0,
+      "url": "https://docs.kanzi.com/4.1.0/en/best-practices/best-practices.html",
+      "parent_id": "",
+      "child_ids": [
+        "eb29fab4-9faf-532b-8b8d-a6d5cdaa3eba",
+        "b85cb346-4396-51cf-a557-5a4e6368c2d2",
+        "b88439ea-7597-51a1-8b54-3ab1f53a3fff",
+        "e3b17986-1ef0-5f29-929a-6b578e9efd11",
+        "cdaaaa1a-6d8d-5251-b7b7-d85e620bc025",
+        "b5e8bf6b-586c-53e2-a1eb-069439acc2c1",
+        "37e9fc6d-1629-5774-9c3b-07de5b1521ae",
+        "b4e48dd5-d842-571b-99dd-5995576d2278"
+      ],
+      "char_count": 1951
     }
   },
   {
-    "id": "b5a2c30b-e61d-55eb-afea-dda8dcae5bf6",
-    "content": "# Working with …¶\nView this page as Markdown.\nInstall Kanzi Documentation MCP server to VS Code.\n Connect to Claude\nHere you can find information about Kanzi features.\n\n2D content\n\n2D effects\n\n3D assets\n\nActivities\n\nAI tools\n\nAliases\n\nAndroid\n\nAnimations\n\nApplication",
+    "id": "c59d07e1-20e7-5435-8964-e310f7468622",
+    "content": "# Working with …\n \nCopy this page as Markdown for LLMs.\nView as Markdown\nView this page as Markdown.\nAsk Claude\nAsk Claude about this topic.\nAsk ChatGPT\nAsk ChatGPT about this topic.\nConnect to VS Code\nInstall Kanzi Documentation MCP server to VS Code.\nConnect to Claude\nDownload and run the Claude mcpb.\nHere you can find information about Kanzi features.\n[](https://docs.kanzi.com/4.1.0/en/working-with/2d-content/adjusting-the-appearance.html)\n[2D content](https://docs.kanzi.com/4.1.0/en/working-with/2d-content/adjusting-the-appearance.html)\n[](https://docs.kanzi.com/4.1.0/en/working-with/effects/2d-effects.html)\n[2D effects](https://docs.kanzi.com/4.1.0/en/working-with/effects/2d-effects.html)\n[](https://docs.kanzi.com/4.1.0/en/working-with/3d-assets/3d-assets.html)\n[3D assets](https://docs.kanzi.com/4.1.0/en/working-with/3d-assets/3d-assets.html)\n[](https://docs.kanzi.com/4.1.0/en/working-with/activities/activities.html)\n[Activities](https://docs.kanzi.com/4.1.0/en/working-with/activities/activities.html)\n[](https://docs.kanzi.com/4.1.0/en/working-with/ai-tools/using-kanzi-ai-tools.html)\n[AI tools](https://docs.kanzi.com/4.1.0/en/working-with/ai-tools/using-kanzi-ai-tools.html)\n[](https://docs.kanzi.com/4.1.0/en/working-with/aliases/using-aliases.html)\n[Aliases](https://docs.kanzi.com/4.1.0/en/working-with/aliases/using-aliases.html)\n[](https://docs.kanzi.com/4.1.0/en/working-with/android/android.html)\n[Android](https://docs.kanzi.com/4.1.0/en/working-with/android/android.html)\n[](https://docs.kanzi.com/4.1.0/en/working-with/animations/animations.html)\n[Animations](https://docs.kanzi.com/4.1.0/en/working-with/animations/animations.html)",
     "metadata": {
-      "title": "Working with …(https://docs.kanzi.com/4.1.0/en/working-with/working-with.html#working-with \"Link to this heading\")",
-      "breadcrumb": "Working with …(https://docs.kanzi.com/4.1.0/en/working-with/working-with.html#working-with \"Link to this heading\")",
-      "level": 0
+      "title": "Working with … (Part 1/9)",
+      "breadcrumb": "Working with …",
+      "level": 0,
+      "raptor_layer": 0,
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/working-with.html",
+      "parent_id": "",
+      "child_ids": [
+        "0454b3f8-17a3-5634-a30f-084da39644ae",
+        "446ac868-0821-5b6a-87d9-acf2e5621268",
+        "737de691-5f0e-5d97-9685-c102058096ce",
+        "6180bd3d-0808-57f2-bf89-191b1d484a03",
+        "5efe03c0-6b06-5cd2-87b2-0d4860adf38f",
+        "3e35618c-f872-56c6-99a7-00e2c2a12c5e",
+        "ec6a403c-a20d-5349-86e4-f0e7234c8b0a",
+        "9481e043-1777-5de5-bc2c-06cd9aa546eb",
+        "4e9a51d0-bf01-5254-8b91-58c7efa50fbb",
+        "0b749791-53c3-59fa-9ce7-e3ab9a6b7ce3",
+        "35877891-46ae-5eed-82ee-e031d17e807c",
+        "e804ad4d-6746-5466-9a5f-ce139397db9a",
+        "3d56def7-9273-550e-bc86-f698d2e3ed10",
+        "0b4c480f-ccf2-5800-8dd1-bf784a7e58bc",
+        "fcd1e420-ea0e-5a6b-ba98-838aebd5d61d",
+        "8390d388-20ef-5f45-bc4e-6ccc35fef6ab",
+        "0056b362-0aa1-59d4-9e93-99bc49b3ede3",
+        "226e34ba-e1ea-58c8-90af-0e0a7c674ccf",
+        "82529608-e8a6-57b5-a081-754fd184834d",
+        "53e829ac-eb66-52ef-bb28-a73a6c7ef23a",
+        "83fb3137-8794-56dc-bd8b-718404e0cede",
+        "f79e823a-a84e-5332-a2ac-539f3e3e8995",
+        "9e0b1647-90fc-5228-88f7-ab4beae1ec1f",
+        "d0c3e794-a4e6-5000-ac12-497b5d9a5e1d",
+        "348c7644-5ed5-5ec1-bbbe-d4e43172be20",
+        "e84e8ac6-8954-5b0c-b55a-16459a9d5684",
+        "85c3858c-4dad-53b1-813f-44cdc8b39168",
+        "5b6ed938-4fc2-5ac6-86ef-7e26e51b2ad3",
+        "c23906af-d49e-5ba6-8b3a-2387c69819b4",
+        "17a4c4d5-de8c-5e4f-8983-188aafea6c38",
+        "fdd7e341-7cfb-5cfe-9569-ba50b20a72db",
+        "a7831fc3-67ed-53bb-ad13-0624e9199929",
+        "463efaa0-5c1a-5873-854f-964a6c861846",
+        "276af1a4-4a84-5b51-9989-6866d07bea3d",
+        "683de1e7-98fc-5678-8313-f0838a079669",
+        "81315f39-2720-50dd-a654-4b8a4a731d30",
+        "f10db9b4-8a0a-5c40-8362-b8c4d20b351d",
+        "bc71cc1f-2c2b-55db-a090-fe1b06f7861c",
+        "61cef9b5-4d9f-5fe7-9d06-8f0e20e4ed7b",
+        "44783bc2-7cc9-51c6-ae57-e5c0b484cdde",
+        "ce36ea5b-c660-52a1-848b-b8a233987d23",
+        "413dcea1-1638-58b6-86f1-020a9a9eb3a5",
+        "7e0ebdd0-8c76-5399-8b48-dee0b2d5dffa",
+        "efc047b6-4370-5b18-84d7-2cc67ef5d262",
+        "c1bd0e23-529a-5299-923e-b1a6b97ceeae",
+        "494f2da1-ab21-5be7-bc5b-6fb83af3e495",
+        "4ef08976-3700-56f6-a19d-e37d9d6d9ce8",
+        "54f26acc-2370-564b-a388-4b4dcb74cfb7",
+        "83428548-804b-503b-813a-e577804c4d66",
+        "c0ef5339-121e-559d-9b07-302a4d0abef0",
+        "00d2d467-60e9-574d-a01e-2856de12c5d6",
+        "7a09f8de-4f9b-56a7-a19a-ad31be216838",
+        "020f3f11-635e-5773-9622-7b8268253ac9",
+        "1b608372-e89f-5af7-a329-61aacab8c7f9",
+        "bbee409b-5f02-58e0-b300-03cc748142a7",
+        "abeea2c4-7062-571f-9789-e264ee971c80",
+        "fa4377e1-cac6-5ed8-92c3-29e26e528a09",
+        "6f933c78-fca2-5114-9680-b8812418b226",
+        "9c359596-2f41-50fd-bb9c-421d8c2b8ec1",
+        "b567f1b6-54c0-556a-8b7a-63648483bc22",
+        "9019034b-1537-5aaf-a3b5-729b551c87f3",
+        "d71a74ea-dbf5-52b8-a3ad-aa2c9c249269",
+        "83f18232-e98b-5c68-ae45-89dfef4fbfa0",
+        "8c476207-6807-5292-83d3-c060f8bd014c",
+        "36bada87-3af7-5ad8-966f-4b8526f10e8f",
+        "6c76c711-1b76-568e-83a4-a81f94569a36",
+        "f18a3919-c97a-531f-9ce0-9525b997c784",
+        "0b7c003a-3a45-519a-8fb8-78f959ea1521",
+        "ad6df34f-def3-521a-98ea-a284598f6939",
+        "c60fb6d2-8d35-5e27-a7e5-d39d73b7f9cd",
+        "eb71e5c4-2bca-52c0-84f9-95cd8ec64301",
+        "cf092aa5-d99d-5438-9561-f61f82fe51a0",
+        "9e869a8d-3f9a-57e9-9a3b-9e4515c5aba9",
+        "5ff946b3-74ca-5cd5-b32b-f68f17eddba3",
+        "5f0fc476-eced-51a1-9944-cb31abc2192c",
+        "f823c076-3bc1-54e7-a638-a77b96a377da",
+        "69a068fb-95bf-5278-89f9-a0e0dea9e556",
+        "41f05c00-23fe-585f-a4ef-91dd102f14f5",
+        "05c38618-d31f-5627-b59d-a9b6cc1a4872",
+        "fdffca18-ebbc-5c4e-b30b-b7ea63be0d57"
+      ],
+      "char_count": 1665
     }
   },
   {
-    "id": "901fc66b-8ae5-5d7a-be8c-2c8fc2a99750",
-    "content": "# Best practices¶\nView this page as Markdown.\nInstall Kanzi Documentation MCP server to VS Code.\n Connect to Claude\nWhen creating applications for embedded and mobile devices, even seemingly small details can have significant impact on the performance of your Kanzi application on target devices. Kanzi graphics pipeline is optimized to allow 60 frames per second for 3D instrument clusters and human-machine interfaces. Use the best practices covered in this section of documentation to create optimal Kanzi applications for your target hardware.\nEven though Kanzi provides many ways that enable you to create applications that consume less memory, CPU and GPU capacity, and device battery, how you create your application has a large impact on its efficiency.\n## Thread safety¶\nKanzi is thread-agnostic and does not guarantee thread safety. To make your Kanzi application code thread-safe:\n  * Do not call Kanzi functions from custom threads unless the API documentation specifies that you can call the function from any thread.\n  * Synchronize between threads all access to shared data.\n\n## Pay attention to the log messages¶\nKanzi prints warnings and errors to the Kanzi Studio Log window and the Kanzi debug console to help you find the problems and bottlenecks in your Kanzi application. Pay careful attention to these messages. To ensure that your Kanzi application works correctly and performs optimally on your target platform, resolve all the issues shown in the warnings and errors. Even seemingly unimportant warnings can have a significant impact on the loading times and performance of your Kanzi application. For example, see Adjusting the data size.\n## Use the Kanzi Command Prompt¶\nThe Kanzi Command Prompt opens the Windows Command Prompt with the Kanzi environment variables set for the version of Kanzi for which you open a Kanzi Command Prompt.\nUse the Kanzi Command Prompt to access Kanzi utilities and build tools, such as Gradle and CMake, without using absolute paths or setting environment variables.\nSee Using the Kanzi Command Prompt.\n## Kanzi best practices[¶](https://docs.kanzi.com/4.1.0/en/best-practices/best-practices.html#k-best-pract",
+    "id": "b47cb1fc-e8f9-5313-b8e0-d6ac04841e92",
+    "content": "# References\n \nCopy this page as Markdown for LLMs.\nView as Markdown\nView this page as Markdown.\nAsk Claude\nAsk Claude about this topic.\nAsk ChatGPT\nAsk ChatGPT about this topic.\nConnect to VS Code\nInstall Kanzi Documentation MCP server to VS Code.\nConnect to Claude\nDownload and run the Claude mcpb.  \n| Description  | Reference  |  \n| --- | --- |  \n| **Glossary**  | [Glossary](https://docs.kanzi.com/4.1.0/en/reference/glossary.html)  |  \n|  **Application configuration** Use application configurations to configure your Kanzi application. See [Application development](https://docs.kanzi.com/4.1.0/en/working-with/application-configurations/application-configuration.html).  | [Application configuration reference](https://docs.kanzi.com/4.1.0/en/working-with/application-configurations/reference-for-application-configuration.html)  |  \n|  **Binding expressions** Use bindings to set the value of a property or property field with the value from another property, property field, or a data source. See [Using bindings](https://docs.kanzi.com/4.1.0/en/working-with/bindings/using-bindings.html).  | [Bindings expressions reference](https://docs.kanzi.com/4.1.0/en/working-with/bindings/reference-for-bindings-expressions.html)  |  \n|  **Triggers and actions** Use triggers and actions to create interactions based on user input. See [Using triggers](https://docs.kanzi.com/4.1.0/en/working-with/triggers/using-triggers.html).  |  [Triggers reference](https://docs.kanzi.com/4.1.0/en/working-with/triggers/reference-for-triggers.html) [Actions and messages reference](https://docs.kanzi.com/4.1.0/en/working-with/triggers/reference-for-actions.html)  |  \n|  **Resource profiling** Use resource profiling to measure during runtime how long it takes to load and deploy resources and prefabs in your Kanzi application. See [Measuring the loading and deployment time of resources](https://docs.kanzi.com/4.1.0/en/working-with/performance-profiling/resource-profiling.html).  | [Resource profiling reference](https://docs.kanzi.com/4.1.0/en/working-with/performance-profiling/resource-profiling-reference.html)  |",
     "metadata": {
-      "title": "Best practices(https://docs.kanzi.com/4.1.0/en/best-practices/best-practices.html#best-practices \"Link to this heading\")",
-      "breadcrumb": "Best practices(https://docs.kanzi.com/4.1.0/en/best-practices/best-practices.html#best-practices \"Link to this heading\")",
-      "level": 0
+      "title": "References (Part 1/6)",
+      "breadcrumb": "References",
+      "level": 0,
+      "raptor_layer": 0,
+      "url": "https://docs.kanzi.com/4.1.0/en/reference/reference.html",
+      "parent_id": "",
+      "child_ids": [
+        "e23b948f-568d-56eb-95be-b156b8e3f0b2",
+        "2c97d07f-226a-5de9-9360-c6e5495141dc",
+        "62fcdb65-9179-54a0-93f5-7029ad65f621",
+        "50d45cc6-d89d-55dd-bede-62039b585c3d",
+        "987ea00f-6dae-5dfc-a412-ea318ef1aadc",
+        "1520d073-5c9e-5796-a75c-c64c424b9d53",
+        "2dedf704-9a61-5c21-a07f-097f7da3129f",
+        "41af1570-e56b-50f2-b5fd-8afb6cc56cbf",
+        "8810ac6b-0b67-5627-9483-3be7df55db3a",
+        "45be22eb-12fb-53d7-b306-0e93c18cf623",
+        "7924c8d8-5ba8-5ba2-81d3-fe060060980e",
+        "ddc07505-93ac-53c2-86dd-83614b84b749",
+        "2f132e1a-18ba-5b5f-90a6-a1786d39975b",
+        "152a27d5-0544-5639-9d72-37c06ad6de59"
+      ],
+      "char_count": 2111
     }
   },
   {
-    "id": "2a9ffb9e-8110-5281-bcc0-7cb6e21839dd",
-    "content": "# Layouts¶\nView this page as Markdown.\nInstall Kanzi Documentation MCP server to VS Code.\n Connect to Claude\nIn Kanzi there are three types of layouts:\n|    | Layouts that base the position and size of their child nodes, such as the Flow Layout, Grid Layout, Stack Layout, and Trajectory Layout nodes. For example, these layouts are useful when the amount of content changes dynamically.  |\n| --- | --- |\n|    | Content controls that show specific content and usually center the content, such as the Image node and Button nodes.  |\n|    | Absolute positioning controls that act as containers that group their child nodes, such as the Viewport 2D and Empty Node 2D nodes.  |\nYou can use layout nodes to position nodes in relation to the application screen and other nodes. Layout consists of properties alignment, margins and layout size and that you can define either specific to a node or as a general rule imposed on child nodes by specific layout containers.\nSee Layout control nodes.",
+    "id": "e1c722cd-4f32-594e-8e0e-c574711c05a7",
+    "content": "# Optimizing the startup time of your application\n \nCopy this page as Markdown for LLMs.\nView as Markdown\nView this page as Markdown.\nAsk Claude\nAsk Claude about this topic.\nAsk ChatGPT\nAsk ChatGPT about this topic.\nConnect to VS Code\nInstall Kanzi Documentation MCP server to VS Code.\nConnect to Claude\nDownload and run the Claude mcpb.\nTo optimize the startup time of your Kanzi application:\n  * For images in your applications use raw and compressed formats, instead of .png and .jpg formats. When you use raw and compressed formats Kanzi needs to process less data before it sends it to the GPU. See [Images and textures best practices](https://docs.kanzi.com/4.1.0/en/best-practices/images-and-textures/images-and-textures-best-practices.html).\n  * Use the parallel resource loading to load and process the resources from your application in multiple threads and deploy the resources to the GPU over multiple frames. See [Loading resources in parallel](https://docs.kanzi.com/4.1.0/en/best-practices/loading-resources-in-parallel.html).\n  * Load first a kzb file which contains the smallest amount of content you can show at application startup, such as a loading screen. Then start loading the kzb files which contain the rest of your application. See [Combining Kanzi Studio projects into a Kanzi application](https://docs.kanzi.com/4.1.0/en/working-with/projects/using-assets-from-another-project.html).\n  * Reorganize the node tree of your application in Kanzi Studio. Kanzi loads the resources when it needs them. Reorganize the node tree to postpone the loading of resources until less important parts of the node tree become visible. Doing so the application can skip those resources and start faster.\n  * Design your application to support gradual loading. For example, show the loading screen while you load the base UI, and once the base UI is loaded and operational, preload the application resources for the other parts of the UI. See [Loading node prefab resources asynchronously](https://docs.kanzi.com/4.1.0/en/working-with/prefabs/prefabs.html#loading-node-prefab-resources-asynchronously).",
     "metadata": {
-      "title": "Layouts(https://docs.kanzi.com/4.1.0/en/kanzi-fundamentals/layouts.html#layouts \"Link to this heading\")",
-      "breadcrumb": "Kanzi fundamentals(https://docs.kanzi.com/4.1.0/en/kanzi-fundamentals/kanzi-fundamentals.html#k-fundamentals \"Link to this heading\") > Layouts(https://docs.kanzi.com/4.1.0/en/kanzi-fundamentals/layouts.html#layouts \"Link to this heading\")",
-      "level": 1
+      "title": "Performance (Part 1/3)",
+      "breadcrumb": "Best practices > Performance",
+      "level": 1,
+      "raptor_layer": 1,
+      "url": "https://docs.kanzi.com/4.1.0/en/best-practices/start-up-time.html",
+      "parent_id": "657b229f-c013-503b-acc3-105c3f47c50d",
+      "child_ids": [
+        "db2c6ea2-fb0b-57a7-8479-480791d82a47",
+        "0c6c496a-386b-55cd-8dfa-9062fb0cb3d7",
+        "223eb0ff-6f46-58c5-b67c-53584aa8be08",
+        "42089d29-4fe7-5568-96e7-8531e19792f1"
+      ],
+      "char_count": 2111
     }
   },
   {
-    "id": "159b0f42-fcc7-5fc3-be59-0451f24cd903",
-    "content": "# Resource management¶\nView this page as Markdown.\nInstall Kanzi Documentation MCP server to VS Code.\n Connect to Claude\nIn Kanzi, a resource is an item that you can reuse in different parts of your application. For example, a Mesh Data resource defines the geometry of a Model node, and you can use the same Color Brush in different nodes to set the Foreground Brush or Background Brush properties.\n\nKanzi resource manager enables you to organize and reuse resources in your applications.",
+    "id": "704dc9aa-f236-58fe-962b-1d8fd3f0b8fd",
+    "content": "# Animations best practices\n \nCopy this page as Markdown for LLMs.\nView as Markdown\nView this page as Markdown.\nAsk Claude\nAsk Claude about this topic.\nAsk ChatGPT\nAsk ChatGPT about this topic.\nConnect to VS Code\nInstall Kanzi Documentation MCP server to VS Code.\nConnect to Claude\nDownload and run the Claude mcpb.\nTo create more efficient animations:\n  * Remove the keyframes that do not affect the precision of an animation. See [Removing redundant keyframes](https://docs.kanzi.com/4.1.0/en/best-practices/animations/removing-redundant-keyframes.html).\n  * Remove the Animation Data channels that do not animate anything.\nSee [Removing redundant Animation Data channels](https://docs.kanzi.com/4.1.0/en/best-practices/animations/removing-redundant-animation-data-channels.html).\n  * Avoid excessive use of bezier interpolation between keyframes, because bezier interpolation is more expensive than linear, step, and smooth step interpolation.\n  * After you import an animation that is heavily sampled, check whether the keyframes are using Bezier interpolation. To significantly reduce the CPU workload, select all keyframes and use linear interpolation. This rarely has an impact on the visual quality of the animation. See [Setting the easing function between keyframes](https://docs.kanzi.com/4.1.0/en/working-with/animations/animating-property-values.html#setting-the-easing-function-between-keyframes).\n  * To dynamically change the size of text in a Text Block node, use the Scale property field of either Render Transformation or Layout Transformation properties, instead of the Font Size property. For example, use this approach when you want to animate the size of text in a Text Block node. When you use the Font Size property to dynamically scale the text, Kanzi creates multiple textures for different font sizes and does not release them from the memory.\n\nTip\nIn the Kanzi Studio Node Tree window, an indicator next to a node shows when a State Manager, Binding, Data Source Binding, or an Animation overrides the values of some properties in that node.\nTo navigate to the source of the override in the Kanzi Studio project, right-click the override indicator and select the source you wish to navigate to from the context menu.",
     "metadata": {
-      "title": "Resource management(https://docs.kanzi.com/4.1.0/en/kanzi-fundamentals/resource-management.html#resource-management \"Link to this heading\")",
-      "breadcrumb": "Kanzi fundamentals(https://docs.kanzi.com/4.1.0/en/kanzi-fundamentals/kanzi-fundamentals.html#k-fundamentals \"Link to this heading\") > Resource management(https://docs.kanzi.com/4.1.0/en/kanzi-fundamentals/resource-management.html#resource-management \"Link to this heading\")",
-      "level": 1
+      "title": "Animations (Part 1/2)",
+      "breadcrumb": "Best practices > Animations",
+      "level": 1,
+      "raptor_layer": 1,
+      "url": "https://docs.kanzi.com/4.1.0/en/best-practices/animations/animations-best-practices.html",
+      "parent_id": "657b229f-c013-503b-acc3-105c3f47c50d",
+      "child_ids": [
+        "320b7303-fbda-546f-89a8-4d4497d1f7fb",
+        "83e1f621-2a28-55a6-ba7c-49b6d304ff23"
+      ],
+      "char_count": 2245
     }
   },
   {
-    "id": "4d3f5014-cee1-53da-93f0-eaa1c9bebaa0",
-    "content": "# Property system¶\nView this page as Markdown.\nInstall Kanzi Documentation MCP server to VS Code.\n Connect to Claude\nProperties provide the means to specify and examine the state, appearance, and behavior of nodes. For example, a property can define a color, indicate whether a button is pressed, or specify the alignment of an item.\nYou can work with properties by setting the property values in Kanzi Studio and accessing them in code without understanding how the property system works. However, to take full advantage of the Kanzi property system features, you have to become familiar with how the property system works.\nProperties provide a uniform way to access data of Kanzi nodes, so that many Kanzi subsystems can manipulate the data. That way you can, for example, animate property values, provide bindings between property values, and monitor property value changes.\nAny property value can be affected by multiple input sources. The property system defines the rules for resolving the property value from all inputs and resolves the current value. For example, you can set the value of a property directly, properties can have default values, styles can affect property values, and animations and state manager can modify property values. By offering rules that are applied automatically, the property system minimizes the number of places where you have to change the values manually.",
+    "id": "aa060b44-351f-5d2d-ac46-39566d8ed872",
+    "content": "# Images and textures best practices\n \nCopy this page as Markdown for LLMs.\nView as Markdown\nView this page as Markdown.\nAsk Claude\nAsk Claude about this topic.\nAsk ChatGPT\nAsk ChatGPT about this topic.\nConnect to VS Code\nInstall Kanzi Documentation MCP server to VS Code.\nConnect to Claude\nDownload and run the Claude mcpb.\nThe required memory bandwidth that rendering of large textures and images use can slow down your application. Use these tips to improve the performance of your application by creating and using optimal images and textures:\n  * The easiest way to optimize the performance of your application is to reduce the amount of detail in your images by using smaller data sizes. See [Adjusting the data size](https://docs.kanzi.com/4.1.0/en/best-practices/images-and-textures/adjusting-the-data-size.html).\n  * Kanzi supports Adaptive Scalable Texture Compression (ASTC), Ericsson Texture Compression (ETC), Block Compression (BCn), and PNG compression for compressing images used in textures. See [Compressing textures](https://docs.kanzi.com/4.1.0/en/best-practices/images-and-textures/compressing-textures.html).\n  * When users run your Kanzi application in an environment with a multi-core processor, Kanzi automatically uses multiple CPU cores to load the GPU resources in the kzb files to RAM.\nKanzi enables you to configure how many cores you want your application to use. See [Loading resources in parallel](https://docs.kanzi.com/4.1.0/en/best-practices/loading-resources-in-parallel.html).\n  * Use mipmaps to create a set of downscaled sublevels from a large texture. Mipmaps increase the GPU memory use by one third, but improve the performance when the full texture does not have to be sampled. Use mipmaps to improve the performance whenever you scale a textured node.\nSee [Using mipmaps](https://docs.kanzi.com/4.1.0/en/best-practices/images-and-textures/using-mipmaps.html).\n  * Apply texture filtering to increase either quality or performance. This method can be very effective if you are familiar with the application behavior in advance. See [Filtering textures](https://docs.kanzi.com/4.1.0/en/best-practices/images-and-textures/filtering-textures.html).\n  * Use a tile atlas to improve application framerate by decreasing the number of texture switches that your application must make during runtime.",
     "metadata": {
-      "title": "Property system(https://docs.kanzi.com/4.1.0/en/kanzi-fundamentals/property-system.html#property-system \"Link to this heading\")",
-      "breadcrumb": "Kanzi fundamentals(https://docs.kanzi.com/4.1.0/en/kanzi-fundamentals/kanzi-fundamentals.html#k-fundamentals \"Link to this heading\") > Property system(https://docs.kanzi.com/4.1.0/en/kanzi-fundamentals/property-system.html#property-system \"Link to this heading\")",
-      "level": 1
+      "title": "Images and textures (Part 1/4)",
+      "breadcrumb": "Best practices > Images and textures",
+      "level": 1,
+      "raptor_layer": 1,
+      "url": "https://docs.kanzi.com/4.1.0/en/best-practices/images-and-textures/images-and-textures-best-practices.html",
+      "parent_id": "657b229f-c013-503b-acc3-105c3f47c50d",
+      "child_ids": [
+        "e373c25f-d7a3-5187-ae09-3481fd4a4474",
+        "b3af9990-742c-5104-9a96-053c225edb4e",
+        "346f9382-ae91-56ab-913b-e2740dd79290",
+        "4afa02d7-5b4b-5a06-914d-eacad18ab3ee",
+        "4fc05399-5179-5288-811c-c713ac62e626"
+      ],
+      "char_count": 2336
     }
   },
   {
-    "id": "9436eab7-9ce4-5d98-8c09-39f9131f9db8",
-    "content": "# Logic programming¶\nView this page as Markdown.\nInstall Kanzi Documentation MCP server to VS Code.\n Connect to Claude\nIn Kanzi you can program application and control logic using several technologies that are geared towards different users and use cases:\n|    |  Triggers and actions provide reactive logic programming through Kanzi Studio UI. You can use triggers and actions to execute small pieces of logic called actions based on simple conditions defined in triggers. For example, if you want to handle simple events like button press, or perform simple operations like set a property or activate a page, you can use triggers and actions. Triggers define the events and conditions you want to handle and contain actions that you want to execute when the trigger is set off. Actions are small operations that are executed when the trigger event happens and conditions are met. See Triggers.  |\n| --- | --- |\n|    | State managers expose logic programming through defining state machines tied to internal states of controls or application. For example, use the state manager to define the look of a button when it is pressed and when it is not, or to define the logic of your application, control, or prefab in terms of mutually exclusive states. You can use a state manager to define the logic of a menu. For example, to show whether the sound in a car is muted, or when fuel is low. See State manager.  |\n|    |  Kanzi Engine Lua API is a platform-independent interface to the Kanzi Engine using the Lua programming language. It allows you to create application and user interface logic in Kanzi Studio. When you export a kzb file, Kanzi Studio embeds Lua scripts in the kzb file. See Using Lua, Tutorial: Kanzi Engine Lua API basic use, and Kanzi Lua API reference.  |\n|    | C++ and Java APIs provide the most extensive way to program logic and are geared towards programmers and technical designers. Use the APIs to program applications, develop Kanzi Engine plugins, interface with devices an",
+    "id": "dc55ebae-4a9e-5209-a2f6-c83db545675c",
+    "content": "# Meshes best practices\n \nCopy this page as Markdown for LLMs.\nView as Markdown\nView this page as Markdown.\nAsk Claude\nAsk Claude about this topic.\nAsk ChatGPT\nAsk ChatGPT about this topic.\nConnect to VS Code\nInstall Kanzi Documentation MCP server to VS Code.\nConnect to Claude\nDownload and run the Claude mcpb.\nMeshes, along with textures, have a major role in affecting the performance of any 3D application. To improve efficiency of meshes in your Kanzi applications:\n  * Reduce the amount of vertex data in the meshes. See [Optimizing meshes](https://docs.kanzi.com/4.1.0/en/working-with/meshes/editing-meshes.html).\n  * Reduce the number of vertices. See [Reducing the number of rendered vertices](https://docs.kanzi.com/4.1.0/en/best-practices/meshes/reducing-the-number-of-rendered-vertices.html).\n  * Access mesh vertices from the cache. See [Setting the correct size of vertex cache](https://docs.kanzi.com/4.1.0/en/best-practices/meshes/setting-the-correct-size-of-vertex-cache.html).\n  * Optimize the performance of meshes by setting the culling properties. See [Setting culling](https://docs.kanzi.com/4.1.0/en/best-practices/meshes/setting-culling.html).\n  * When the pivot point of a mesh is centered to the mesh, you can use the half-float accuracy for the vertex attributes. When you use half-float accuracy for vertex attributes, instead of float, you decrease the mesh data size by half.\nSee [Editing the origin of nodes and setting the data type for vertex attributes](https://docs.kanzi.com/4.1.0/en/best-practices/meshes/setting-the-correct-data-type.html).\n  * When users run your Kanzi application in an environment with a multi-core processor, Kanzi automatically uses multiple CPU cores to load the GPU resources in the kzb files to RAM.\nKanzi enables you to configure how many cores you want your application to use. See [Loading resources in parallel](https://docs.kanzi.com/4.1.0/en/best-practices/loading-resources-in-parallel.html).\n  * Use instancing to render a large number of copies of the same mesh. See [Creating meshes with instancing](https://docs.kanzi.com/4.1.0/en/working-with/meshes/meshes-api.html#creating-meshes-with-instancing).",
     "metadata": {
-      "title": "Logic programming(https://docs.kanzi.com/4.1.0/en/kanzi-fundamentals/logic-programming.html#logic-programming \"Link to this heading\")",
-      "breadcrumb": "Kanzi fundamentals(https://docs.kanzi.com/4.1.0/en/kanzi-fundamentals/kanzi-fundamentals.html#k-fundamentals \"Link to this heading\") > Logic programming(https://docs.kanzi.com/4.1.0/en/kanzi-fundamentals/logic-programming.html#logic-programming \"Link to this heading\")",
-      "level": 1
+      "title": "Meshes (Part 1/2)",
+      "breadcrumb": "Best practices > Meshes",
+      "level": 1,
+      "raptor_layer": 1,
+      "url": "https://docs.kanzi.com/4.1.0/en/best-practices/meshes/meshes-best-practices.html",
+      "parent_id": "657b229f-c013-503b-acc3-105c3f47c50d",
+      "child_ids": [
+        "766d5599-4fd8-58a5-9ada-1362ed3d7a1d",
+        "55e5895f-6e66-5b02-8ac4-b9aadd1dad78",
+        "82b02dc5-9a64-5501-b8c4-9dfc1add96c6",
+        "c3b25580-e66d-55cb-a5c4-d1755190ac5b",
+        "a165b571-d99f-556c-8879-fe54a8944493",
+        "fcbdc0b5-c81a-5a11-aaf0-339824f897fc",
+        "f7620c31-547a-5cbd-90c0-cb4f34a0f2b7"
+      ],
+      "char_count": 2174
     }
   },
   {
-    "id": "d77fa5ef-eb5e-5b35-988d-9f3d5cb8040f",
-    "content": "# Animation system¶\nView this page as Markdown.\nInstall Kanzi Documentation MCP server to VS Code.\n Connect to Claude\nAnimation system allows you to animate properties over time, control playback, map property value changes to animation.\n\nThe Kanzi animation system consists:\n* Animations define how to animate a property. For example, an animation defines how to animate a color from red to green, or a float value from 7 to 11. In Kanzi you can create these types of animations:\n| From-to animation defines from which to which value to change the value of a property. You can omit either of these values to animate either from the current value or to the current value of the property. From-to animations use an easing curve that defines the rate of change for the animation. You can use one of the easing curves that comes with Kanzi, or define your own.  |    |\n| --- | --- |\n| Keyframe animation uses keyframes that define the property value and time at which the animation reaches that value. In Kanzi you can create linear, step, and Bézier spline keyframes.  |    |\n* Timelines map the animations to time and to objects you want to animate. The animations themselves do not animate an object, the timelines do. In Kanzi you can create these types of timelines:\n| Property timeline applies an animation to a property of an object. For example, to change the layout size of an Image node, use the property timeline to animate the Layout Width and Layout Height properties of the node.  |    |\n| --- | --- |\n| Property field timeline applies an animation to one or more fields of a property of an object. For example, you can use a separate animation for each color channel to change the color of the text in a Text Block node.  |    |\n|  Parallel timeline allows you to group timelines which Kanzi plays at the same time. A parallel timeline ends when the animations in the last child timeline end. Use this timeline to organize collections of timelines and create a composition of timelines.  |    |\n* Animation players receive messages that you can send with actions and genera",
+    "id": "66056097-2bd1-5ec6-9b15-d851ff1093d1",
+    "content": "# Rendering best practices\n \nCopy this page as Markdown for LLMs.\nView as Markdown\nView this page as Markdown.\nAsk Claude\nAsk Claude about this topic.\nAsk ChatGPT\nAsk ChatGPT about this topic.\nConnect to VS Code\nInstall Kanzi Documentation MCP server to VS Code.\nConnect to Claude\nDownload and run the Claude mcpb.\nBy optimizing the rendering performance you can significantly improve the performance of your application.\nKanzi renders nodes as follows:\n  * Nodes that are outside of the screen are rendered and transformed.\n  * 3D nodes with the Blend Intensity property set to 0 are rendered.\n  * 3D nodes with the Visible property disabled are not rendered or transformed.\n  * 2D nodes with the Opacity property set to 0 are not rendered and their child nodes are not rendered, but are transformed.\n  * 2D nodes with the Visible property disabled are not rendered and their child nodes are not rendered, but are transformed.",
     "metadata": {
-      "title": "Animation system(https://docs.kanzi.com/4.1.0/en/kanzi-fundamentals/animation-system.html#animation-system \"Link to this heading\")",
-      "breadcrumb": "Kanzi fundamentals(https://docs.kanzi.com/4.1.0/en/kanzi-fundamentals/kanzi-fundamentals.html#k-fundamentals \"Link to this heading\") > Animation system(https://docs.kanzi.com/4.1.0/en/kanzi-fundamentals/animation-system.html#animation-system \"Link to this heading\")",
-      "level": 1
+      "title": "Rendering (Part 1/4)",
+      "breadcrumb": "Best practices > Rendering",
+      "level": 1,
+      "raptor_layer": 1,
+      "url": "https://docs.kanzi.com/4.1.0/en/best-practices/rendering/rendering-best-practices.html",
+      "parent_id": "657b229f-c013-503b-acc3-105c3f47c50d",
+      "child_ids": [
+        "1020aff1-a525-5204-9489-18f6d69b4499",
+        "5ca10638-cba6-5e52-9a71-0419223a732a",
+        "94f59678-f533-5326-9af5-e49ea2b84e8b",
+        "5663096c-78af-5738-ad03-cdcf0d8d795e",
+        "989f308e-6541-5cef-9e64-ae1c6b66577a",
+        "9bf5635d-6e96-5c5a-a001-99eb0bfdb37a",
+        "217c227c-4d65-518c-ad0f-0933072790b5",
+        "21040a18-b78c-52f9-82dd-5da21f24050c"
+      ],
+      "char_count": 927
     }
   },
   {
-    "id": "4e4c87ee-2d96-5d24-89ea-9de078b018ce",
-    "content": "# Kanzi graphics¶\nView this page as Markdown.\nInstall Kanzi Documentation MCP server to VS Code.\n Connect to Claude\nKanzi graphics (kzgfx) is the render hardware interface (RHI) for Kanzi. It provides an abstraction layer that allows Kanzi to use different graphics APIs. Kanzi provides these implementations of the interface:\n* An OpenGL-based backend that supports OpenGL 3.3+, OpenGL ES 3.0+, and WebGL 2.0\n* A Vulkan 1.1+ backend  \nMost Kanzi applications do not need to use the Kanzi graphics API directly and instead use high-level concepts from the Rendering system. Use Kanzi graphics directly only to accomplish advanced use cases like compute or manual rendering.\nThe Kanzi graphics API has these major components:\n* Graphics objects represent an entity within the interface, such as a buffer, image, or shader.\n* Commands operate on the graphics objects and are collected into command buffers for deferred execution. Operations like copy, draw, and present are typical commands.  \nThe shader programs used by Kanzi graphics are required to provide reflection information in addition to the raw shader source. For most use cases, Kanzi Studio does this automatically when exporting a project, but you can also do this with the Kanzi Shader Compiler library or through manual construction.\nThe Kanzi graphics API is safe to call from any thread. This is in contrast to the OpenGL family of APIs which require all calls to be made within a thread specific context. The Kanzi graphics OpenGL backend provides a rendering thread to meet this requirement of the API.\nKeep in mind that you cannot use a specific graphics API, such as OpenGL or Vulkan, directly from a custom Kanzi application or plugin. Use the Kanzi graphics API instead.\nIn addition to the backends, Kanzi graphics allows you to configure multiple layers that allow additional behavior independent of the backend. Each Kanzi graphics function call is first routed through the list of layers before being processed by the backend. Kanzi provides these layers:\n* Validation layer reports violations of expected API usage.\n* Statistics layer contains a set of statistics about Kanzi graphics.",
+    "id": "7a12364c-5792-5b45-9983-a230048b617b",
+    "content": "# Shaders best practices\n \nCopy this page as Markdown for LLMs.\nView as Markdown\nView this page as Markdown.\nAsk Claude\nAsk Claude about this topic.\nAsk ChatGPT\nAsk ChatGPT about this topic.\nConnect to VS Code\nInstall Kanzi Documentation MCP server to VS Code.\nConnect to Claude\nDownload and run the Claude mcpb.\nYour application spends a considerable amount of time executing shader programs. Especially with mobile and embedded hardware, shaders can be the source of many problems, including performance bottlenecks and graphical artifacts. When used properly, shaders can help you produce amazing graphical quality and performance by distributing computation between the CPU and the GPU. You have to decide whether to perform computations in the fragment or the vertex shader.\nA vertex shader of a shader program is run once for each vertex while its fragment shader is run once for each pixel. Usually there are an order of magnitude more pixels than vertices. For this reason, the best practice is to calculate as much as possible in the vertex shader and use the results in the fragment shader.\nTo use geometry and tessellation shaders, the hardware where you want to run your Kanzi application must support OpenGL ES 3.2 or Vulkan 1.1. Note that geometry and tessellation shaders can decrease the performance on tiled rendering architectures. For this reason, it is recommended to avoid using geometry and tessellation shaders on mobile and embedded hardware.\nSome of the most common shader bottlenecks are:\n  * Unnecessary calculations in the fragment shaders and heavy fragment shaders. See [Optimizing fragment shaders](https://docs.kanzi.com/4.1.0/en/best-practices/shaders/optimizing-pixel-shaders.html).\n  * 3D models with long vertex shaders. If the vertex shader is the bottleneck, reduce the number of instructions to improve performance. If the fragment shader is the bottleneck, the optimizations in the vertex shader do not affect the performance.\n  * Displays with a lot of fragments that require filling a lot of pixels on the screen.\n  * Vertices that are sent to the GPU and processed by a vertex shader. Triangle count provides a hint of vertex count drawn per frame. See [Troubleshooting the performance of your application](https://docs.kanzi.com/4.1.0/en/best-practices/performance/measuring-performance-of-your-application.html).",
     "metadata": {
-      "title": "Kanzi graphics(https://docs.kanzi.com/4.1.0/en/kanzi-fundamentals/kanzi-graphics.html#k-graphics \"Link to this heading\")",
-      "breadcrumb": "Kanzi fundamentals(https://docs.kanzi.com/4.1.0/en/kanzi-fundamentals/kanzi-fundamentals.html#k-fundamentals \"Link to this heading\") > Kanzi graphics(https://docs.kanzi.com/4.1.0/en/kanzi-fundamentals/kanzi-graphics.html#k-graphics \"Link to this heading\")",
-      "level": 1
+      "title": "Shaders (Part 1/4)",
+      "breadcrumb": "Best practices > Shaders",
+      "level": 1,
+      "raptor_layer": 1,
+      "url": "https://docs.kanzi.com/4.1.0/en/best-practices/shaders/shaders-best-practices.html",
+      "parent_id": "657b229f-c013-503b-acc3-105c3f47c50d",
+      "child_ids": [
+        "eff17ca2-abfc-5cea-9908-3a06c4a6eef8",
+        "24480780-5ac2-5785-9489-91a6e3172c84",
+        "29dce385-a23f-5087-88fb-0bf6c7f9bc42"
+      ],
+      "char_count": 2357
     }
   },
   {
-    "id": "fc47f4ad-b604-5254-b607-4fc7b3fc3188",
-    "content": "# Adjusting the appearance of 2D nodes¶\nView this page as Markdown.\nInstall Kanzi Documentation MCP server to VS Code.\n Connect to Claude\nYou can adjust the appearance of 2D nodes by filling their background or foreground with a brush. For example, you can set the background color of an Activity node, fill a Text Block 2D node with a texture, or apply a material to a Button 2D node.\nYou can fill 2D nodes with:\n* Solid color. See Filling 2D nodes with a solid color.\n\n* Texture. See Filling 2D nodes with a texture.\n\n* Material. See Filling 2D nodes with a material.",
+    "id": "c094980b-bf7c-5389-bfca-9bd282a62585",
+    "content": "# Using the Kanzi Command Prompt\n \nCopy this page as Markdown for LLMs.\nView as Markdown\nView this page as Markdown.\nAsk Claude\nAsk Claude about this topic.\nAsk ChatGPT\nAsk ChatGPT about this topic.\nConnect to VS Code\nInstall Kanzi Documentation MCP server to VS Code.\nConnect to Claude\nDownload and run the Claude mcpb.\nThe Kanzi Command Prompt opens the Windows Command Prompt with the Kanzi environment variables set for the version of Kanzi for which you open a Kanzi Command Prompt.\nUse the Kanzi Command Prompt to access Kanzi utilities and build tools, such as Gradle and CMake, without using absolute paths or setting environment variables.\n## Running the Kanzi Command Prompt\nTo run the Kanzi Command Prompt:\n  * In the Kanzi Studio main menu, select File > Open Kanzi Command Prompt.\n* In the Windows Start Menu in the Rightware directory, select the Kanzi Command Prompt of the Kanzi version that you want to use.",
     "metadata": {
-      "title": "Adjusting the appearance of 2D nodes(https://docs.kanzi.com/4.1.0/en/working-with/2d-content/adjusting-the-appearance.html#adjusting-the-appearance-of-2d-nodes \"Link to this heading\")",
-      "breadcrumb": "Working with …(https://docs.kanzi.com/4.1.0/en/working-with/working-with.html#working-with \"Link to this heading\") > Adjusting the appearance of 2D nodes(https://docs.kanzi.com/4.1.0/en/working-with/2d-content/adjusting-the-appearance.html#adjusting-the-appearance-of-2d-nodes \"Link to this heading\")",
-      "level": 1
+      "title": "Using the Kanzi Command Prompt (Part 1/2)",
+      "breadcrumb": "Best practices > Using the Kanzi Command Prompt",
+      "level": 1,
+      "raptor_layer": 1,
+      "url": "https://docs.kanzi.com/4.1.0/en/best-practices/using-kanzi-command-prompt.html",
+      "parent_id": "657b229f-c013-503b-acc3-105c3f47c50d",
+      "child_ids": [],
+      "char_count": 924
     }
   },
   {
-    "id": "298fffdf-337f-5046-a855-8946aba995ca",
-    "content": "# Effects for 2D nodes¶\nView this page as Markdown.\nInstall Kanzi Documentation MCP server to VS Code.\n Connect to Claude\nUse effects to apply post-processing effects to 2D nodes.\nIn Kanzi Studio you can find the effects in the Library > Effects.\n\nThese effects are available in Kanzi:\n|  Use the Blur Effect 2D effect to apply a Gaussian blur to a 2D node. See Using the Blur Effect 2D effect.  |    |\n| --- | --- |\n|  Use the Mask Effect 2D effect to apply a mask to a 2D node. See Using the Mask Effect 2D effect.  |    |\n|  Use the Outline Effect 2D effect to apply an outline to the content of a 2D node. See Using the Outline Effect 2D effect.  |    |\n|  Use the Shadow Effect 2D effect to apply a shadow to the content of a 2D node. See Using the Shadow Effect 2D effect.  |    |\n|  Use an Effect Stack 2D effect prefab to apply multiple effects to a 2D node. See Using multiple effects.  |    |",
+    "id": "235396c8-3860-5e99-802b-f8ef1cf0c43e",
+    "content": "# Cleaning up your project\n \nCopy this page as Markdown for LLMs.\nView as Markdown\nView this page as Markdown.\nAsk Claude\nAsk Claude about this topic.\nAsk ChatGPT\nAsk ChatGPT about this topic.\nConnect to VS Code\nInstall Kanzi Documentation MCP server to VS Code.\nConnect to Claude\nDownload and run the Claude mcpb.\nIn Kanzi Studio you can remove all items in a project that the project does not use. Removing unused items from your project does not always improve the loading times and performance of your Kanzi application. However, it makes optimization of your Kanzi application much easier because it helps you focus on optimizing the correct content.\nBy removing content that your project does not use you can decrease the size of the kzb file of your project:\n  * When you complete your project, it is good practice to delete all resources and prefabs that your project is not using. See [Deleting the default textures and images](https://docs.kanzi.com/4.1.0/en/working-with/projects/cleaning-up-a-project.html#deleting-the-default-textures-and-images) and [Deleting resources and prefabs that your project is not using](https://docs.kanzi.com/4.1.0/en/working-with/projects/cleaning-up-a-project.html#deleting-resources-and-prefabs-that-your-project-is-not-using).\n  * If your project does not use a resource or node, you can optimize the size of your Kanzi application by excluding such items. See [Excluding items from an application](https://docs.kanzi.com/4.1.0/en/working-with/projects/cleaning-up-a-project.html#excluding-items-from-an-application).\n  * Remove the Animation Data channels that do not animate anything.\nSee [Removing redundant Animation Data channels](https://docs.kanzi.com/4.1.0/en/working-with/projects/cleaning-up-a-project.html#removing).\n  * Delete the temporary files Kanzi Studio generates when you open a project. See [Removing generated files](https://docs.kanzi.com/4.1.0/en/working-with/projects/cleaning-up-a-project.html#generated).",
     "metadata": {
-      "title": "Effects for 2D nodes(https://docs.kanzi.com/4.1.0/en/working-with/effects/2d-effects.html#effects-for-2d-nodes \"Link to this heading\")",
-      "breadcrumb": "Working with …(https://docs.kanzi.com/4.1.0/en/working-with/working-with.html#working-with \"Link to this heading\") > Effects for 2D nodes(https://docs.kanzi.com/4.1.0/en/working-with/effects/2d-effects.html#effects-for-2d-nodes \"Link to this heading\")",
-      "level": 1
+      "title": "Cleaning up your project (Part 1/5)",
+      "breadcrumb": "Best practices > Cleaning up your project",
+      "level": 1,
+      "raptor_layer": 1,
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/projects/cleaning-up-a-project.html",
+      "parent_id": "657b229f-c013-503b-acc3-105c3f47c50d",
+      "child_ids": [],
+      "char_count": 1976
     }
   },
   {
-    "id": "1c5eae18-c23b-5bbd-9ac5-305a9bba7c7c",
-    "content": "# 3D assets¶\nView this page as Markdown.\nInstall Kanzi Documentation MCP server to VS Code.\n Connect to Claude\nKanzi Studio is a tool for composing 3D content and 3D user interfaces to be presented with Kanzi. While you can create in Kanzi Studio placeholder 3D meshes such as spheres, cubes, and planes, you have to import 3D assets for your Kanzi applications from third-party tools.\nKanzi Studio is tested, but not limited to use imported data from:\n* Autodesk 3ds max 2010-2011, 3ds max 2012 using OpenCollada exporter\n* Autodesk Maya 2010-2011\n* Autodesk Softimage 2009-2012, Crosswalk exporter preferred\n* Blender\n* Modo  \nWhen you want to bring the 3D assets created with a third-party tool to Kanzi Studio you have to import or merge the assets. You can import or merge 3D assets in these formats:\n* glTF 2.0 (gltf, glb) for meshes, animations, skins, and morphs\n* COLLADA (dae) for meshes, animations, skins, and morphs\n* Filmbox (fbx) for meshes, animations, skins, morphs, and splines\n* Geometry definitions (obj) for meshes  \nDifferent exporters in third-party tools handle content differently. For example, if you cannot get the expected result using the fbx format, try using the dae format.\nTo create 3D assets in third-party tools and export them so that they require the minimum amount of effort after importing to Kanzi Studio, see Preparing 3D assets in third-party tools.\nThese file formats can contain 3D scene information with mesh, animation, and spline data. To bring your 3D assets to your Kanzi Studio project you can:\n* Import 3D Assets.\nWhen you import 3D assets, Kanzi Studio creates for each 3D asset:\n* In the Prefabs, a Scene prefab for each scene in the imported file.\nKanzi Studio names each Scene prefab after the imported file. When you import a glTF file that contains multiple scenes, Kanzi Studio appends to the name of each Scene prefab the name of the scene.\nIn each Scene prefab, Kanzi Studio creates the scene hierarchy from the imported file and places the assets from the imported file into that prefab.\n* In the Library, Kanzi Studio places all resources from the imported file, such as Meshes, Splines, Animations, and Materials.\nSee Importing 3D assets.\n* Merge 3D Asset File.\nMerging 3D assets allows you to bring to your project all or only selected items from an asset file. It is very useful when you change the 3D assets outside of Kanzi Studio and want to take the changes into use in your project. Additionally, merging allows you to update only specific properties. For",
+    "id": "38bd492a-606a-540d-afdf-56e0e5be5311",
+    "content": "# Adjusting the appearance of 2D nodes\n \nCopy this page as Markdown for LLMs.\nView as Markdown\nView this page as Markdown.\nAsk Claude\nAsk Claude about this topic.\nAsk ChatGPT\nAsk ChatGPT about this topic.\nConnect to VS Code\nInstall Kanzi Documentation MCP server to VS Code.\nConnect to Claude\nDownload and run the Claude mcpb.\nYou can adjust the appearance of 2D nodes by filling their background or foreground with a brush. For example, you can set the background color of an Activity node, fill a Text Block 2D node with a texture, or apply a material to a Button 2D node.\nYou can fill 2D nodes with:\n  * Solid color. See [Filling 2D nodes with a solid color](https://docs.kanzi.com/4.1.0/en/working-with/2d-content/adjusting-the-appearance.html#filling-2d-nodes-with-a-solid-color).\n* Texture. See [Filling 2D nodes with a texture](https://docs.kanzi.com/4.1.0/en/working-with/2d-content/adjusting-the-appearance.html#adjustin2).\n* Material. See [Filling 2D nodes with a material](https://docs.kanzi.com/4.1.0/en/working-with/2d-content/adjusting-the-appearance.html#adjustin3).",
     "metadata": {
-      "title": "3D assets(https://docs.kanzi.com/4.1.0/en/working-with/3d-assets/3d-assets.html#d-assets \"Link to this heading\")",
-      "breadcrumb": "Working with …(https://docs.kanzi.com/4.1.0/en/working-with/working-with.html#working-with \"Link to this heading\") > 3D assets(https://docs.kanzi.com/4.1.0/en/working-with/3d-assets/3d-assets.html#d-assets \"Link to this heading\")",
-      "level": 1
+      "title": "2D content (Part 1/5)",
+      "breadcrumb": "Working with … > 2D content",
+      "level": 1,
+      "raptor_layer": 1,
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/2d-content/adjusting-the-appearance.html",
+      "parent_id": "09419402-7e95-5d62-b451-1ecb60a4ba4c",
+      "child_ids": [
+        "b8b31726-c5ef-5e57-92e1-b4a3dbde7e4c",
+        "bcc9a852-eea4-599e-8e3d-28975a3dc0a9",
+        "145a184f-105c-53be-8c18-4e1972d2671e",
+        "4c213d55-1b9d-5603-8d4d-8021851af383",
+        "3e20fc67-191e-58f1-9357-49b8bce09096",
+        "f0c0e0d9-6bd5-5877-9e2c-00a7bbcf7bbd"
+      ],
+      "char_count": 1081
     }
   },
   {
-    "id": "fd927f31-f5d0-5215-892e-c71be896000d",
-    "content": "# Activities¶\nView this page as Markdown.\nInstall Kanzi Documentation MCP server to VS Code.\n Connect to Claude\nAn Activity is a part of an application UI that is responsible for a task. For example, a media player application can have Activities, such as radio, music player, and AUX.\nHowever, an Activity can also be a smaller task, such as an Activity for the popup volume indicator that appears only when the user changes the volume in a media player. An Activity can be visual, but does not have to be. For example, an Activity that is visual can instantiate a prefab to show a popup window, while an Activity that is not visual can be music playback which plays music in the background regardless of other Activities.\nAn Activity Host defines the rules for when its Activities are active. Kanzi has these Activity Hosts:\n* Exclusive Activity Host and Data-Driven Exclusive Activity Host can have only one of its child Activities active at a time. When one child Activity of a Data-Driven Exclusive Activity Host or an Exclusive Activity Host is active, all other Activities of that Activity Host are inactive.\nFor example, you can use a Data-Driven Exclusive Activity Host or an Exclusive Activity Host to toggle between views in your application. See Exclusive Activity Host and Data-Driven Exclusive Activity Host.\nExclusive Activity Host\n\nData-Driven Exclusive Activity Host\n\n* Parallel Activity Host can activate more than one of its child Activities at a time. When you activate an Activity, a Parallel Activity Host brings that Activity to the front. In a Parallel Activity Host you can group Activities, to show the groups in the same order that you defined in the Activity tree. When you activate an Activity in a group, a Parallel Activity Host brings to the front the Activity in that group.\nFor example, this way you can implement the showing of critical messages, such as engine failure, in front of regular notifications, such as a phone call notification. In both groups a Parallel Activity Host shows the Activities in order of activation. See Parallel Activity Host.\n  \nYou can add Activities to an Activity Host in r",
+    "id": "ee5ca84b-c597-5b27-9b74-47859c4283e6",
+    "content": "# Effects for 2D nodes\n \nCopy this page as Markdown for LLMs.\nView as Markdown\nView this page as Markdown.\nAsk Claude\nAsk Claude about this topic.\nAsk ChatGPT\nAsk ChatGPT about this topic.\nConnect to VS Code\nInstall Kanzi Documentation MCP server to VS Code.\nConnect to Claude\nDownload and run the Claude mcpb.\nUse effects to apply post-processing effects to 2D nodes.\nIn Kanzi Studio you can find the effects in the Library > Effects.\nThese effects are available in Kanzi:  \n|  Use the Blur Effect 2D effect to apply a Gaussian blur to a 2D node. See [Using the Blur Effect 2D effect](https://docs.kanzi.com/4.1.0/en/working-with/effects/blur-effect-2d.html).  |  |  \n| --- | --- |  \n|  Use the Mask Effect 2D effect to apply a mask to a 2D node. See [Using the Mask Effect 2D effect](https://docs.kanzi.com/4.1.0/en/working-with/effects/mask-effect-2d.html).  |  |  \n|  Use the Outline Effect 2D effect to apply an outline to the content of a 2D node. See [Using the Outline Effect 2D effect](https://docs.kanzi.com/4.1.0/en/working-with/effects/outline-effect-2d.html).  |  |  \n|  Use the Shadow Effect 2D effect to apply a shadow to the content of a 2D node. See [Using the Shadow Effect 2D effect](https://docs.kanzi.com/4.1.0/en/working-with/effects/shadow-effect-2d.html).  |  |  \n|  Use an Effect Stack 2D effect prefab to apply multiple effects to a 2D node. See [Using multiple effects](https://docs.kanzi.com/4.1.0/en/working-with/effects/multiple-effects.html).  |  |",
     "metadata": {
-      "title": "Activities(https://docs.kanzi.com/4.1.0/en/working-with/activities/activities.html#activities \"Link to this heading\")",
-      "breadcrumb": "Working with …(https://docs.kanzi.com/4.1.0/en/working-with/working-with.html#working-with \"Link to this heading\") > Activities(https://docs.kanzi.com/4.1.0/en/working-with/activities/activities.html#activities \"Link to this heading\")",
-      "level": 1
+      "title": "2D effects (Part 1/3)",
+      "breadcrumb": "Working with … > 2D effects",
+      "level": 1,
+      "raptor_layer": 1,
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/effects/2d-effects.html",
+      "parent_id": "09419402-7e95-5d62-b451-1ecb60a4ba4c",
+      "child_ids": [
+        "2fba24a2-8085-5d48-b091-9f781e601734",
+        "791a2fd2-409e-571a-8d6e-757661be0e42",
+        "15d032e3-cf41-57f6-bc43-0043d94e6169",
+        "efd8a307-6a44-5817-ad22-04cc7495ff98",
+        "a07ff021-debf-5e44-b7e7-0bd439a8784c",
+        "1a81a629-39cc-57f8-9e3f-d52fbc4ddab0"
+      ],
+      "char_count": 1479
     }
   },
   {
-    "id": "d702b564-2bc9-51e0-aafc-be3d93f96dfd",
-    "content": "# Using Kanzi AI tools¶\nView this page as Markdown.\nInstall Kanzi Documentation MCP server to VS Code.\n Connect to Claude\nKanzi provides AI tools that help you find information, understand Kanzi concepts and APIs, and get unblocked faster:\n* **Ask Kanzi** is the AI assistant built into the Documentation at <https://docs.kanzi.com> without any extra setup, just click the Ask Kanzi button at the top right of any documentation page to open it.\n* **MCP servers** connect your own AI coding agent, such as Claude Code, VS Code, Cursor, and similar, to the same underlying Documentation and API references, and to your Kanzi Account. Useful when you want to query Kanzi — or manage your Kanzi licenses and account — from inside your editor or agent.",
+    "id": "3fcd696a-2037-523c-8491-b6c61c519549",
+    "content": "# Blending and compositing 2D nodes\n \nCopy this page as Markdown for LLMs.\nView as Markdown\nView this page as Markdown.\nAsk Claude\nAsk Claude about this topic.\nAsk ChatGPT\nAsk ChatGPT about this topic.\nConnect to VS Code\nInstall Kanzi Documentation MCP server to VS Code.\nConnect to Claude\nDownload and run the Claude mcpb.\nBlending controls how to combine the color and alpha values of pixels in one layer or image (source) with those in the underlying layer or image (destination). Kanzi by default blends 2D nodes using the [Alpha: Premultiplied](https://docs.kanzi.com/4.1.0/en/working-with/2d-content/blending-2d-nodes.html#alpha-premultiplied) blend mode which uses the alpha channel of the source pixels to blend the source pixels on top of the destination pixels. See [Color blending modes](https://docs.kanzi.com/4.1.0/en/working-with/2d-content/blending-2d-nodes.html#color-blending-modes) and [Advanced color blending modes](https://docs.kanzi.com/4.1.0/en/working-with/2d-content/blending-2d-nodes.html#advanced-color-blending-modes).\nAlpha compositing controls how to use the alpha channels of the source and destination pixels to merge those pixels. Kanzi supports the Porter-Duff blend modes for alpha compositing. See [Alpha compositing modes](https://docs.kanzi.com/4.1.0/en/working-with/2d-content/blending-2d-nodes.html#alpha-compositing-modes).",
     "metadata": {
-      "title": "Using Kanzi AI tools(https://docs.kanzi.com/4.1.0/en/working-with/ai-tools/using-kanzi-ai-tools.html#using-k-ai-tools \"Link to this heading\")",
-      "breadcrumb": "Working with …(https://docs.kanzi.com/4.1.0/en/working-with/working-with.html#working-with \"Link to this heading\") > Using Kanzi AI tools(https://docs.kanzi.com/4.1.0/en/working-with/ai-tools/using-kanzi-ai-tools.html#using-k-ai-tools \"Link to this heading\")",
-      "level": 1
+      "title": "Blending and compositing 2D nodes (Part 1/19)",
+      "breadcrumb": "Working with … > 2D content > Blending and compositing 2D nodes",
+      "level": 2,
+      "raptor_layer": 2,
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/2d-content/blending-2d-nodes.html",
+      "parent_id": "0454b3f8-17a3-5634-a30f-084da39644ae",
+      "child_ids": [],
+      "char_count": 1364
     }
   },
   {
-    "id": "4d079b40-311c-5b3b-8829-e8dde6b0303b",
-    "content": "# Using aliases¶\nView this page as Markdown.\nInstall Kanzi Documentation MCP server to VS Code.\n Connect to Claude\nUse an Alias to get consistent access to a Kanzi node. You can use aliases to access nodes both in Kanzi Studio and using the Kanzi Engine API.\nBecause you move nodes in the node tree of your project while creating your application in Kanzi Studio, the easiest way to keep track of them is to use aliases. You can retrieve alias target nodes with bindings or the Kanzi Engine API using the hash sign (`#`) followed by the name of the alias, regardless of the node location in the project.\nNote that you must always add aliases to the resource dictionary of the node from which you want to retrieve them.",
+    "id": "d4cb3baa-ff89-5094-a225-2c6e49b4f062",
+    "content": "# Effects for 2D nodes\n \nCopy this page as Markdown for LLMs.\nView as Markdown\nView this page as Markdown.\nAsk Claude\nAsk Claude about this topic.\nAsk ChatGPT\nAsk ChatGPT about this topic.\nConnect to VS Code\nInstall Kanzi Documentation MCP server to VS Code.\nConnect to Claude\nDownload and run the Claude mcpb.\nUse effects to apply post-processing effects to 2D nodes.\nIn Kanzi Studio you can find the effects in the Library > Effects.\nThese effects are available in Kanzi:  \n|  Use the Blur Effect 2D effect to apply a Gaussian blur to a 2D node. See [Using the Blur Effect 2D effect](https://docs.kanzi.com/4.1.0/en/working-with/effects/blur-effect-2d.html).  |  |  \n| --- | --- |  \n|  Use the Mask Effect 2D effect to apply a mask to a 2D node. See [Using the Mask Effect 2D effect](https://docs.kanzi.com/4.1.0/en/working-with/effects/mask-effect-2d.html).  |  |  \n|  Use the Outline Effect 2D effect to apply an outline to the content of a 2D node. See [Using the Outline Effect 2D effect](https://docs.kanzi.com/4.1.0/en/working-with/effects/outline-effect-2d.html).  |  |  \n|  Use the Shadow Effect 2D effect to apply a shadow to the content of a 2D node. See [Using the Shadow Effect 2D effect](https://docs.kanzi.com/4.1.0/en/working-with/effects/shadow-effect-2d.html).  |  |  \n|  Use an Effect Stack 2D effect prefab to apply multiple effects to a 2D node. See [Using multiple effects](https://docs.kanzi.com/4.1.0/en/working-with/effects/multiple-effects.html).  |  |",
     "metadata": {
-      "title": "Using aliases(https://docs.kanzi.com/4.1.0/en/working-with/aliases/using-aliases.html#using-aliases \"Link to this heading\")",
-      "breadcrumb": "Working with …(https://docs.kanzi.com/4.1.0/en/working-with/working-with.html#working-with \"Link to this heading\") > Using aliases(https://docs.kanzi.com/4.1.0/en/working-with/aliases/using-aliases.html#using-aliases \"Link to this heading\")",
-      "level": 1
+      "title": "2D effects (Part 1/3)",
+      "breadcrumb": "Working with … > 2D content > 2D effects",
+      "level": 2,
+      "raptor_layer": 2,
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/effects/2d-effects.html",
+      "parent_id": "0454b3f8-17a3-5634-a30f-084da39644ae",
+      "child_ids": [
+        "63d18f31-356c-5bea-9f55-66f3b9395982",
+        "345f1dd4-1718-5598-a5d5-533f1ae13b05",
+        "25a3bb20-6080-5968-b54a-1c4b5b88ee22",
+        "62fd4f80-00ff-5eea-b0f0-f46b6cfe0da3",
+        "07f86fa3-ec73-562e-9603-64c0eb197bfe",
+        "3b8b1710-202b-54e3-b2c8-90c1084292f2"
+      ],
+      "char_count": 1479
     }
   },
   {
-    "id": "646497fe-8bf1-56f5-8375-628943ddcaaa",
-    "content": "# Developing Kanzi applications for Android¶\nView this page as Markdown.\nInstall Kanzi Documentation MCP server to VS Code.\n Connect to Claude\nYou can use these frameworks to develop Kanzi applications for the Android platform:\n| Kanzi Android framework (droidfw)  | Kanzi application framework (appfw)  | Kanzi Android Service  |\n| --- | --- | --- |\n| A framework dedicated for developing Kanzi applications for Android.  | A framework for developing cross-platform applications.  | A framework that hosts Kanzi Android framework (droidfw) in an Android service and enables using its functionality across process-separated client applications.  |\n| Exposes the Kanzi Java API, which allows you to write application and plugin code entirely in Java or Kotlin. You do not need to write any C++ or JNI code, but you can still use native Kanzi plugins.  | You write application and plugin code in C++ and extending Android-specific functionality requires writing JNI glue code.  | As with directly using Kanzi Android framework (droidfw), you can use Kanzi Java API from within the service application. Or you can communicate from your client applications using Kanzi Client API.  |\n| Provides strong integration with the Android UI, including support for multiple simultaneous Kanzi-based Views and flexible composition of Kanzi and Android UI elements.  | Kanzi is rendered to only one View at a time.  | Multiplexes Kanzi Android framework (droidfw) abilities across applications, supporting multiple simultaneous views from multiple simultaneous applications.  |\n| Kanzi integrates with the Android Choreographer which runs the Kanzi main loop tasks in the Android UI thread. You can directly use the Kanzi Java API from your application code without the need for dispatcher mechanisms.  | Kanzi runs in its own thread that is separate from the Android UI thread. To invoke the Kanzi Engine C++ API from your application code through JNI, post your code as a runnable to the Kanzi `TaskDispatcher`.  | A single Kanzi Android framework (droidfw) instance runs in the service application. Clients communicate with Kanzi Client API.  |\n| If you want to create an application for the Android platform, and you intend to use Android APIs and services extensively, use the Kanzi Android framework (droidfw).  | If you want to create an application for multiple platforms and you intend to share non-trivial application code between the platforms, use the Kanzi application framework (appfw).  | If you want multiple android applications to share the same Kanzi libraries and runtime, use the Kanzi Android Service.  |\n| See [Developing with the Kanzi Android framework (droidfw)](https://do",
+    "id": "3c64f431-f5cf-5b1e-9d92-957740e38fe2",
+    "content": "# Using the Blur Effect 2D effect\n \nCopy this page as Markdown for LLMs.\nView as Markdown\nView this page as Markdown.\nAsk Claude\nAsk Claude about this topic.\nAsk ChatGPT\nAsk ChatGPT about this topic.\nConnect to VS Code\nInstall Kanzi Documentation MCP server to VS Code.\nConnect to Claude\nDownload and run the Claude mcpb.\nUse the Blur Effect 2D effect to apply a Gaussian blur to a 2D node.\nLearn how to use the Blur Effect 2D effect by completing a tutorial. See [Tutorial: Create a Gaussian blur effect](https://docs.kanzi.com/4.1.0/en/tutorials/blur/blur.html).",
     "metadata": {
-      "title": "Developing Kanzi applications for Android(https://docs.kanzi.com/4.1.0/en/working-with/android/android.html#developing-k-applications-for-android \"Link to this heading\")",
-      "breadcrumb": "Working with …(https://docs.kanzi.com/4.1.0/en/working-with/working-with.html#working-with \"Link to this heading\") > Developing Kanzi applications for Android(https://docs.kanzi.com/4.1.0/en/working-with/android/android.html#developing-k-applications-for-android \"Link to this heading\")",
-      "level": 1
+      "title": "Using theBlur Effect 2Deffect (Part 1/5)",
+      "breadcrumb": "Working with … > 2D content > 2D effects > Using theBlur Effect 2Deffect",
+      "level": 2,
+      "raptor_layer": 2,
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/effects/blur-effect-2d.html",
+      "parent_id": "bcc9a852-eea4-599e-8e3d-28975a3dc0a9",
+      "child_ids": [],
+      "char_count": 564
     }
   },
   {
-    "id": "4cd7481e-2c52-5272-8a5c-f740d912877c",
-    "content": "# Animations¶\nView this page as Markdown.\nInstall Kanzi Documentation MCP server to VS Code.\n Connect to Claude\nAnimations change properties of objects. Animations map input values to output property values.\nKanzi Studio stores animations in the Library > Animations.\nIn Kanzi you can create keyframe animations that:\n* Animate the position of a node by changing the values of properties that define the position of that node. For example, by animating the position you can make a menu appear from the side of your application, or a button bounce when the user clicks it.\n* Animate the look and feel of a node by changing the values of properties that define the look and feel of that node. You can animate different property types:\n* Float property types, where you can animate, for example, light intensity, or material color.\n* Boolean property types, where you can animate, for example, values such as visibility when you map a property to the timeline values 0 and 1.  \nIn Kanzi keyframe animations are formed using:\n* Animation Data.\nUse an Animation Data resource to define the keyframes and target property of a keyframe animation. One Animation Data resource can target only one property or property field. Animation Data resources are independent from the nodes they target. This allows you to reuse Animation Data resources to animate different nodes.\nFor example, you can use Animation Data objects to create event-driven animations. See Using keyframe animations.\nIn an Animation Data object each keyframe maps an input value to an output value, which are floating point numbers. Boolean values are mapped so that values less than 1 return false and values that are equal to or greater than 1 return true. Input values can be time or property values, which are used in property-driven animations or bindings.\nKanzi loads keyframes into memory on demand. An animation is kept in the memory while it is used (for example, during an edit operation in the animation clip editor), and saved to disk after the modification is complete. See Editing animation clips.\n* Animation Clip and Animation Child Clip.\nUse an Animation Clip to combine Animation Data resources into more complex animations. You can reuse the same Animation Data resources in different Animation Clip items. Use an Animation Child Clip to create hierarchical animations.\nYou can set the hierarchy of target nodes for animation child clips using the Target property. You can set this property using relative paths or, if you",
+    "id": "bd34352c-a558-53d8-bd78-c0aa7e1a61f6",
+    "content": "## Creating a mask effect for a 2D node\nTo create a mask effect for a 2D node:\n  1. In the Library press `Alt` and right-click Effects and select Mask Effect 2D.\n2. In the Node Tree or Prefabs create a 2D node to which you want to apply the mask effect.\n3. From the Library > Effects > 2D Effects drag the Mask Effect 2D effect to the Node Tree or Prefabs and drop it on the 2D node to which you want to apply the mask effect.\nThis way you set in that 2D node the Effect Prefab property to the Mask Effect 2D effect.\n4. In the Library select the Mask Effect 2D effect and in the Properties add and set the Mask Effect 2D properties.\n|    \nMask Texture sets the texture that you want to use as the mask. To use the mask effect, you must set this property.  |  |  \n| --- | --- |  \n|    \nMask Width sets the width of the mask. By default the width of the mask is the width of the texture that you set as the Mask Texture.  |  |  \n|    \nMask Height sets the height of the mask. By default the height of the mask is the height of the texture that you set as the Mask Texture.  |  |  \n|    \nMask Horizontal Alignment sets the horizontal alignment of the mask:\n     * Left aligns the left edge of the mask with the left edge of the node. This is the default value.\n     * Right aligns the right edge of the mask with the right edge of the node.\n     * Center aligns the mask horizontally to the center of the node.\n     * Stretch stretches the mask horizontally to fit the node from the left edge to the right edge.\n |  |  \n|    \nMask Vertical Alignment sets the vertical alignment of the mask:\n     * Top aligns the top edge of the mask with the top edge of the node. This is the default value.",
     "metadata": {
-      "title": "Animations(https://docs.kanzi.com/4.1.0/en/working-with/animations/animations.html#animations \"Link to this heading\")",
-      "breadcrumb": "Working with …(https://docs.kanzi.com/4.1.0/en/working-with/working-with.html#working-with \"Link to this heading\") > Animations(https://docs.kanzi.com/4.1.0/en/working-with/animations/animations.html#animations \"Link to this heading\")",
-      "level": 1
+      "title": "Using theMask Effect 2Deffect (Part 2/7)",
+      "breadcrumb": "Working with … > 2D content > 2D effects > Using theMask Effect 2Deffect",
+      "level": 2,
+      "raptor_layer": 2,
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/effects/mask-effect-2d.html",
+      "parent_id": "bcc9a852-eea4-599e-8e3d-28975a3dc0a9",
+      "child_ids": [],
+      "char_count": 1688
     }
   },
   {
-    "id": "25b920dd-0914-5cf5-9583-d7739ff950d6",
-    "content": "# Asset packages¶\nView this page as Markdown.\nInstall Kanzi Documentation MCP server to VS Code.\n Connect to Claude\nKanzi Studio asset packages are collections of ready-made content that you can import to your Kanzi Studio projects. With asset packages, you can create an asset library with content, such as UI components, materials, brushes, styles, and textures.\nUse asset packages to make this content available for use in different Kanzi Studio projects or to share the content within your company for all your Kanzi applications. For example, the Factory Content asset packages that come with Kanzi Studio contain such content. See Factory Content assets.",
+    "id": "57e19b76-2bfa-5f90-915e-05f04bb44b9d",
+    "content": "# Using the Outline Effect 2D effect\n \nCopy this page as Markdown for LLMs.\nView as Markdown\nView this page as Markdown.\nAsk Claude\nAsk Claude about this topic.\nAsk ChatGPT\nAsk ChatGPT about this topic.\nConnect to VS Code\nInstall Kanzi Documentation MCP server to VS Code.\nConnect to Claude\nDownload and run the Claude mcpb.\nUse the Outline Effect 2D effect to apply an outline to the content of a 2D node.\nFor example, use the Outline Effect 2D effect to apply an outline to text that comes from a data source.",
     "metadata": {
-      "title": "Asset packages(https://docs.kanzi.com/4.1.0/en/working-with/asset-packages/asset-packages.html#asset-packages \"Link to this heading\")",
-      "breadcrumb": "Working with …(https://docs.kanzi.com/4.1.0/en/working-with/working-with.html#working-with \"Link to this heading\") > Asset packages(https://docs.kanzi.com/4.1.0/en/working-with/asset-packages/asset-packages.html#asset-packages \"Link to this heading\")",
-      "level": 1
+      "title": "Using theOutline Effect 2Deffect (Part 1/7)",
+      "breadcrumb": "Working with … > 2D content > 2D effects > Using theOutline Effect 2Deffect",
+      "level": 2,
+      "raptor_layer": 2,
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/effects/outline-effect-2d.html",
+      "parent_id": "bcc9a852-eea4-599e-8e3d-28975a3dc0a9",
+      "child_ids": [],
+      "char_count": 511
     }
   },
   {
-    "id": "4548ba6b-8d0d-5002-87fe-36bd3874f523",
-    "content": "# Asset Toolkit¶\nView this page as Markdown.\nInstall Kanzi Documentation MCP server to VS Code.\n Connect to Claude\nThe Asset Toolkit contains easy, ready-made components and materials with a similar structure and set of properties, that you can use to create Kanzi applications faster.\nHere you can find all the Asset Toolkit content:\n* A high quality placeholder car model that you can use in your prototype application. See Car.\n* Materials that you can apply to 3D content in your project. See Materials.\n* Environment Textures that you can use to give perspective to your scene. See Environments.\n* Flipbook and Transition Material types that you can use to present content in your application. See Material types.\n* Interactive User Interface Components that you can use to receive user input. See Interactivity Control components.\n* Radial UI Components that you can show progress in a circular arc. See Radial UI Components.\n* Simple shapes to use in your application. See Simple Shape UI Components.\n* Scrollable lists that can present collections of items. See Scroll list UI Components.\n* Example components that shows ways to combine these assets into more complex, reusable components. See Examples.  \nTo use the Asset Toolkit assets in your Kanzi Studio project, from the Asset Packages drag an asset to a node in the Node Tree, to the Prefabs, or to the Preview. See Using the Asset Toolkit assets.",
+    "id": "7f4c3087-93c0-526e-8be4-b5d8dd545165",
+    "content": "# Using the Shadow Effect 2D effect\n \nCopy this page as Markdown for LLMs.\nView as Markdown\nView this page as Markdown.\nAsk Claude\nAsk Claude about this topic.\nAsk ChatGPT\nAsk ChatGPT about this topic.\nConnect to VS Code\nInstall Kanzi Documentation MCP server to VS Code.\nConnect to Claude\nDownload and run the Claude mcpb.\nUse the Shadow Effect 2D effect to apply a shadow to the content of a 2D node.",
     "metadata": {
-      "title": "Asset Toolkit(https://docs.kanzi.com/4.1.0/en/working-with/asset-toolkit/asset-toolkit.html#asset-toolkit \"Link to this heading\")",
-      "breadcrumb": "Working with …(https://docs.kanzi.com/4.1.0/en/working-with/working-with.html#working-with \"Link to this heading\") > Asset Toolkit(https://docs.kanzi.com/4.1.0/en/working-with/asset-toolkit/asset-toolkit.html#asset-toolkit \"Link to this heading\")",
-      "level": 1
+      "title": "Using theShadow Effect 2Deffect (Part 1/6)",
+      "breadcrumb": "Working with … > 2D content > 2D effects > Using theShadow Effect 2Deffect",
+      "level": 2,
+      "raptor_layer": 2,
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/effects/shadow-effect-2d.html",
+      "parent_id": "bcc9a852-eea4-599e-8e3d-28975a3dc0a9",
+      "child_ids": [],
+      "char_count": 402
     }
   },
   {
-    "id": "17b88346-01d9-5c95-9b4f-b08fe89cec52",
-    "content": "# Automating Kanzi Studio tasks¶\nView this page as Markdown.\nInstall Kanzi Documentation MCP server to VS Code.\n Connect to Claude\nYou can execute Kanzi Studio commands by running a script from the command line interface. This enables you to automate repetitive tasks in Kanzi Studio or Kanzi Studio tasks that you must execute on a large number of Kanzi Studio projects. For example, consider making a script to update a Kanzi Engine plugin that you use in many Kanzi Studio projects, or to export kzb files from many Kanzi Studio projects.\nFor the list of available commands, see Kanzi Studio command reference.\nTo automate Kanzi Studio tasks:\n1. In a text editor, create a script where you define what commands you want Kanzi Studio to run.\nFor example, add to the script the commands in this step and save the script as `MyScript.txt`.\n1. Open a Kanzi Studio project.  \n```\n# Open the project named MyProject.\nLoadProject \"C:\\KanziWorkspace\\Projects\\MyProject\\Tool_project\\MyProject.proj.kzm\"\n\n```\n2. Add commands to automate Kanzi Studio tasks.\nFor example, you can automate:\n* Exporting of kzb files. See Exporting kzb files using a script.\n* Building of Kanzi applications for Android. See Building Kanzi applications for Android using a script.\n* Importing and updating of Kanzi Engine plugins. See Importing and updating Kanzi Engine plugins using a script.\n* Creating and updating of data sources. See Creating and updating data sources using a script.\n* Creating of nodes. See Creating nodes using a script.\n* Adding and removing of properties, and setting of property values. See Editing properties using a script.\n* Logging of invalid project items. See Logging invalid project items using a script.\nFor the list of available commands, see [Kanzi Studio command referen",
+    "id": "eb320597-d2f7-5a84-afe9-d7cf7a459603",
+    "content": "# Using multiple effects\n \nCopy this page as Markdown for LLMs.\nView as Markdown\nView this page as Markdown.\nAsk Claude\nAsk Claude about this topic.\nAsk ChatGPT\nAsk ChatGPT about this topic.\nConnect to VS Code\nInstall Kanzi Documentation MCP server to VS Code.\nConnect to Claude\nDownload and run the Claude mcpb.\nUse an Effect Stack 2D effect prefab to apply multiple effects to a 2D node.\nKanzi Studio comes with the Default Effect Stack 2D preset that you can use to quickly apply multiple effects to a 2D node. See [Using the Default Effect Stack 2D preset](https://docs.kanzi.com/4.1.0/en/working-with/effects/multiple-effects.html#using-the-default-effect-stack-2d-preset).",
     "metadata": {
-      "title": "Automating Kanzi Studio tasks(https://docs.kanzi.com/4.1.0/en/working-with/automation/automation.html#automating-ks-tasks \"Link to this heading\")",
-      "breadcrumb": "Working with …(https://docs.kanzi.com/4.1.0/en/working-with/working-with.html#working-with \"Link to this heading\") > Automating Kanzi Studio tasks(https://docs.kanzi.com/4.1.0/en/working-with/automation/automation.html#automating-ks-tasks \"Link to this heading\")",
-      "level": 1
+      "title": "Using multiple effects (Part 1/15)",
+      "breadcrumb": "Working with … > 2D content > 2D effects > Using multiple effects",
+      "level": 2,
+      "raptor_layer": 2,
+      "url": "https://docs.kanzi.com/4.1.0/en/working-with/effects/multiple-effects.html",
+      "parent_id": "bcc9a852-eea4-599e-8e3d-28975a3dc0a9",
+      "child_ids": [],
+      "char_count": 678
     }
   }
 ]

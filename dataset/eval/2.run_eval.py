@@ -259,7 +259,11 @@ def run_ragas_evaluation(
 # endregion
 
 # region Core
-async def run_evaluation_pipeline(use_cache: bool = True) -> pd.DataFrame:
+async def run_evaluation_pipeline(
+    use_cache: bool = True,
+    collect_only: bool = False,
+    max_samples: int | None = None,
+) -> pd.DataFrame | None:
     """Declarative core entry point orchestrating benchmark execution."""
     if not INPUT_FILE.exists():
         raise FileNotFoundError(f"Input test dataset file not found: {INPUT_FILE}")
@@ -269,9 +273,13 @@ async def run_evaluation_pipeline(use_cache: bool = True) -> pd.DataFrame:
         samples=samples,
         mode=query_cfg.get("mode", "direct"),
         endpoint_url=query_cfg.get("endpoint_url", "http://localhost:2024"),
-        max_samples=query_cfg.get("max_samples"),
+        max_samples=max_samples or query_cfg.get("max_samples"),
         use_cache=use_cache,
     )
+
+    if collect_only:
+        print(f"[EvalRunner-core] Completed collecting {len(records)} responses. Skipping RAGAS judge phase.")
+        return None
 
     return run_ragas_evaluation(
         records=records,
@@ -288,9 +296,17 @@ def main() -> None:
     """CLI runtime harness."""
     parser = argparse.ArgumentParser(description="Run RAGAS benchmark evaluation.")
     parser.add_argument("--no-cache", action="store_true", help="Force refresh agent responses ignoring cache")
+    parser.add_argument("--collect-only", action="store_true", help="Collect agent responses only and skip LLM judge calls")
+    parser.add_argument("--max-samples", type=int, default=None, help="Limit number of samples to process")
     args = parser.parse_args()
 
-    asyncio.run(run_evaluation_pipeline(use_cache=not args.no_cache))
+    asyncio.run(
+        run_evaluation_pipeline(
+            use_cache=not args.no_cache,
+            collect_only=args.collect_only,
+            max_samples=args.max_samples,
+        )
+    )
 
 
 if __name__ == "__main__":

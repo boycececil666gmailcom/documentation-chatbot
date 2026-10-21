@@ -12,9 +12,18 @@
         "https://smith.langchain.com",
         "https://eu.smith.langchain.com"
       ],
-      "allow_methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-      "allow_headers": ["*"],
+      "allow_methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "OPTIONS"
+      ],
+      "allow_headers": [
+        "*"
+      ],
       "allow_credentials": true,
+      "allow_private_network": true,
       "expose_headers": [
         "x-pagination-total",
         "x-pagination-next",
